@@ -1,3 +1,3 @@
 # API Documentation
 
-@pydoc novella.core._config.Pipeline
+@pydoc novella.core._pipeline.Pipeline

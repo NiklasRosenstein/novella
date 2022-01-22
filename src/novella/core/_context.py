@@ -1,8 +1,10 @@
 
+import argparse
 import dataclasses
 from pathlib import Path
 
-from ._config import Pipeline
+from cleo.io import ConsoleIO
+from ._pipeline import Pipeline
 
 
 @dataclasses.dataclass
@@ -14,3 +16,4 @@ class Context:
   project_directory: Path
   build_directory: Path
   pipeline: Pipeline
+  args: argparse.Namespace

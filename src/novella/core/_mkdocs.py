@@ -1,8 +1,10 @@
 
+import argparse
 import dataclasses
 import logging
 import pkg_resources
 import subprocess
+import sys
 import typing as t
 
 import yaml
@@ -10,6 +12,11 @@ from databind.core.annotations import alias
 from . import Action, Context
 
 logger = logging.getLogger(__name__)
+
+
+class _Args:
+  serve: bool
+  build: bool
 
 
 @dataclasses.dataclass
@@ -21,9 +28,22 @@ class MkdocsAction(Action):
   use_profile: t.Annotated[str | None, alias('use-profile')] = None
 
   def execute(self, context: Context) -> None:
+    args: _Args = context.args
     self.update_mkdocs_config(context)
-    command = ['mkdocs', 'serve']
-    subprocess.check_call(command, cwd=context.build_directory / self.directory)
+    command = ['mkdocs', 'serve' if args.serve else 'build']
+    try:
+      subprocess.check_call(command, cwd=context.build_directory / self.directory)
+    except KeyboardInterrupt:
+      sys.exit()
+
+  def extend_cli_parser(self, parser: argparse.ArgumentParser) -> None:
+    parser.add_argument('--serve', action='store_true', help='Run "mkdocs serve".')
+    parser.add_argument('--build', action='store_true', help='Run "mkdocs build".')
+
+  def check_args(self, parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+    args: _Args = args
+    if not args.serve and not args.build:
+      parser.error('one of --serve or --build is required (mkdocs)')
 
   def update_mkdocs_config(self, context: Context) -> None:
     """ Performs changes to the MkDocs configuration in in the build directory. """
@@ -34,6 +54,8 @@ class MkdocsAction(Action):
     if self.adjust_paths:
       if 'site_dir' in data:
         data['site_dir'] = str(context.project_directory / data['site_dir'])
+      else:
+        data['site_dir'] = str(context.project_directory / self.directory / 'site')
       if 'theme' in data and 'custom_dir' in data['theme']:
         data['theme']['custom_dir'] = str(context.project_directory / data['theme']['custom_dir'])
 
@@ -45,7 +67,7 @@ class MkdocsAction(Action):
   def apply_profile(self, profile_name: str, data: t.MutableMapping[str, t.Any]) -> None:
     """ Apply an existing MkDocs configuration shipped with Novella. """
 
-    logger.info('Apply MkDocs profile %s', profile_name)
+    logger.info('Apply profile "%s" to mkdocs.yml', profile_name)
 
     config = pkg_resources.resource_string(__name__, f'data/mkdocs/profiles/{profile_name}/mkdocs.yml').decode('utf-8')
     config_data = yaml.safe_load(config)

@@ -1,7 +1,7 @@
 
 """ A pipeline describes the steps to perform a build of the documentation. """
 
-from ._config import Action, Pipeline
+from ._pipeline import Action, Pipeline
 from ._context import Context
 from ._process_markdown import MarkdownProcessor
 

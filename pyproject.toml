@@ -9,11 +9,12 @@ packages = [{ include="novella/core", from="src" }]
 python = "^3.10"
 PyYAML = "^5.3"
 pydoc-markdown = "^4.5.0"
+cleo = "^0.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
-[tool.poetry.plugins."novella.core._config.Action"]
+[tool.poetry.plugins."novella.core._pipeline.Action"]
 copy-files = "novella.core._copy_files:CopyFilesAction"
 mkdocs = "novella.core._mkdocs:MkdocsAction"
 process-markdown = "novella.core._process_markdown:ProcessMarkdownAction"
