@@ -6,4 +6,4 @@ pipeline:
       processors:
         - cat: {}
         - pydoc: {}
-  - mkdocs: { directory: docs }
+  - mkdocs: { directory: docs, use-profile: default }
