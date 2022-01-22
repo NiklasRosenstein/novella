@@ -5,7 +5,7 @@ import logging
 # We rely on the existing PythonLoader to avoid having to re-implement the whole logic.
 from pydoc_markdown.contrib.loaders.python import PythonLoader
 from pydoc_markdown import Context as _PydocMarkdownContext
-from . import Action, Context
+from .. import Action, Context
 
 logger = logging.getLogger(__name__)
 

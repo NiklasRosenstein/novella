@@ -3,8 +3,7 @@ import argparse
 import dataclasses
 from pathlib import Path
 
-from cleo.io import ConsoleIO
-from ._pipeline import Pipeline
+from .pipeline import Pipeline
 
 
 @dataclasses.dataclass

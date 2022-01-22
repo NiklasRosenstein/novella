@@ -10,9 +10,10 @@ from docspec import ApiObject, visit
 from pydoc_markdown.contrib.processors.smart import SmartProcessor
 from pydoc_markdown.contrib.renderers.markdown import MarkdownRenderer
 
-from .. import Context
-from . import MarkdownTagProcessor
-from .._python import PythonAction
+from novella.core.actions.python import PythonAction
+from novella.core.context import Context
+from novella.core.post import MarkdownTagProcessor
+
 
 logger = logging.getLogger(__name__)
 

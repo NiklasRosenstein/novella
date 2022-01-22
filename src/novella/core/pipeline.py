@@ -7,11 +7,11 @@ import typing as t
 from databind.core.annotations import alias, union
 
 if t.TYPE_CHECKING:
-  from ._context import Context
+  from .context import Context
 
 
 @union(
-  union.Subtypes.entrypoint('novella.core._pipeline.Action'),
+  union.Subtypes.entrypoint('novella.core.pipeline.Action'),
   style=union.Style.keyed,
 )
 class Action(abc.ABC):
