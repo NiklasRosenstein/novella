@@ -70,7 +70,7 @@ class MkdocsAction(Action):
 
     logger.info('Apply profile "%s" to mkdocs.yml', profile_name)
 
-    config = pkg_resources.resource_string('novella.core', f'data/mkdocs/profiles/{profile_name}/mkdocs.yml').decode('utf-8')
+    config = pkg_resources.resource_string(__name__, f'profiles/{profile_name}/mkdocs.yml').decode('utf-8')
     config_data = yaml.safe_load(config)
 
     for key in config_data:
