@@ -1,9 +1,5 @@
 pipeline:
-  - python: { search_path: [src], packages: [novella.core] }
+  - python: { package: novella.core }
   - copy-files: { source: docs }
-  - process-markdown:
-      directory: docs
-      processors:
-        - cat: {}
-        - pydoc: {}
+  - process-markdown: { directory: docs }
   - mkdocs: { directory: docs, use-profile: default }

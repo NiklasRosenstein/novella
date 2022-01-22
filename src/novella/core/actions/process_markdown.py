@@ -10,6 +10,11 @@ from novella.core.util import recurse_directory
 logger = logging.getLogger(__name__)
 
 
+def _get_default_processors() -> list[MarkdownProcessor]:
+  import databind.json
+  return databind.json.load([ {"cat": {}}, {"pydoc": {}} ], list[MarkdownProcessor])
+
+
 @dataclasses.dataclass
 class ProcessMarkdownAction(Action):
   """ An action to process all Markdown files in the given directory with a given list of processor plugins. """
@@ -18,7 +23,7 @@ class ProcessMarkdownAction(Action):
   directory: str
 
   #: The plugins that will be used to process the Markdown files in order.
-  processors: list[MarkdownProcessor]
+  processors: list[MarkdownProcessor] = dataclasses.field(default_factory=_get_default_processors)
 
   def execute(self, context: 'Context') -> None:
     for path in recurse_directory(context.build_directory / self.directory):
