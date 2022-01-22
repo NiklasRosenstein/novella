@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "novella-core"
+version = "0.1.0"
+description = ""
+authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
+packages = [
+  { include="novella/core", from="src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+PyYAML = "^6.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+#[tool.poetry.plugins."novella.core._config.Action"]
+[tool.flit.entrypoints."novella.core._config.Action"]
+copy-files = "novella.core._copy_files:CopyFilesAction"
+mkdocs = "novella.core._mkdocs:MkdocsAction"
+process-markdown = "novella.core._process_markdown:ProcessMarkdownAction"
+python = "novella.core._python:PythonAction"
+
+#[tool.poetry.plugins."novella.core._process_markdown.MarkdownProcessor"]
+[tool.flit.entrypoints."novella.core._process_markdown.MarkdownProcessor"]
+cat = "novella.core._process_markdown._cat:CatMarkdownProcessor"
+pydoc = "novella.core._process_markdown._pydoc:PydocMarkdownProcessor"
+
+[tool.flit.metadata]
+module = "novella.core"
+author = ""
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
