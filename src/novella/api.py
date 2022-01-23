@@ -5,6 +5,7 @@ import logging
 import typing as t
 from pathlib import Path
 
+import cleo
 from databind.core.annotations import union
 from docspec import ApiObject
 
@@ -24,10 +25,10 @@ class Action(abc.ABC):
   @abc.abstractmethod
   def execute(self, context: 'Context') -> None: ...
 
-  def extend_cli_parser(self, parser: argparse.ArgumentParser) -> None:
+  def extend_click_arguments(self, command: cleo.Command) -> None:
     pass
 
-  def check_args(self, parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+  def check_args(self, command: cleo.Command) -> None:
     pass
 
 

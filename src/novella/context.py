@@ -1,9 +1,9 @@
 
-import argparse
 import dataclasses
 import typing as t
 from pathlib import Path
 
+import cleo
 from .pipeline import Action, Pipeline
 
 T_Action = t.TypeVar('T_Action', bound=Action)
@@ -18,7 +18,7 @@ class Context:
   project_directory: Path
   build_directory: Path
   pipeline: Pipeline
-  args: argparse.Namespace
+  args: cleo.Command
 
   def get_action(self, action_type: type[T_Action]) -> T_Action | None:
     for action in self.pipeline.actions:

@@ -1,0 +1,5 @@
+pipeline:
+- python: { package: novella, search_path: [ ../src ] }
+- copy-files: { source: . }
+- process-markdown: { }
+- mkdocs: { use-profile: default }

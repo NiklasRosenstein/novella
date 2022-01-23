@@ -19,7 +19,7 @@ class ProcessMarkdownAction(Action):
   """ An action to process all Markdown files in the given directory with a given list of processor plugins. """
 
   #: The path to the directory that contains the Markdown files to be preprocessed.
-  directory: str
+  directory: str = '.'
 
   #: The plugins that will be used to process the Markdown files in order.
   processors: list[MarkdownProcessor] = dataclasses.field(default_factory=_get_default_processors)

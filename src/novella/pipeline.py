@@ -1,8 +1,8 @@
 
-import argparse
 import dataclasses
 import typing as t
 
+from cleo import Command
 from databind.core.annotations import alias
 from novella.api import Action
 
@@ -13,8 +13,10 @@ class Pipeline:
 
   actions: t.Annotated[list[Action], alias('pipeline')]
 
-  def make_cli_parser(self,) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog='novella')
+  def get_cleo_command(self) -> Command:
+    command = Command()
+    command.name = "novella"
+    command.description = "Execute a pipeline to build Python API documentation."
     for action in self.actions:
-      action.extend_cli_parser(parser)
-    return parser
+      action.extend_click_arguments(command)
+    return command

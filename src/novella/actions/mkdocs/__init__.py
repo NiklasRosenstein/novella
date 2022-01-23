@@ -1,5 +1,4 @@
 
-import argparse
 import dataclasses
 import logging
 import pkg_resources
@@ -7,6 +6,7 @@ import subprocess
 import sys
 import typing as t
 
+import click
 import yaml
 from databind.core.annotations import alias
 from novella.context import Context
@@ -24,27 +24,28 @@ class _Args:
 class MkdocsAction(Action):
   """ An action to run Mkdocs in the temporary build directory. """
 
-  directory: str
+  directory: str = '.'
   adjust_paths: t.Annotated[bool, alias('adjust-paths')] = True
   use_profile: t.Annotated[str | None, alias('use-profile')] = None
 
   def execute(self, context: Context) -> None:
-    args: _Args = context.args
     self.update_mkdocs_config(context)
-    command = ['mkdocs', 'serve' if args.serve else 'build']
+    command = ['mkdocs', 'serve' if context.args['serve'] else 'build']
     try:
       subprocess.check_call(command, cwd=context.build_directory / self.directory)
     except KeyboardInterrupt:
       sys.exit()
 
-  def extend_cli_parser(self, parser: argparse.ArgumentParser) -> None:
-    parser.add_argument('--serve', action='store_true', help='Run "mkdocs serve".')
-    parser.add_argument('--build', action='store_true', help='Run "mkdocs build".')
+  def extend_click_arguments(self, args: list[t.Callable]) -> None:
+    args.append(click.option("--serve", is_flag=True, help='Run "mkdocs serve"'))
+    args.append(click.option("--build", is_flag=True, help='Run "mkdocs build"'))
+    # parser.add_argument('--serve', action='store_true', help='Run "mkdocs serve".')
+    # parser.add_argument('--build', action='store_true', help='Run "mkdocs build".')
 
-  def check_args(self, parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
-    args: _Args = args
-    if not args.serve and not args.build:
-      parser.error('one of --serve or --build is required (mkdocs)')
+  def check_args(self, args: dict[str, t.Any]) -> None:
+    if not args["serve"] and not args["build"]:
+      click.echo('(mkdocs) one of --serve or --build is needed', err=True)
+      sys.exit(1)
 
   def update_mkdocs_config(self, context: Context) -> None:
     """ Performs changes to the MkDocs configuration in in the build directory. """
