@@ -39,8 +39,6 @@ class MkdocsAction(Action):
   def extend_click_arguments(self, args: list[t.Callable]) -> None:
     args.append(click.option("--serve", is_flag=True, help='Run "mkdocs serve"'))
     args.append(click.option("--build", is_flag=True, help='Run "mkdocs build"'))
-    # parser.add_argument('--serve', action='store_true', help='Run "mkdocs serve".')
-    # parser.add_argument('--build', action='store_true', help='Run "mkdocs build".')
 
   def check_args(self, args: dict[str, t.Any]) -> None:
     if not args["serve"] and not args["build"]:
