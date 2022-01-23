@@ -7,10 +7,15 @@ import typing as t
 
 import docspec
 import docspec_python
-from novella.api import Action
+from novella.api import Action, DocstringProcessor
 from novella.context import Context
 
 logger = logging.getLogger(__name__)
+
+
+def _get_default_processors() -> list[DocstringProcessor]:
+  import databind.json
+  return databind.json.load([ {"smart": {}} ], list[DocstringProcessor])
 
 
 @dataclasses.dataclass
@@ -58,8 +63,18 @@ class PythonAction(Action):
   #: The encoding to use when reading the Python source files.
   encoding: str | None = None
 
+  #: Docstring processors.
+  processors: list[DocstringProcessor] = dataclasses.field(default_factory=_get_default_processors)
+
   def execute(self, context: Context) -> None:
     self.modules = list(self.load(context))
+
+    def _visit(obj: docspec.ApiObject) -> None:
+      for processor in self.processors:
+        processor.process_docstring(context, obj)
+
+    docspec.visit(self.modules, _visit)
+
     if not self.modules:
       logger.warning('No modules loaded')
 
