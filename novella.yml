@@ -1,5 +1,5 @@
 pipeline:
-  - python: { package: novella.core }
-  - copy-files: { source: docs }
-  - process-markdown: { directory: docs }
-  - mkdocs: { directory: docs, use-profile: default }
+- python: { package: novella }
+- copy-files: { source: docs }
+- process-markdown: { directory: docs }
+- mkdocs: { directory: docs, use-profile: default }

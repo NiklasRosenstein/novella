@@ -2,8 +2,8 @@
 import dataclasses
 from pathlib import Path
 
-from novella.core.context import Context
-from novella.core.post import MarkdownTagProcessor
+from novella.context import Context
+from ..base import MarkdownTagProcessor
 
 
 @dataclasses.dataclass

@@ -2,10 +2,9 @@
 import dataclasses
 import logging
 
-from novella.core.context import Context
-from novella.core.pipeline import Action
-from novella.core.post import MarkdownProcessor
-from novella.core.util import recurse_directory
+from novella.context import Context
+from novella.api import Action, MarkdownProcessor
+from novella.util import recurse_directory
 
 logger = logging.getLogger(__name__)
 

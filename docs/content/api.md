@@ -1,3 +1,6 @@
-# API Documentation
+# API
 
-@pydoc novella.core.pipeline.Pipeline
+@pydoc novella.api.Action
+@pydoc novella.api.DocstringProcessor
+@pydoc novella.api.MarkdownProcessor
+@pydoc novella.api.PythonApiRenderer

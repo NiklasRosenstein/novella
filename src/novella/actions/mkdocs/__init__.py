@@ -9,8 +9,8 @@ import typing as t
 
 import yaml
 from databind.core.annotations import alias
-from novella.core.context import Context
-from novella.core.pipeline import Action
+from novella.context import Context
+from novella.pipeline import Action
 
 logger = logging.getLogger(__name__)
 

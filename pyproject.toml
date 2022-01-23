@@ -1,28 +1,32 @@
 [tool.poetry]
-name = "novella-core"
+name = "novella"
 version = "0.1.0"
 description = "Editable installs for packages developed with Poetry using Flit."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
-packages = [{ include="novella/core", from="src" }]
+packages = [{ include="novella", from="src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 PyYAML = "^5.3"
 pydoc-markdown = "^4.5.0"
 cleo = "^0.8.1"
+Jinja2 = "^3.0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
-[tool.poetry.plugins."novella.core.pipeline.Action"]
-copy-files = "novella.core.actions.copy_files:CopyFilesAction"
-mkdocs = "novella.core.render.mkdocs:MkdocsAction"
-process-markdown = "novella.core.actions.process_markdown:ProcessMarkdownAction"
-python = "novella.core.actions.python:PythonAction"
+[tool.poetry.plugins."novella.pipeline"]
+copy-files = "novella.actions.copy_files:CopyFilesAction"
+mkdocs = "novella.actions.mkdocs:MkdocsAction"
+process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
+python = "novella.actions.python:PythonAction"
 
-[tool.poetry.plugins."novella.core.post.MarkdownProcessor"]
-cat = "novella.core.post.processors.cat:CatMarkdownProcessor"
-pydoc = "novella.core.post.processors.pydoc:PydocMarkdownProcessor"
+[tool.poetry.plugins."novella.processors.docstrings"]
+smart = "novella.processors.docstrings.smart:SmartProcessor"
+
+[tool.poetry.plugins."novella.processors.markdown"]
+cat = "novella.processors.markdown.cat:CatMarkdownProcessor"
+pydoc = "novella.processors.markdown.pydoc:PydocMarkdownProcessor"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

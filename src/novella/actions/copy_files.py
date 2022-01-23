@@ -3,7 +3,8 @@ import dataclasses
 import logging
 import shutil
 
-from .. import Action, Context
+from novella.api import Action
+from novella.context import Context
 
 logger = logging.getLogger(__name__)
 

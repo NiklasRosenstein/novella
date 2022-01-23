@@ -7,7 +7,8 @@ from pathlib import Path
 import yaml
 import databind.json
 
-from . import Context, Pipeline
+from .context import Context
+from .pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
 

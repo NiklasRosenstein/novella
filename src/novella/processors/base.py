@@ -2,8 +2,8 @@
 import abc
 import re
 from pathlib import Path
-from novella.core.context import Context
-from ._api import MarkdownProcessor
+from novella.context import Context
+from novella.api import MarkdownProcessor
 
 
 class MarkdownTagProcessor(MarkdownProcessor):

@@ -1,9 +1,12 @@
 
 import argparse
 import dataclasses
+import typing as t
 from pathlib import Path
 
-from .pipeline import Pipeline
+from .pipeline import Action, Pipeline
+
+T_Action = t.TypeVar('T_Action', bound=Action)
 
 
 @dataclasses.dataclass
@@ -16,3 +19,9 @@ class Context:
   build_directory: Path
   pipeline: Pipeline
   args: argparse.Namespace
+
+  def get_action(self, action_type: type[T_Action]) -> T_Action | None:
+    for action in self.pipeline.actions:
+      if isinstance(action, action_type):
+        return action
+    return None

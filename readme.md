@@ -1,22 +1,34 @@
-# novella-core
+# novella
 
-Novella allows you to easily generate Python API documentation. It is the successor of Pydoc-Markdown.
+Novella allows you to easily generate Python API documentation.
 
-## Quickstart
+## Introduction
 
-At it's core, Novella just runs a sequence of actions specified in a `novella.yml` configuration file. A typical
-Novella configuration performs the following steps: 1) discover and load the Python source code to extract API
-docstrings, 2) process Markdown files to inject the API documentation, 3) invoke a static site generator tool
-like MkDocs or Hugo.
+At it's core, Novella just runs a sequence of actions, called the "pipeline", in an isolated build directory. The
+fundemantal actions that Novella can perform are
 
-```yml
-# novella.yml
+* Loading Python code
+* Copying files and folders from the project directory
+* Post processing Markdown files
+* Invoking a static site generator like MkDocs
+
+In YAML, this looks something like
+
+```yaml
 pipeline:
-  - copy-files: { source: docs }
-  - process-markdown:
-      directory: docs
-      plugins:
-        - pydoc: { search-path: $gitdir/src }
-        - smart: {}
-  - mkdocs: {}
+- python: { package: novella }
+- copy-files: { source: docs }
+- process-markdown: { directory: docs }
+- mkdocs: { directory: docs, use-profile: default }
 ```
+
+Novella now executes these actions when you invoke it with the `novella` command. Note that the `mkdocs`
+action augments the CLI with a `--serve` and `--build` option, either of which must be present, otherwise
+MkDocs is not invoked.
+
+    $ novella --build
+
+The Python API documentation is generated inline in existing Markdown files in your `docs/` source directory
+where the `@pydoc <object_fqn>` tag is used (this is done by the `process-markdown` action using the `pydoc`
+processor that is enabled by default). This allows you to specify exactly where in your original Markdown
+documentation source the Python API will be injected.

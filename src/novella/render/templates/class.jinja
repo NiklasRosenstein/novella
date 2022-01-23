@@ -1,0 +1,45 @@
+
+{% if 'no-title' not in options %}
+{{"#" * (level or 2)}} Class `{{user_fqn or obj|fqn}}`
+{% endif %}
+
+{% if 'no-def' not in options %}
+```python
+{% for dec in obj.decorations %}
+@{{ dec.name }}{{ dec.args or '' }}
+{% endfor -%}
+class {{ obj.name }}: ...
+```
+{% endif %}
+
+{{obj.docstring or ""}}
+
+{% if 'no-attrs' not in options %}
+{% for member in obj.members %}
+  {% if member|type == 'Data' %}
+    {% with %}
+      {% set obj = member %}
+      {% set user_fqn = None %}
+      {% set level = (level or 2) + 1 %}
+      {% include "data.jinja" %}
+    {% endwith %}
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if 'no-methods' not in options %}
+{% for member in obj.members %}
+  {% if member|type == 'Function' %}
+    {% with %}
+      {% set obj = member %}
+      {% set user_fqn = None %}
+      {% set level = (level or 2) + 1 %}
+      {% include "function.jinja" %}
+    {% endwith %}
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if 'no-hr' not in options %}
+---
+{% endif %}

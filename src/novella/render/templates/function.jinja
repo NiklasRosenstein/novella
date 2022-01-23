@@ -1,0 +1,17 @@
+
+{% set is_method = obj.parent|type == 'Class' %}
+
+{% if 'no-title' not in options %}
+{{"#" * (level or 2)}} {{ "Method" if is_method else "Function" }} `{{(user_fqn or obj|fqn) if not level else (obj.parent.name + '.' + obj.name) if not is_method else obj.name}}()`
+{% endif %}
+
+{% if 'no-def' not in options %}
+```python
+{% for dec in obj.decorations %}
+@{{ dec.name }}{{ dec.args or '' }}
+{% endfor -%}
+def {{ obj.name }}({{obj|arglist(True)}}){{ " -> " + obj.return_type if obj.return_type else ""}}: ...
+```
+{% endif %}
+
+{{obj.docstring or ""}}

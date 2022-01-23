@@ -7,8 +7,8 @@ import typing as t
 
 import docspec
 import docspec_python
-from pydoc_markdown import Context as _PydocMarkdownContext
-from .. import Action, Context
+from novella.api import Action
+from novella.context import Context
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class PythonAction(Action):
     search_path = self.get_effective_search_path(context)
     modules = list(self.modules or []) + ([self.module] if self.module else [])
     packages = list(self.packages or []) + ([self.package] if self.package else [])
-    do_discover = (self.modules is None and self.packages is None)
+    do_discover = (self.modules is None and self.packages is None and self.module is None and self.package is None)
 
     if do_discover:
       for path in search_path:
