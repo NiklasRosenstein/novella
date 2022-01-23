@@ -15,11 +15,6 @@ from novella.pipeline import Action
 logger = logging.getLogger(__name__)
 
 
-class _Args:
-  serve: bool
-  build: bool
-
-
 @dataclasses.dataclass
 class MkdocsAction(Action):
   """ An action to run Mkdocs in the temporary build directory. """
