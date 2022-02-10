@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from novella.novella import Novella
-from .api import MarkdownTagProcessor
+from ..actions.markdown.api import MarkdownTagProcessor
 
 
 class CatMarkdownProcessor(MarkdownTagProcessor):

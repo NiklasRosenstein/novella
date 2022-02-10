@@ -7,10 +7,9 @@ packages = [{ include="novella", from="src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-PyYAML = "^5.3"
-pydoc-markdown = "^4.5.0"
 Jinja2 = "^3.0.3"
-click = "^8.0.3"
+pydoc-markdown = "^4.5.0"
+tomli = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -20,14 +19,12 @@ novella = "novella.__main__:main"
 
 [tool.poetry.plugins."novella.actions"]
 copy-files = "novella.actions.copy_files:CopyFilesAction"
-mkdocs = "novella.actions.mkdocs:MkdocsAction"
-process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
-python = "novella.actions.python:PythonAction"
+process-markdown = "novella.markdown.processor:ProcessMarkdownAction"
 run = "novella.actions.run:RunAction"
 
 [tool.poetry.plugins."novella.markdown_processors"]
-#cat = "novella.actions.process_markdown._cat:CatMarkdownProcessor"
-pydoc = "novella.processors.pydoc:PydocProcessor"
+cat = "novella.processors.cat_tag:CatMarkdownProcessor"
+pydoc = "novella.processors.pydoc_tag.pydoc_tag:PydocProcessor"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

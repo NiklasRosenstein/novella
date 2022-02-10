@@ -1,6 +1,10 @@
 
 {% if 'no-title' not in options %}
-{{"#" * (level or 2)}} Class `{{user_fqn or obj|fqn}}`
+{{"#" * (level or header_level)}} Class `{{(user_fqn or obj|fqn) if absolute_fqn else obj.name}}`
+{% endif %}
+
+{% if not parent and module_after_header %}
+__Module__: `{{obj.parent|fqn}}`
 {% endif %}
 
 {% if 'no-def' not in options %}
@@ -17,12 +21,7 @@ class {{ obj.name }}: ...
 {% if 'no-attrs' not in options %}
 {% for member in obj.members %}
   {% if member|type == 'Data' %}
-    {% with %}
-      {% set obj = member %}
-      {% set user_fqn = None %}
-      {% set level = (level or 2) + 1 %}
-      {% include "data.jinja" %}
-    {% endwith %}
+    {{ render("data.jinja", obj=member, user_fqn=None, parent=obj, level=(level or header_level) + 1) }}
   {% endif %}
 {% endfor %}
 {% endif %}
@@ -30,12 +29,7 @@ class {{ obj.name }}: ...
 {% if 'no-methods' not in options %}
 {% for member in obj.members %}
   {% if member|type == 'Function' %}
-    {% with %}
-      {% set obj = member %}
-      {% set user_fqn = None %}
-      {% set level = (level or 2) + 1 %}
-      {% include "function.jinja" %}
-    {% endwith %}
+    {{ render("function.jinja", obj=member, user_fqn=None, parent=obj, level=(level or header_level) + 1) }}
   {% endif %}
 {% endfor %}
 {% endif %}

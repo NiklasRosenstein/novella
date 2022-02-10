@@ -1,9 +1,14 @@
 
+from __future__ import annotations
+
 import argparse
 import typing as t
 from pathlib import Path
 
 from .action import Action
+
+if t.TYPE_CHECKING:
+  from nr.util.inspect import Callsite
 
 
 class Novella:
@@ -13,6 +18,7 @@ class Novella:
     self.project_directory = project_directory
     self._build_directory = build_directory
     self._actions: list[Action] = []
+    self._option_names: list[str] = []
     self._argparser = argparse.ArgumentParser()
 
   @property
@@ -22,12 +28,17 @@ class Novella:
     assert self._build_directory
     return self._build_directory
 
-  def build(self) -> None:
+  def build(self, context: _NovellaContext, args: list[str]) -> None:
     """ Run the actions in the Novella pipeline. """
 
     import contextlib
     import tempfile
 
+    parsed_args = self._argparser.parse_args(args)
+    for option_name in self._option_names:
+      context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
+
+    print(context.options)
     with contextlib.ExitStack() as exit_stack:
       if not self._build_directory:
         self._build_directory = Path(exit_stack.enter_context(tempfile.TemporaryDirectory(prefix='novella-')))
@@ -38,14 +49,16 @@ class Novella:
       for action in self._actions:
         action.execute()
 
-  def execute_file(self, file: Path = Path('build.novella')) -> None:
+  def execute_file(self, file: Path = Path('build.novella')) -> _NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
 
     from craftr.dsl import Closure
-    Closure(None, None, _NovellaClosure(self)).run_code(file.read_text(), str(file))
+    context = _NovellaContext(self)
+    Closure(None, None, context).run_code(file.read_text(), str(file))
+    return context
 
 
-class _NovellaClosure:
+class _NovellaContext:
 
   def __init__(self, novella: Novella) -> None:
     self.novella = novella
@@ -70,7 +83,12 @@ class _NovellaClosure:
     """ Add an option to the Novella pipeline that can be specified on the CLI. Actions can pick up the parsed
     option values from the #options mapping. """
 
-    option_names = [f"--{long_name}"]
+    if len(long_name) == 1 and not short_name:
+      long_name, short_name = '', long_name
+
+    option_names = []
+    if long_name:
+      option_names += [f"--{long_name}"]
     if short_name:
       option_names += [f"-{short_name}"]
 
@@ -80,22 +98,35 @@ class _NovellaClosure:
       help=description,
       default=default
     )
+    self.novella._option_names.append(long_name)
 
   def do(self, action_name: str, closure: t.Callable | None = None) -> None:
     """ Add an action to the Novella pipeline identified by the specified *action_name*. The action will be
     configured once it is created using the *closure*. """
 
+    from nr.util.inspect import get_callsite
     from nr.util.plugins import load_entrypoint
+
+    callsite = get_callsite()
     action_cls = load_entrypoint('novella.actions', action_name)
-    self.novella._actions.append(_LazyAction(self.novella, action_cls, closure))
+    self.novella._actions.append(_LazyAction(self.novella, action_name, action_cls, closure, callsite))
 
 
 class _LazyAction(Action):
 
-  def __init__(self, novella: Novella, action_cls: type[Action], closure: t.Callable | None) -> None:
+  def __init__(
+    self,
+    novella: Novella,
+    action_name: str,
+    action_cls: type[Action],
+    closure: t.Callable | None,
+    callsite: Callsite,
+  ) -> None:
     self.novella = novella
+    self.action_name = action_name
     self.action_cls = action_cls
     self.closure = closure
+    self.callsite = callsite
     self._action: Action | None = None
 
   def execute(self) -> None:
@@ -103,4 +134,14 @@ class _LazyAction(Action):
     action.novella = self.novella
     if self.closure:
       self.closure(action)
-    action.execute()
+    try:
+      action.execute()
+    except Exception as exc:
+      raise PipelineError(self.action_name, self.callsite) from exc
+
+
+class PipelineError(Exception):
+
+  def __init__(self, action_name: str, callsite: Callsite) -> None:
+    self.action_name = action_name
+    self.callsite = callsite

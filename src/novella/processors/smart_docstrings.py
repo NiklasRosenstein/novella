@@ -2,7 +2,7 @@
 import dataclasses
 from docspec import ApiObject, Module
 from pydoc_markdown.contrib.processors.smart import SmartProcessor as _SmartProcessor
-from novella.api import DocstringProcessor
+from novella. import DocstringProcessor
 from novella.context import Context
 
 
