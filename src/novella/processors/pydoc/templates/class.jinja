@@ -5,7 +5,7 @@
 
 {% if 'no-def' not in options %}
 ```python
-{% for dec in obj.decorations %}
+{% for dec in obj.decorations or [] %}
 @{{ dec.name }}{{ dec.args or '' }}
 {% endfor -%}
 class {{ obj.name }}: ...

@@ -18,18 +18,16 @@ pytest = "^5.2"
 [tool.poetry.scripts]
 novella = "novella.__main__:main"
 
-[tool.poetry.plugins."novella.pipeline"]
+[tool.poetry.plugins."novella.actions"]
 copy-files = "novella.actions.copy_files:CopyFilesAction"
 mkdocs = "novella.actions.mkdocs:MkdocsAction"
 process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
 python = "novella.actions.python:PythonAction"
+run = "novella.actions.run:RunAction"
 
-[tool.poetry.plugins."novella.processors.docstrings"]
-smart = "novella.processors.docstrings.smart:SmartProcessor"
-
-[tool.poetry.plugins."novella.processors.markdown"]
-cat = "novella.processors.markdown.cat:CatMarkdownProcessor"
-pydoc = "novella.processors.markdown.pydoc:PydocMarkdownProcessor"
+[tool.poetry.plugins."novella.markdown_processors"]
+#cat = "novella.actions.process_markdown._cat:CatMarkdownProcessor"
+pydoc = "novella.processors.pydoc:PydocProcessor"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

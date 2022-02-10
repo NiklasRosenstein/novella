@@ -2,9 +2,9 @@
 import dataclasses
 import logging
 import shutil
+from pathlib import Path
 
-from novella.api import Action
-from novella.context import Context
+from novella.action import Action
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,17 @@ logger = logging.getLogger(__name__)
 class CopyFilesAction(Action):
   """ An action to copy files from the project root to the temporary build directory. """
 
-  #: The name of the file or directory relative to the project directory to copy into the build directory.
-  source: str
+  def __init__(self) -> None:
+    self.paths: list[str | Path] = []
 
-  def execute(self, context: 'Context') -> None:
-    logger.info('Copy %s to %s', self.source, context.build_directory / self.source)
-    shutil.copytree(context.project_directory / self.source, context.build_directory / self.source, dirs_exist_ok=True)
+  def execute(self) -> None:
+    assert isinstance(self.paths, list)
+    logger.info('Copy %s to %s', self.paths, self.novella.build_directory)
+    for path in self.paths:
+      assert isinstance(path, (str, Path)), repr(path)
+      source = self.novella.project_directory / path
+      dest = self.novella.build_directory / path
+      if source.is_file():
+        shutil.copyfile(source, dest)
+      else:
+        shutil.copytree(source, dest, dirs_exist_ok=True)
