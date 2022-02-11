@@ -23,6 +23,7 @@ novella = "novella.__main__:main"
 copy-files = "novella.actions.copy_files:CopyFilesAction"
 process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
 run = "novella.actions.run:RunAction"
+mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
 
 [tool.poetry.plugins."novella.templates"]
 mkdocs = "novella.templates.mkdocs:MkdocsTemplate"

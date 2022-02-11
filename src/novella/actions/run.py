@@ -15,6 +15,9 @@ class RunAction(Action):
   def __init__(self) -> None:
     self.args: list[str | Path] = []
 
+  def get_name(self) -> str | None:
+    return self.args[0] if self.args else None
+
   def execute(self) -> None:
     if not self.args:
       raise RuntimeError('no args specified')

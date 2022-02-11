@@ -18,7 +18,7 @@ class CopyFilesAction(Action):
 
   def execute(self) -> None:
     assert isinstance(self.paths, list)
-    logger.info('Copy %s to %s', self.paths, self.novella.build_directory)
+    logger.info('  Copy <fg=cyan>%s</fg> to <path>%s</path>', self.paths, self.novella.build_directory)
     for path in self.paths:
       assert isinstance(path, (str, Path)), repr(path)
       source = self.novella.project_directory / path

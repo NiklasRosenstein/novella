@@ -32,7 +32,7 @@ class ProcessMarkdownAction(Action):
   """
 
   def __init__(self) -> None:
-    self._processors: list[MarkdownProcessor] = []
+    self._processors: list[tuple[str, MarkdownProcessor]] = []
     self.directory: str = '.'
 
   def use(self, processor_name: str, closure: t.Callable | None = None) -> None:
@@ -60,13 +60,16 @@ class ProcessMarkdownAction(Action):
       processor = cls()
       if closure:
         closure(processor)
-      self._processors.append(processor)
+      self._processors.append((processor_name, processor))
 
   def execute(self) -> None:
     paths = []
     for path in recurse_directory(self.novella.build_directory / self.directory):
       if path.suffix == '.md':
         paths.append(path)
-    for plugin in self._processors:
+
+    logger.info('  Process Markdown files\n    %s', '\n    '.join(f'<path>{p}</path>' for p in paths))
+    for processor_name, processor in self._processors:
+      logger.info('  Using processor <fg=cyan>%s</fg>', processor_name)
       for path in paths:
-        plugin.process_markdown(self.novella, path)
+        processor.process_markdown(self.novella, path)

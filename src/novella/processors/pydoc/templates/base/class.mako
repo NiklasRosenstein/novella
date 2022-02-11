@@ -14,6 +14,13 @@ __Module__: `${helpers.attr.get_fqn(obj)}`
 
 ${obj.docstring or ""}
 
+% if options.render_class_attrs_summary:
+<%include file="${options.templates.class_attrs_table}"/>
+% endif
+
+
+<%include file="/base/function_table.mako"/>
+
 % if options.render_class_attrs:
 % for member in obj.members:
   % if helpers.attr.get_type(member) == 'Data':

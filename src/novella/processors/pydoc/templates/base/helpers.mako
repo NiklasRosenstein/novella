@@ -16,7 +16,12 @@
 %>
 
 <%def name="markdown_header(prefix, header_level=None, absolute_fqn=None)">
-${'#' * (header_level or options.header_level)} ${prefix} `${get_fqn(obj) if absolute_fqn or (absolute_fqn is None and options.absolute_fqn) else obj.name}`
+<%
+  name = get_fqn(obj) if absolute_fqn or (absolute_fqn is None and options.absolute_fqn) else obj.name
+  line = '#' * (header_level or options.header_level) + f'{prefix} `{name}`'
+  register_header(line, obj)
+%>
+${line}
 </%def>
 
 <%def name="definition_codeblock(obj)">

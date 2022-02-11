@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import argparse
-from re import A
+import logging
 import typing as t
 from pathlib import Path
 
@@ -11,6 +11,8 @@ from .action import Action
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
   from novella.template import Template
+
+logger = logging.getLogger(__name__)
 
 
 class Novella:
@@ -54,6 +56,7 @@ class Novella:
           self._build_directory = None
 
       for action in self._actions:
+        logger.info('Executing action <info>%s</info>', action.get_name())
         action.execute()
 
   def execute_file(self, file: Path = Path('build.novella')) -> NovellaContext:
@@ -149,11 +152,25 @@ class _LazyAction(Action):
     self.callsite = callsite
     self._action: Action | None = None
 
+  def __str__(self) -> str:
+    return self.action_name
+
+  def _get_action(self) -> Action:
+    if self._action is None:
+      self._action = self.action_cls()
+      self._action.novella = self.novella
+      if self.closure:
+        self.closure(self._action)
+    return self._action
+
+  def get_name(self) -> str:
+    inner_name = self._get_action().get_name()
+    if inner_name:
+      return f'{self.action_name} ({inner_name})'
+    return self.action_name
+
   def execute(self) -> None:
-    action = self.action_cls()
-    action.novella = self.novella
-    if self.closure:
-      self.closure(action)
+    action = self._get_action()
     try:
       action.execute()
     except Exception as exc:

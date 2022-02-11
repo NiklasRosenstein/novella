@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class MkdocsTemplate(Template):
+  """ A template to bootstrap a pipeline for processing content for Mkdocs. """
 
   #: The directory that contains the Mkdocs context.
   content_directory: str = 'content'
@@ -29,7 +30,7 @@ class MkdocsTemplate(Template):
   #: code to load will be detected automatically.
   modules: list[str] | None = None
 
-  #: THe package name(s) to load explicitly.
+  #: The package name(s) to load explicitly.
   packages: list[str] | None = None
 
   #: A list of directories that contains Mako templates to load for the `@pydoc` processor. Use this if you
@@ -53,7 +54,7 @@ class MkdocsTemplate(Template):
     context.do('copy-files', configure_copy_files)
 
     if self.apply_default_config:
-      context.novella.add_action(_ApplyMkdocsConfig())
+      context.do('mkdocs-apply-default')
 
     def configure_process_markdown(process_markdown: ProcessMarkdownAction):
       def configure_pydoc(pydoc: PydocTagProcessor):
@@ -75,7 +76,7 @@ class MkdocsTemplate(Template):
     context.do('run', configure_run)
 
 
-class _ApplyMkdocsConfig(Action):
+class MkdocsApplyDefaultAction(Action):
 
   _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
 
@@ -84,10 +85,10 @@ class _ApplyMkdocsConfig(Action):
     mkdocs_yml = self.novella.build_directory / 'mkdocs.yml'
     if mkdocs_yml.exists():
       mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
-      logger.info('Updating %r', mkdocs_yml)
+      logger.info('  Updating <path>%s</path>', mkdocs_yml)
     else:
       mkdocs_config = {}
-      logger.info('Generating %r', mkdocs_yml)
+      logger.info('  Creating <path>%s</path>', mkdocs_yml)
 
     default_config = yaml.safe_load(self._DEFAULT.read_text())
     for key in default_config:

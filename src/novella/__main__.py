@@ -1,12 +1,29 @@
 
 import argparse
+import logging
 import sys
 from pathlib import Path
+
+from nr.util.logging.filters.simple_filter import SimpleFilter
+from nr.util.logging.formatters.terminal_colors import TerminalColorFormatter
 
 from .novella import Novella, PipelineError
 
 
+def setup_logging():
+  logging.basicConfig(level=logging.INFO)
+
+  formatter = TerminalColorFormatter('%(message)s')
+  formatter.styles.add_style('path', 'yellow')
+  formatter.install()
+
+  # lib2to3, which is used by docspec_python, logs these to the root logger on INFO, which is annoying.
+  logging.root.filters.append(SimpleFilter('root', not_contains='Generating grammar tables from'))
+
+
 def main():
+  setup_logging()
+
   parser = argparse.ArgumentParser()
   parser.add_argument('-b', '--build-directory', type=Path)
   args, unknown_args = parser.parse_known_args()

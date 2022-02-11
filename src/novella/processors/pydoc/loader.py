@@ -83,8 +83,8 @@ class PythonLoader:
         except FileNotFoundError:
           continue
 
-        logger.info(
-          'Discovered Python modules %s and packages %s in %r.',
+        logger.debug(
+          'Discovered Python modules %s and packages %s in <path>%r</path>.',
           [x.name for x in discovered_items if isinstance(x, docspec_python.DiscoveryResult.Module)],
           [x.name for x in discovered_items if isinstance(x, docspec_python.DiscoveryResult.Package)],
           path,

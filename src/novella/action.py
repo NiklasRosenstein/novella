@@ -15,3 +15,6 @@ class Action(abc.ABC):
 
   @abc.abstractmethod
   def execute(self) -> None: ...
+
+  def get_name(self) -> str | None:
+    return None

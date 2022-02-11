@@ -2,6 +2,7 @@ docs_dir: content
 site_name: My documentation
 theme: material
 markdown_extensions:
+- markdown.extensions.extra
 - pymdownx.betterem
 - pymdownx.caret
 - pymdownx.details
