@@ -1,6 +1,7 @@
 
 import logging
 import subprocess as sp
+import sys
 from pathlib import Path
 
 from novella.action import Action
@@ -17,4 +18,7 @@ class RunAction(Action):
   def execute(self) -> None:
     if not self.args:
       raise RuntimeError('no args specified')
-    sp.check_call(self.args, cwd=self.novella.build_directory)
+    try:
+      sp.check_call(self.args, cwd=self.novella.build_directory)
+    except KeyboardInterrupt:
+      sys.exit(1)

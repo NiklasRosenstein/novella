@@ -1,9 +1,11 @@
 
+from email.errors import UndecodableBytesDefect
 import logging
 import typing as t
 from collections import ChainMap
+from pathlib import Path
 
-import jinja2
+import mako.lookup, mako.runtime, mako.template
 from docspec import ApiObject, Function, Module, visit
 from docspec_python import format_arglist
 
@@ -28,10 +30,14 @@ class PydocProcessor(NovellaTagProcessor):
   | Option name | Type | Description |
   | ----------- | ---- | ----------- |
   | `absolute_fqn` | `bool` | Whether to render the absolute FQN. Defaults to `True` |
-  | `classdef_code` | `bool` | Whether a code block with a classes' definition should be rendered. Defaults to `True` |
-  | `funcdef_code` | `bool` | Whether a code block with a functions' definition should be rendered. Defaults to `True` |
   | `header_level` | `int` | The initial Markdown header level. Defaults to `2`. |
-  | `module_after_header' | `bool` | Place the module name after the header. Defaults to `False`. |
+  | `render_module_name_after_title' | `bool` | Place the module name after the header. Defaults to `False`. |
+  | `render_class_def` | `bool` | Whether a code block with a classes' definition should be rendered. Defaults to `True` |
+  | `render_class_attrs` | `bool` | |
+  | `render_class_methods` | `bool` | |
+  | `render_class_hr` | `bool` | |
+  | `render_func_def` | `bool` | Whether a code block with a functions' definition should be rendered. Defaults to `True` |
+  | `render_title` | `bool` | |
   """
 
   tag_name = 'pydoc'
@@ -44,9 +50,13 @@ class PydocProcessor(NovellaTagProcessor):
     self.options = {
       'absolute_fqn': True,
       'header_level': 2,
-      'classdef_code': True,
-      'funcdef_code': True,
-      'module_after_header': False,
+      'render_class_def': True,
+      'render_class_attrs': True,
+      'render_class_methods': True,
+      'render_class_hr': True,
+      'render_func_def': True,
+      'render_module_name_after_title': False,
+      'render_title': True,
     }
 
   def replace_tag(self, args: str, options: dict[str, t.Any]) -> str | None:
@@ -76,40 +86,42 @@ class PydocProcessor(NovellaTagProcessor):
       return None
 
     return self._render_as_markdown(
-      object_fqn,
       results[0],
       ChainMap(options, self.file_options, self.options),
     )
 
-  def _render_as_markdown(self, fqn: str, obj: ApiObject, options: t.Mapping[str, t.Any]) -> str:
+  def _render_as_markdown(self, obj: ApiObject, options: t.Mapping[str, t.Any]) -> str:
 
-    env = jinja2.Environment(loader=jinja2.ChoiceLoader([
-      jinja2.PackageLoader(__name__),
-      jinja2.FileSystemLoader(self.template_directories or []),
-    ]))
+    local_directory = Path(__file__).parent / 'templates'
+    lookup = mako.lookup.TemplateLookup([local_directory] + self.template_directories)
 
-    def _render(template_name: str, **override_options):
-      template = env.get_template(template_name)
+    def _render(template_name: str, obj: ApiObject, **override_options):
+      template = lookup.get_template(template_name)
       return template.render(
         novella=self.current.novella,
-        **ChainMap(override_options, options),
+        render=_render,
+        lookup=lookup,
+        obj=obj,
+        options=_MakoContext(ChainMap(override_options, options), 'options.'),
       )
 
-    env.filters['arglist'] = _arglist
-    env.filters['fqn'] = _fqn
-    env.filters['type'] = _type
-    env.globals['render'] = _render
-
-    return _render('api_object.jinja', user_fqn=fqn, obj=obj)
+    return _render('api_object.mako', obj)
 
 
-def _arglist(obj: Function, type_hints: bool = False) -> str:
-  return format_arglist(obj.args, type_hints)
+class _MakoContext:
 
+  def __init__(self, mapping: t.Mapping[str, t.Any], prefix: str = '') -> None:
+    self._mapping = mapping
+    self._prefix = prefix
 
-def _fqn(obj: ApiObject) -> str:
-  return '.'.join(x.name for x in obj.path)
-
-
-def _type(obj: t.Any) -> str:
-  return type(obj).__name__
+  def __getattr__(self, name: str) -> t.Any:
+    try:
+      result = self._mapping[name]
+    except KeyError:
+      from nr.util.inspect import get_callsite
+      filename = get_callsite().filename
+      logger.warning('Access to non-existent %r from %r', self._prefix + name, filename)
+      return mako.runtime.Undefined
+    if isinstance(result, t.Mapping):
+      result = _MakoContext(result, self._prefix + name + '.')
+    return result

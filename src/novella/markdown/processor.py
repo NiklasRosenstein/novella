@@ -232,12 +232,9 @@ class NovellaTagProcessor(MarkdownProcessor):
         # Parse options after :with.
         args, _, options_string = args.partition(':with')
         options = self.parse_option(options_string) if options_string else {}
-        try:
-          replacement = self.replace_tag(args, options)
-          if replacement is not None:
-            lines[idx] = replacement
-        except:
-          self.log('error', f'An error occurred replacing @{self.tag_name}', exc=True)
+        replacement = self.replace_tag(args, options)
+        if replacement is not None:
+          lines[idx] = replacement
 
     path.write_text('\n'.join(lines))
 
