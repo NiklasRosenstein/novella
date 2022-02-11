@@ -7,7 +7,7 @@ from pathlib import Path
 import mako.lookup, mako.runtime, mako.template
 from docspec import ApiObject, Module, visit
 
-from novella.markdown.processor import NovellaTagProcessor
+from novella.processor import NovellaTagProcessor
 from .loader import PythonLoader
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,7 @@ class PydocProcessor(NovellaTagProcessor):
   * `render_class_attrs` (`bool`) &ndash; True
   * `render_class_methods` (`bool`) &ndash; True
   * `render_class_hr` (`bool`) &ndash; True
+  * `render_data_def` (`bool`) &ndash; True
   * `render_func_def` (`bool`) &ndash; Whether a code block with a functions' definition should be rendered. Defaults to `True`
   * `render_module_name_after_title` (`bool)` &ndash; False
   * `render_title` (`bool`) &ndash; True
@@ -81,6 +82,7 @@ class PydocProcessor(NovellaTagProcessor):
       'render_class_attrs': True,
       'render_class_methods': True,
       'render_class_hr': True,
+      'render_data_def': True,
       'render_func_def': True,
       'render_module_name_after_title': False,
       'render_title': True,

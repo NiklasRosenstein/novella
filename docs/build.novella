@@ -1,0 +1,3 @@
+template "mkdocs" {
+  options['absolute_fqn'] = False
+}

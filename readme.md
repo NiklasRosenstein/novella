@@ -4,31 +4,63 @@ Novella allows you to easily generate Python API documentation.
 
 ## Introduction
 
-At it's core, Novella just runs a sequence of actions, called the "pipeline", in an isolated build directory. The
-fundemantal actions that Novella can perform are
+At it's core, Novella just runs a sequence of actions, called the "pipeline", in an isolated build directory. Now,
+usually the builtin actions are used to copy the Markdown files into an isolated build directory to then run a
+Markdown preprocessor over them. Among the builtin preprocessors is one that allows you to embed Python API
+documentation in Markdown format in the Markdown files.
 
-* Loading Python code
-* Copying files and folders from the project directory
-* Post processing Markdown files
-* Invoking a static site generator like MkDocs
+The easiest way to get started is to make use of the Mkdocs template.
 
-In YAML, this looks something like
-
-```yaml
-pipeline:
-- python: { package: novella }
-- copy-files: { source: docs }
-- process-markdown: { directory: docs }
-- mkdocs: { directory: docs, use-profile: default }
+```python
+# build.novella
+template "mkdocs"
 ```
 
-Novella now executes these actions when you invoke it with the `novella` command. Note that the `mkdocs`
-action augments the CLI with a `--serve` and `--build` option, either of which must be present, otherwise
-MkDocs is not invoked.
+By default, it will assume that your documentation resides in a `docs/` folder next to a `src/` directory from
+which your Python source code is loaded. Furthermore, it assumes that your documentation content for Mkdocs lies
+in the `docs/content/` folder, next to the `mkdocs.yml`. It will also apply a template Mkdocs configuration on top
+of your `mkdocs.yml` that makes use of `mkdocs-material` and enables various Markdown extensions. The template also
+registers the command-line options `--serve` and `--site-dir,-d` that modify how Mkdocs is invoked, allowing you to
+pass them along from the Novella CLI.
 
-    $ novella --build
+    $ python -m novella --serve
 
-The Python API documentation is generated inline in existing Markdown files in your `docs/` source directory
-where the `@pydoc <object_fqn>` tag is used (this is done by the `process-markdown` action using the `pydoc`
-processor that is enabled by default). This allows you to specify exactly where in your original Markdown
-documentation source the Python API will be injected.
+<details><summary>The template is effectively the same as using this Novella configuration instead (expand for details).</summary>
+
+```python
+option "serve", description="Use mkdocs serve", flag=True
+option "site_dir", "d", description="Build directory (not with --serve)", default="_site"
+
+do "copy-files" {
+  paths = [ "src", "mkdocs.yml" ]
+}
+
+do "process-markdown" {
+  use "pydoc" {
+    loader.search_path = [ project_directory / "../src" ]
+    options['module_after_header'] = True
+  }
+  use "./tags/cleo_describe.py"
+}
+
+do "run" {
+  args = [ "mkdocs" ]
+  if options.get("serve"):
+    args = args + [ "serve" ]
+  else:
+    args = args + [ "build", "-d", project_directory / options.get("site_dir") ]
+}
+```
+</details>
+
+Now, in your the Markdown files in your `docs/content/` folder, you can make use of the `@pydoc` tag
+to specify an absolute FQN for the Python API documentation that should be rendered in its place.
+
+```md
+# API Documentation
+
+Here you can find the documentation for the most relevant pieces of the Novella API.
+
+@pydoc :set header_level = 3
+@pydoc novella.action.Action
+```

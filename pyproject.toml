@@ -19,8 +19,11 @@ novella = "novella.__main__:main"
 
 [tool.poetry.plugins."novella.actions"]
 copy-files = "novella.actions.copy_files:CopyFilesAction"
-process-markdown = "novella.markdown.processor:ProcessMarkdownAction"
+process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
 run = "novella.actions.run:RunAction"
+
+[tool.poetry.plugins."novella.templates"]
+mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
 
 [tool.poetry.plugins."novella.markdown_processors"]
 cat = "novella.processors.cat_tag:CatMarkdownProcessor"

@@ -9,6 +9,7 @@ from .action import Action
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
+  from novella.template import Template
 
 
 class Novella:
@@ -28,7 +29,7 @@ class Novella:
     assert self._build_directory
     return self._build_directory
 
-  def build(self, context: _NovellaContext, args: list[str]) -> None:
+  def build(self, context: NovellaContext, args: list[str]) -> None:
     """ Run the actions in the Novella pipeline. """
 
     import contextlib
@@ -38,7 +39,6 @@ class Novella:
     for option_name in self._option_names:
       context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
-    print(context.options)
     with contextlib.ExitStack() as exit_stack:
       if not self._build_directory:
         self._build_directory = Path(exit_stack.enter_context(tempfile.TemporaryDirectory(prefix='novella-')))
@@ -49,16 +49,16 @@ class Novella:
       for action in self._actions:
         action.execute()
 
-  def execute_file(self, file: Path = Path('build.novella')) -> _NovellaContext:
+  def execute_file(self, file: Path = Path('build.novella')) -> NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
 
     from craftr.dsl import Closure
-    context = _NovellaContext(self)
+    context = NovellaContext(self)
     Closure(None, None, context).run_code(file.read_text(), str(file))
     return context
 
 
-class _NovellaContext:
+class NovellaContext:
 
   def __init__(self, novella: Novella) -> None:
     self.novella = novella
@@ -110,6 +110,19 @@ class _NovellaContext:
     callsite = get_callsite()
     action_cls = load_entrypoint('novella.actions', action_name)
     self.novella._actions.append(_LazyAction(self.novella, action_name, action_cls, closure, callsite))
+
+  def template(self, template_name: str, init: t.Callable | None = None, post: t.Callable | None = None) -> None:
+    """ Load a template and add it to the Novella pipeline. """
+
+    from nr.util.plugins import load_entrypoint
+
+    template_cls: type[Template] = load_entrypoint('novella.templates', template_name)
+    template = template_cls()
+    if init:
+      init(template)
+    template.define_pipeline(self)
+    if post:
+      post(template)
 
 
 class _LazyAction(Action):
