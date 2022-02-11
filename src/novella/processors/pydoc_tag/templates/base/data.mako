@@ -1,15 +1,19 @@
-<%namespace name="helpers" file="helpers.mako"/>
+<%namespace name="helpers" file="${context['options'].templates.helpers}"/>
 
-<% is_method = helpers.attr.get_type(obj.parent) == 'Class' %>
+<%!
+  from docspec import Function
+%>
+
+<% is_attr = helpers.attr.get_type(obj.parent) == 'Class' %>
 
 % if options.render_title:
 <%helpers:markdown_header
-  prefix="${'Method' if is_method else 'Function'}"
+  prefix="${'Attribute' if is_attr else 'Data'}"
   header_level="${header_level}"
   absolute_fqn="${parent}"/>
 % endif
 
-% if options.render_func_def:
+% if options.render_data_def:
 <%helpers:definition_codeblock obj="${obj}"/>
 % endif
 

@@ -22,23 +22,22 @@ ${'#' * (header_level or options.header_level)} ${prefix} `${get_fqn(obj) if abs
 <%def name="definition_codeblock(obj)">
 <%
   if get_type(obj) == 'Class':
-    prefix = 'class '
-    suffix = ', '.join(obj.bases or [])
-    if suffix:
-      suffix = f'({suffix})'
+    bases = '(' + ", ".join(obj.bases or []) + ')' if obj.bases else ''
+    line = f'class {obj.name}{bases}: ...'
   elif get_type(obj) == 'Function':
-    prefix = 'def '
-    suffix = f'({format_arglist(obj)})'
+    return_type = (' -> ' + obj.return_type) if obj.return_type else ''
+    line = f'def {obj.name}({format_arglist(obj)}){return_type}: ...'
   elif get_type(obj) == 'Data':
-    prefix = ''
-    suffix = ' = ' + obj.value
+    if not obj.datatype:
+      return
+    line = f'{obj.name}: {obj.datatype}'
   else:
     return
 %>
 ```python
-% for dec in obj.decorations or []:
+% for dec in getattr(obj, 'decorations', None) or []:
 @${dec.name}${dec.args or ''}
 % endfor
-${prefix}${obj.name}${suffix}: ...
+${line}
 ```
 </%def>

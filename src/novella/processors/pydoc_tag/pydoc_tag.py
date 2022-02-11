@@ -1,43 +1,62 @@
 
-from email.errors import UndecodableBytesDefect
 import logging
 import typing as t
 from collections import ChainMap
 from pathlib import Path
 
 import mako.lookup, mako.runtime, mako.template
-from docspec import ApiObject, Function, Module, visit
-from docspec_python import format_arglist
+from docspec import ApiObject, Module, visit
 
 from novella.markdown.processor import NovellaTagProcessor
-from novella.novella import Novella
 from .loader import PythonLoader
 
 logger = logging.getLogger(__name__)
 
 
 class PydocProcessor(NovellaTagProcessor):
-  """ Processor for the `@pydoc` tag that replaces references with Markdown content that was rendered through Jinja
-  templates. The output can be customized by overriding the Jinja templates or using one of the available options.
+  """ Processor for the `@pydoc` tag that replaces references with Markdown content that was rendered through Mako
+  templates. The output can be customized by modifying the options understood by the default template, or by providing
+  custom templates.
 
   __Example__
 
       @pydoc :set header_level = 3
       @pydoc novella.novella.Novella :with { classdef_code = false }
 
-  The following options are understood by the default template:
+  The Pydoc processor comes with a set of default templates:
 
-  | Option name | Type | Description |
-  | ----------- | ---- | ----------- |
-  | `absolute_fqn` | `bool` | Whether to render the absolute FQN. Defaults to `True` |
-  | `header_level` | `int` | The initial Markdown header level. Defaults to `2`. |
-  | `render_module_name_after_title' | `bool` | Place the module name after the header. Defaults to `False`. |
-  | `render_class_def` | `bool` | Whether a code block with a classes' definition should be rendered. Defaults to `True` |
-  | `render_class_attrs` | `bool` | |
-  | `render_class_methods` | `bool` | |
-  | `render_class_hr` | `bool` | |
-  | `render_func_def` | `bool` | Whether a code block with a functions' definition should be rendered. Defaults to `True` |
-  | `render_title` | `bool` | |
+    * `/base/entrypoint.mako` &ndash; The main template to which the {@class docspec.ApiObject} is passed, optionally
+      togther with the options and a `parent` reference to identify if the template is rendered as a child from an
+      API object's members. The template dispatches to one of the other templates below and implements any kinds of
+      filters.
+    * `/base/helpers.mako` &ndash; A template that contains some helper functions that can be included using the
+      Mako `<%namespace/>` tag into another template.
+    * `/base/class.mako`
+    * `/base/data.mako`
+    * `/base/functions.mako`
+
+  The `base` templates support the following options to modify the templates that are used to render.
+
+  * `templates.entrypoint`: Defaults to `/base/entrypoint.mako`
+  * `templates.class`: Defaults to `/base/class.mako`
+  * `templates.function`: Defaults to `/base/function.mako`
+  * `templates.data`: Defaults to `/base/data.mako`
+  * `templates.helpers`: Defaults to `/base/helpers.mako`
+
+  Furthermore, the default templates support these options:
+
+  * `absolute_fqn` (`bool`) &ndash; Whether to render the absolute FQN. Defaults to `True`
+  * `exclude_undocumented` (`bool`) &ndash; Whether to exclude undocumented API objects unless they are explicitly
+    required by a `@pydoc` tag.
+  * `header_level` (`int`) &ndash; The initial Markdown header level. Defaults to `2`.
+  * `render_module_name_after_title' (`bool`) &ndash; Place the module name after the header. Defaults to `False`.
+  * `render_class_def` (`bool`) &ndash; Whether a code block with a classes' definition should be rendered. Defaults to `True`
+  * `render_class_attrs` (`bool`) &ndash; True
+  * `render_class_methods` (`bool`) &ndash; True
+  * `render_class_hr` (`bool`) &ndash; True
+  * `render_func_def` (`bool`) &ndash; Whether a code block with a functions' definition should be rendered. Defaults to `True`
+  * `render_module_name_after_title` (`bool)` &ndash; False
+  * `render_title` (`bool`) &ndash; True
   """
 
   tag_name = 'pydoc'
@@ -48,7 +67,15 @@ class PydocProcessor(NovellaTagProcessor):
     self.template_directories: list[str] = []
     self._modules: list[Module] | None = None
     self.options = {
+      'templates': {
+        'entrypoint': '/base/entrypoint.mako',
+        'class': '/base/class.mako',
+        'function': '/base/function.mako',
+        'data': '/base/data.mako',
+        'helpers': '/base/helpers.mako',
+      },
       'absolute_fqn': True,
+      'exclude_undocumented': True,
       'header_level': 2,
       'render_class_def': True,
       'render_class_attrs': True,
@@ -95,17 +122,18 @@ class PydocProcessor(NovellaTagProcessor):
     local_directory = Path(__file__).parent / 'templates'
     lookup = mako.lookup.TemplateLookup([local_directory] + self.template_directories)
 
-    def _render(template_name: str, obj: ApiObject, **override_options):
+    def _render(template_name: str, obj: ApiObject, parent: ApiObject | None = None, **override_options):
       template = lookup.get_template(template_name)
       return template.render(
         novella=self.current.novella,
         render=_render,
         lookup=lookup,
         obj=obj,
+        parent=parent,
         options=_MakoContext(ChainMap(override_options, options), 'options.'),
       )
 
-    return _render('api_object.mako', obj)
+    return _render(options['templates']['entrypoint'], obj)
 
 
 class _MakoContext:
@@ -113,6 +141,9 @@ class _MakoContext:
   def __init__(self, mapping: t.Mapping[str, t.Any], prefix: str = '') -> None:
     self._mapping = mapping
     self._prefix = prefix
+
+  def __getitem__(self, name: str) -> t.Any:
+    return self.__getattr__(name)
 
   def __getattr__(self, name: str) -> t.Any:
     try:

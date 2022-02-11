@@ -1,4 +1,4 @@
-<%namespace name="helpers" file="helpers.mako"/>
+<%namespace name="helpers" file="${context['options'].templates.helpers}"/>
 
 % if options.render_title:
 <%helpers:markdown_header prefix='Class' header_level="${header_level}"/>
@@ -17,7 +17,7 @@ ${obj.docstring or ""}
 % if options.render_class_attrs:
 % for member in obj.members:
   % if helpers.attr.get_type(member) == 'Data':
-    ${render("data.mako", obj=member, parent=obj, header_level=(header_level or options.header_level) + 1)}
+    ${render(options.templates.entrypoint, obj=member, parent=obj, header_level=(header_level or options.header_level) + 1)}
   % endif
 % endfor
 % endif
@@ -25,7 +25,7 @@ ${obj.docstring or ""}
 % if options.render_class_methods:
 % for member in obj.members:
   % if helpers.attr.get_type(member) == 'Function':
-    ${render("function.mako", obj=member, parent=obj, header_level=(header_level or options.header_level) + 1)}
+    ${render(options.templates.entrypoint, obj=member, parent=obj, header_level=(header_level or options.header_level) + 1)}
   % endif
 % endfor
 % endif
