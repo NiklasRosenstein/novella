@@ -20,10 +20,12 @@ ${obj.docstring or ""}
 %>
 
 % if options.render_class_attrs_summary and attrs:
+__Attributes__
 ${render(options.templates.class_attrs_table, obj=obj, members=attrs)}
 % endif
 
 % if options.render_class_method_table and methods:
+__Methods__
 ${render(options.templates.class_method_table, obj=obj, members=methods)}
 % endif
 

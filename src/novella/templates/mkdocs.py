@@ -18,7 +18,17 @@ logger = logging.getLogger(__name__)
 
 
 class MkdocsTemplate(Template):
-  """ A template to bootstrap a pipeline for processing content for Mkdocs. """
+  """ A template to bootstrap a pipeline for processing content for Mkdocs.
+
+  __Example configuration__:
+
+  ```py
+  template "mkdocs" {
+    content_directory = "docs"
+    source_directory = ".."
+  }
+  ```
+  """
 
   #: The directory that contains the Mkdocs context.
   content_directory: str = 'content'
