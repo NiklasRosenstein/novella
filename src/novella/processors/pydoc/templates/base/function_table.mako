@@ -1,3 +1,4 @@
+## members, obj, options
 <%namespace name="helpers" file="${context['options'].templates.helpers}"/>
 
 <table>
@@ -6,16 +7,14 @@
     <th>Description</th>
   </thead>
   <tbody>
-      % for member in obj.members:
+      % for member in members:
     <tr>
-        % if helpers.attr.get_type(member) == 'Function':
       <td><code>{@link ${member.name}}</code></td>
       <td>
 
 ${member.docstring.splitlines()[0] if member.docstring else ''}
 
 </td>
-        % endif
     </tr>
       % endfor
   </tbody>

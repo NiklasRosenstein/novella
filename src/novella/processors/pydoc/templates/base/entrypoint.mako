@@ -1,6 +1,6 @@
 <%namespace name="helpers" file="${context['options'].templates.helpers}"/>
 <%
-  if options.exclude_undocumented and not obj.docstring and parent:
+  if helpers.attr.ignored(obj, parent, options):
     return
   include_file = options.templates[helpers.attr.get_type(obj).lower()]
 %>

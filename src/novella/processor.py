@@ -103,8 +103,7 @@ class NovellaTagProcessor(MarkdownProcessor):
 
   __Example__:
 
-      @pydoc :set header_level = 3
-      @pydoc novella.novella.Novella :with { header_level = 3 }
+      @pydoc novella.novella.Novella
   """
 
   tag_name: str

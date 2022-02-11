@@ -20,7 +20,6 @@ class PydocTagProcessor(NovellaTagProcessor):
 
   __Example__
 
-      @pydoc :set header_level = 3
       @pydoc novella.novella.Novella :with { classdef_code = false }
 
   The Pydoc processor comes with a set of default templates:
@@ -63,7 +62,7 @@ class PydocTagProcessor(NovellaTagProcessor):
   * `render_title` (`bool`) &ndash; True
   """
 
-  tag_name = 'py'
+  tag_name = 'pydoc'
 
   #: The loader for Python API documentation.
   loader: PythonLoader
@@ -85,17 +84,25 @@ class PydocTagProcessor(NovellaTagProcessor):
       'templates': {
         'entrypoint': '/base/entrypoint.mako',
         'class': '/base/class.mako',
-        'class_attrs_table': '/base/class_attrs_table.mako',
+        'class_attrs_table': '/base/data_table.mako',
+        'class_method_table': '/base/function_table.mako',
         'function': '/base/function.mako',
         'data': '/base/data.mako',
         'helpers': '/base/helpers.mako',
       },
+      'header_level': {
+        'module': 2,
+        'module_member': 3,
+        'class': 2,
+        'class_member': 3,
+        'function': 2,
+      },
       'absolute_fqn': True,
       'exclude_undocumented': True,
-      'header_level': 2,
       'render_class_def': True,
       'render_class_attrs': False,
       'render_class_attrs_summary': True,
+      'render_class_method_table': True,
       'render_class_methods': True,
       'render_class_hr': True,
       'render_data_def': True,
@@ -105,9 +112,7 @@ class PydocTagProcessor(NovellaTagProcessor):
       'render_title': True,
     }
 
-
   def replace_tag(self, args: str, options: dict[str, t.Any]) -> str | None:
-
     object_fqn = args.strip()
 
     if self._modules is None:
@@ -142,7 +147,13 @@ class PydocTagProcessor(NovellaTagProcessor):
     local_directory = Path(__file__).parent / 'templates'
     lookup = mako.lookup.TemplateLookup([local_directory] + self.template_directories)
 
-    def _render(template_name: str, obj: ApiObject, parent: ApiObject | None = None, **override_options):
+    def _render(
+      template_name: str,
+      obj: ApiObject,
+      parent: ApiObject | None = None,
+      override_options: t.Mapping[str, t.Any] | None = None,
+      **context
+    ) -> str:
       template = lookup.get_template(template_name)
       return template.render(
         novella=self.current.novella,
@@ -151,7 +162,8 @@ class PydocTagProcessor(NovellaTagProcessor):
         obj=obj,
         parent=parent,
         #register_header=self._register_header,
-        options=_MakoContext(ChainMap(override_options, options), 'options.'),
+        options=_MakoContext(ChainMap(override_options or {}, options), 'options.'),
+        **context,
       )
 
     return _render(options['templates']['entrypoint'], obj)
@@ -159,7 +171,6 @@ class PydocTagProcessor(NovellaTagProcessor):
   def _register_header(self, markdown_header: str, obj: ApiObject, id: str | None = None) -> None:
     """ This method is exposed as `register_markdown` to Mako templates and should be called when the documentation
     for *obj* is rendered into the current page to record what page and HTML element to link to for the object. """
-
 
 
 class _MakoContext:
@@ -177,7 +188,7 @@ class _MakoContext:
     except KeyError:
       from nr.util.inspect import get_callsite
       filename = get_callsite().filename
-      logger.warning('Access to non-existent %r from %r', self._prefix + name, filename)
+      logger.warning('    warning: Access to non-existent key <error>%r</error> from <path>%r</path>', self._prefix + name, filename)
       return mako.runtime.Undefined()
     if isinstance(result, t.Mapping):
       result = _MakoContext(result, self._prefix + name + '.')

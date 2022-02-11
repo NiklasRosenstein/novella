@@ -61,6 +61,5 @@ to specify an absolute FQN for the Python API documentation that should be rende
 
 Here you can find the documentation for the most relevant pieces of the Novella API.
 
-@pydoc :set header_level = 3
 @pydoc novella.action.Action
 ```

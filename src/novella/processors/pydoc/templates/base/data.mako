@@ -9,7 +9,7 @@
 % if options.render_title:
 <%helpers:markdown_header
   prefix="${'Attribute' if is_attr else 'Data'}"
-  header_level="${header_level}"
+  header_level="${options.header_level.class_member if is_attr else options.header_level.module_member}"
   absolute_fqn="${parent}"/>
 % endif
 

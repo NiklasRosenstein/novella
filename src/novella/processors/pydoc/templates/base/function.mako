@@ -5,7 +5,7 @@
 % if options.render_title:
 <%helpers:markdown_header
   prefix="${'Method' if is_method else 'Function'}"
-  header_level="${header_level}"
+  header_level="${options.header_level.class_member if is_method else options.header_level.module_member}"
   absolute_fqn="${parent}"/>
 % endif
 
