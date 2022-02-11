@@ -49,14 +49,17 @@ class PydocTagProcessor(NovellaTagProcessor):
   * `exclude_undocumented` (`bool`) &ndash; Whether to exclude undocumented API objects unless they are explicitly
     required by a `@pydoc` tag.
   * `header_level` (`int`) &ndash; The initial Markdown header level. Defaults to `2`.
-  * `render_module_name_after_title' (`bool`) &ndash; Place the module name after the header. Defaults to `False`.
-  * `render_class_def` (`bool`) &ndash; Whether a code block with a classes' definition should be rendered. Defaults to `True`
+  * `render_class_def` (`bool`) &ndash; Whether a code block with a classes' definition should be rendered.
+    Defaults to `True`
   * `render_class_attrs` (`bool`) &ndash; True
   * `render_class_methods` (`bool`) &ndash; True
   * `render_class_hr` (`bool`) &ndash; True
   * `render_data_def` (`bool`) &ndash; True
-  * `render_func_def` (`bool`) &ndash; Whether a code block with a functions' definition should be rendered. Defaults to `True`
-  * `render_module_name_after_title` (`bool)` &ndash; False
+  * `render_func_def` (`bool`) &ndash; Whether a code block with a functions' definition should be rendered.
+    Defaults to `True`
+  * `render_func_typehints` (`bool`) &ndash; Whether to render type hints in the function signature produced with
+    `render_func_def`. Defaults to `True`
+  * `render_module_name_after_title` (`bool`) &ndash; Place the module name after the header. Defaults to `False`.
   * `render_title` (`bool`) &ndash; True
   """
 
@@ -84,6 +87,7 @@ class PydocTagProcessor(NovellaTagProcessor):
       'render_class_hr': True,
       'render_data_def': True,
       'render_func_def': True,
+      'render_func_typehints': True,
       'render_module_name_after_title': False,
       'render_title': True,
     }

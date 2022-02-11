@@ -63,15 +63,6 @@ class PythonLoader:
   def load_all(self, project_dir: Path) -> list[docspec.Module]:
     return list(self.load(project_dir))
 
-    def _visit(obj: docspec.ApiObject) -> None:
-      for processor in self.processors:
-        processor.process_docstring(context, obj)
-
-    docspec.visit(self.modules, _visit)
-
-    if not self.modules:
-      logger.warning('No modules loaded')
-
   def get_effective_search_path(self, project_dir: Path) -> list[str]:
     search_path = list(self.search_path)
     if '*' in search_path:

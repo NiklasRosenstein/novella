@@ -4,7 +4,7 @@
   from docspec import ApiObject, Function
   from docspec_python import format_arglist as _format_arglist
 
-  def format_arglist(obj: Function, type_hints: bool = False) -> str:
+  def format_arglist(obj: Function, type_hints: bool = True) -> str:
     return _format_arglist(obj.args, type_hints)
 
   def get_fqn(obj: ApiObject) -> str:
@@ -25,8 +25,8 @@ ${'#' * (header_level or options.header_level)} ${prefix} `${get_fqn(obj) if abs
     bases = '(' + ", ".join(obj.bases or []) + ')' if obj.bases else ''
     line = f'class {obj.name}{bases}: ...'
   elif get_type(obj) == 'Function':
-    return_type = (' -> ' + obj.return_type) if obj.return_type else ''
-    line = f'def {obj.name}({format_arglist(obj)}){return_type}: ...'
+    return_type = (' -> ' + obj.return_type) if obj.return_type and options.render_func_typehints else ''
+    line = f'def {obj.name}({format_arglist(obj, options.render_func_typehints)}){return_type}: ...'
   elif get_type(obj) == 'Data':
     if not obj.datatype:
       return
