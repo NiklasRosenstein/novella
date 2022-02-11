@@ -13,7 +13,7 @@ from .loader import PythonLoader
 logger = logging.getLogger(__name__)
 
 
-class PydocProcessor(NovellaTagProcessor):
+class PydocTagProcessor(NovellaTagProcessor):
   """ Processor for the `@pydoc` tag that replaces references with Markdown content that was rendered through Mako
   templates. The output can be customized by modifying the options understood by the default template, or by providing
   custom templates.

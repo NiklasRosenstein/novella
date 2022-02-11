@@ -40,7 +40,7 @@ do "process-markdown" {
     loader.search_path = [ project_directory / "../src" ]
     options['module_after_header'] = True
   }
-  use "./tags/cleo_describe.py"
+  use "cat"
 }
 
 do "run" {

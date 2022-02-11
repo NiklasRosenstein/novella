@@ -1,5 +1,5 @@
 # Processors
 
-@pydoc novella.processors.pydoc_tag.pydoc_tag.PydocProcessor
+@pydoc novella.processors.pydoc.tag.PydocTagProcessor
 
-@pydoc novella.processors.cat_tag.CatTagProcessor
+@pydoc novella.processors.cat.CatTagProcessor

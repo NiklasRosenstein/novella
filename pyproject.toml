@@ -26,8 +26,8 @@ run = "novella.actions.run:RunAction"
 mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
 
 [tool.poetry.plugins."novella.markdown_processors"]
-cat = "novella.processors.cat_tag:CatMarkdownProcessor"
-pydoc = "novella.processors.pydoc_tag.pydoc_tag:PydocProcessor"
+cat = "novella.processors.cat:CatTagProcessor"
+pydoc = "novella.processors.pydoc.tag:PydocTagProcessor"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

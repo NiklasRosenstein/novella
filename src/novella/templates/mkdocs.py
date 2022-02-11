@@ -8,7 +8,7 @@ from novella.template import Template
 
 if t.TYPE_CHECKING:
   from novella.processor import ProcessMarkdownAction
-  from novella.processors.pydoc_tag.pydoc_tag import PydocProcessor
+  from novella.processors.pydoc.tag import PydocTagProcessor
   from novella.actions.run import RunAction
 
 
@@ -43,13 +43,14 @@ class MkdocsTemplate(Template):
     context.do('copy-files', configure_copy_files)
 
     def configure_process_markdown(process_markdown: ProcessMarkdownAction):
-      def configure_pydoc(pydoc: PydocProcessor):
+      def configure_pydoc(pydoc: PydocTagProcessor):
         pydoc.loader.search_path = [ context.project_directory / self.source_directory ]
         pydoc.loader.modules = self.modules
         pydoc.loader.packages = self.packages
         pydoc.template_directories = self.template_directories
         pydoc.options.update(self.options)
       process_markdown.use('pydoc', configure_pydoc)
+      process_markdown.use('cat')
     context.do('process-markdown', configure_process_markdown)
 
     def configure_run(run: RunAction) -> None:

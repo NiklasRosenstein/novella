@@ -18,5 +18,6 @@ class CatTagProcessor(NovellaTagProcessor):
     if '$project' in args:
       path = Path(args.replace('$project', str(novella.project_directory)).strip())
     else:
-      path = (novella.project_directory / path.parent.relative_to(novella.build_directory) / args.strip()).resolve()
+      path = self.current.path.parent.relative_to(novella.build_directory) / args.strip()
+      path = (novella.project_directory / path)
     return path.resolve().read_text()
