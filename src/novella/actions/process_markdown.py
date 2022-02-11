@@ -13,7 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class ProcessMarkdownAction(Action):
-  """ An action to process all Markdown files in the given directory with a given list of processor plugins. """
+  """ An action to process all Markdown files in the given directory with a given list of processor plugins.
+
+  All files are processed in a batch for each processor. This behaviour is relevant because it allows processors
+  to build a full understanding of the content of all files, for example to resovle or correctly produce links
+  between pages.
+  """
 
   def __init__(self) -> None:
     self._processors: list[MarkdownProcessor] = []
@@ -47,8 +52,10 @@ class ProcessMarkdownAction(Action):
       self._processors.append(processor)
 
   def execute(self) -> None:
+    paths = []
     for path in recurse_directory(self.novella.build_directory / self.directory):
       if path.suffix == '.md':
-        logger.info('Process %s', path)
-        for plugin in self._processors:
-          plugin.process_markdown(self.novella, path)
+        paths.append(path)
+    for plugin in self._processors:
+      for path in paths:
+        plugin.process_markdown(self.novella, path)
