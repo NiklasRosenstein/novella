@@ -18,6 +18,17 @@ class ProcessMarkdownAction(Action):
   All files are processed in a batch for each processor. This behaviour is relevant because it allows processors
   to build a full understanding of the content of all files, for example to resovle or correctly produce links
   between pages.
+
+  __Example configuration__:
+
+  ```py
+  do "process-markdown" {
+    use "cat"
+    use "pydoc" {
+      loader.search_path = [ "../src" ]
+    }
+  }
+  ```
   """
 
   def __init__(self) -> None:
