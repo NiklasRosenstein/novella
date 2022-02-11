@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from re import A
 import typing as t
 from pathlib import Path
 
@@ -28,6 +29,12 @@ class Novella:
 
     assert self._build_directory
     return self._build_directory
+
+  def add_action(self, action: Action) -> None:
+    """ Add an action to the pipeline. """
+
+    self._actions.append(action)
+    action.novella = self
 
   def build(self, context: NovellaContext, args: list[str]) -> None:
     """ Run the actions in the Novella pipeline. """

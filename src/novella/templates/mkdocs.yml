@@ -1,3 +1,5 @@
+docs_dir: content
+site_name: My documentation
 theme: material
 markdown_extensions:
 - pymdownx.betterem

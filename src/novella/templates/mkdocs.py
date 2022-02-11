@@ -1,8 +1,11 @@
 
 from __future__ import annotations
 
+import logging
 import typing as t
+from pathlib import Path
 
+from novella.action import Action
 from novella.novella import NovellaContext
 from novella.template import Template
 
@@ -10,6 +13,8 @@ if t.TYPE_CHECKING:
   from novella.processor import ProcessMarkdownAction
   from novella.processors.pydoc.tag import PydocTagProcessor
   from novella.actions.run import RunAction
+
+logger = logging.getLogger(__name__)
 
 
 class MkdocsTemplate(Template):
@@ -34,13 +39,21 @@ class MkdocsTemplate(Template):
   #: Options for the `@pydoc` processor.
   options: dict[str, t.Any] = {}
 
+  #: Apply the default Mkdocs configuration provided alongside this template. Enabled by default.
+  apply_default_config: bool = True
+
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
     context.option("site_dir", "d", description="Build directory for Mkdocs (not with --serve)", default="_site")
 
     def configure_copy_files(copy_files):
-      copy_files.paths = [ 'content', 'mkdocs.yml' ]
+      copy_files.paths = [ self.content_directory ]
+      if (context.project_directory / 'mkdocs.yml').exists():
+        copy_files.paths.append('mkdocs.yml')
     context.do('copy-files', configure_copy_files)
+
+    if self.apply_default_config:
+      context.novella.add_action(_ApplyMkdocsConfig())
 
     def configure_process_markdown(process_markdown: ProcessMarkdownAction):
       def configure_pydoc(pydoc: PydocTagProcessor):
@@ -60,3 +73,25 @@ class MkdocsTemplate(Template):
       else:
         run.args += [ "build", "-d", context.project_directory / context.options.get("site_dir") ]
     context.do('run', configure_run)
+
+
+class _ApplyMkdocsConfig(Action):
+
+  _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
+
+  def execute(self) -> None:
+    import yaml
+    mkdocs_yml = self.novella.build_directory / 'mkdocs.yml'
+    if mkdocs_yml.exists():
+      mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
+      logger.info('Updating %r', mkdocs_yml)
+    else:
+      mkdocs_config = {}
+      logger.info('Generating %r', mkdocs_yml)
+
+    default_config = yaml.safe_load(self._DEFAULT.read_text())
+    for key in default_config:
+      if key not in mkdocs_config:
+        mkdocs_config[key] = default_config[key]
+
+    mkdocs_yml.write_text(yaml.dump(mkdocs_config))
