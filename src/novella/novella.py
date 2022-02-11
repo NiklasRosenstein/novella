@@ -27,7 +27,7 @@ class Novella:
 
   @property
   def build_directory(self) -> Path:
-    """ Returns the build directory. Can only be used inside {@link Novella.run()}. """
+    """ Returns the build directory. Can only be used inside #Novella.run(). """
 
     assert self._build_directory
     return self._build_directory

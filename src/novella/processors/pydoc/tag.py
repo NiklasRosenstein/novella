@@ -38,28 +38,11 @@ class PydocTagProcessor(NovellaTagProcessor):
 
   * `templates.entrypoint`: Defaults to `/base/entrypoint.mako`
   * `templates.class`: Defaults to `/base/class.mako`
+  * `templates.class_attrs_table`: Defaults to `/base/data_table.mako`
+  * `templates.class_method_table`: Defaults to `/base/function_table.mako`
   * `templates.function`: Defaults to `/base/function.mako`
   * `templates.data`: Defaults to `/base/data.mako`
   * `templates.helpers`: Defaults to `/base/helpers.mako`
-
-  Furthermore, the default templates support these options:
-
-  * `absolute_fqn` (`bool`) &ndash; Whether to render the absolute FQN. Defaults to `True`
-  * `exclude_undocumented` (`bool`) &ndash; Whether to exclude undocumented API objects unless they are explicitly
-    required by a `@pydoc` tag.
-  * `header_level` (`int`) &ndash; The initial Markdown header level. Defaults to `2`.
-  * `render_class_def` (`bool`) &ndash; Whether a code block with a classes' definition should be rendered.
-    Defaults to `True`
-  * `render_class_attrs` (`bool`) &ndash; True
-  * `render_class_methods` (`bool`) &ndash; True
-  * `render_class_hr` (`bool`) &ndash; True
-  * `render_data_def` (`bool`) &ndash; True
-  * `render_func_def` (`bool`) &ndash; Whether a code block with a functions' definition should be rendered.
-    Defaults to `True`
-  * `render_func_typehints` (`bool`) &ndash; Whether to render type hints in the function signature produced with
-    `render_func_def`. Defaults to `True`
-  * `render_module_name_after_title` (`bool`) &ndash; Place the module name after the header. Defaults to `False`.
-  * `render_title` (`bool`) &ndash; True
   """
 
   tag_name = 'pydoc'
@@ -97,7 +80,7 @@ class PydocTagProcessor(NovellaTagProcessor):
         'class_member': 3,
         'function': 2,
       },
-      'absolute_fqn': True,
+      'absolute_fqn': False,
       'exclude_undocumented': True,
       'render_class_def': True,
       'render_class_attrs': False,

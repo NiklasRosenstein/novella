@@ -9,7 +9,7 @@
   <tbody>
       % for member in members:
     <tr>
-      <td><code>{@link ${member.name}}</code></td>
+      <td><code>${member.name}</code></td>
       <td>
 
 ${member.docstring.splitlines()[0] if member.docstring else ''}

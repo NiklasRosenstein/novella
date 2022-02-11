@@ -15,7 +15,7 @@ from nr.util.plugins import PluginRegistry
 
 from novella.novella import Novella
 
-# Global registry for plugins that is used by the {@link novella_tag()} decorator.
+# Global registry for plugins that is used by the #novella_tag() decorator.
 plugin_registry: PluginRegistry = threadlocal()
 
 # Entrypoint for plugins registered by other packages.

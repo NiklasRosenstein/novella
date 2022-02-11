@@ -10,7 +10,7 @@
   <tbody>
       % for member in members:
     <tr>
-      <td><code>{@link ${member.name}}</code></td>
+      <td><code>${member.name}</code></td>
       <td><code>${member.datatype or ''}</code></td>
       <td>
 

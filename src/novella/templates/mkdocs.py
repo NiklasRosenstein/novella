@@ -50,6 +50,10 @@ class MkdocsTemplate(Template):
   #: Options for the `@pydoc` processor.
   options: dict[str, t.Any] = {}
 
+  #: The site name to put into the Mkdocs.yml if #apply_default_config is enabled and the site name
+  #: is not already set in your own configuration.
+  site_name: str | None = None
+
   #: Apply the default Mkdocs configuration provided alongside this template. Enabled by default.
   apply_default_config: bool = True
 
@@ -63,8 +67,10 @@ class MkdocsTemplate(Template):
         copy_files.paths.append('mkdocs.yml')
     context.do('copy-files', configure_copy_files)
 
+    def configure_apply_default(apply_default: MkdocsApplyDefaultAction):
+      apply_default.site_name = self.site_name
     if self.apply_default_config:
-      context.do('mkdocs-apply-default')
+      context.do('mkdocs-apply-default', configure_apply_default)
 
     def configure_process_markdown(process_markdown: ProcessMarkdownAction):
       def configure_pydoc(pydoc: PydocTagProcessor):
@@ -90,6 +96,8 @@ class MkdocsApplyDefaultAction(Action):
 
   _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
 
+  site_name: str | None = None
+
   def execute(self) -> None:
     import yaml
     mkdocs_yml = self.novella.build_directory / 'mkdocs.yml'
@@ -101,6 +109,9 @@ class MkdocsApplyDefaultAction(Action):
       logger.info('  Creating <path>%s</path>', mkdocs_yml)
 
     default_config = yaml.safe_load(self._DEFAULT.read_text())
+    if self.site_name:
+      default_config['site_name'] = self.site_name
+
     for key in default_config:
       if key not in mkdocs_config:
         mkdocs_config[key] = default_config[key]
