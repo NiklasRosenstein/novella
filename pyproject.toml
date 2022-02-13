@@ -5,32 +5,27 @@ description = "Editable installs for packages developed with Poetry using Flit."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
 packages = [{ include="novella", from="src" }]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-mako = "^1.1.6"
-pydoc-markdown = "^4.5.0"
-PyYAML = "^5.4.0"
-tomli = "^2.0.0"
+  [tool.poetry.dependencies]
+  python = "^3.10"
+  mako = "^1.1.6"
+  pydoc-markdown = "^4.5.0"
+  PyYAML = "^5.4.0"
+  tomli = "^2.0.0"
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
-types-PyYAML = "^5.4.0"
+  [tool.poetry.dev-dependencies]
+  pytest = "^5.2"
+  types-PyYAML = "^5.4.0"
 
-[tool.poetry.scripts]
-novella = "novella.__main__:main"
+  [tool.poetry.scripts]
+  novella = "novella.__main__:main"
 
-[tool.poetry.plugins."novella.actions"]
-copy-files = "novella.actions.copy_files:CopyFilesAction"
-process-markdown = "novella.actions.process_markdown:ProcessMarkdownAction"
-run = "novella.actions.run:RunAction"
-mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
+  [tool.poetry.plugins."novella.actions"]
+  copy-files = "novella.actions.copy_files:CopyFilesAction"
+  run = "novella.actions.run:RunAction"
+  mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
 
-[tool.poetry.plugins."novella.templates"]
-mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
-
-[tool.poetry.plugins."novella.markdown_processors"]
-cat = "novella.processors.cat:CatTagProcessor"
-pydoc = "novella.processors.pydoc.tag:PydocTagProcessor"
+  [tool.poetry.plugins."novella.templates"]
+  mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

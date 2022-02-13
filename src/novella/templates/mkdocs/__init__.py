@@ -10,45 +10,35 @@ from novella.novella import NovellaContext
 from novella.template import Template
 
 if t.TYPE_CHECKING:
-  from novella.processor import ProcessMarkdownAction
-  from novella.processors.pydoc.tag import PydocTagProcessor
-  from novella.actions.run import RunAction
+  from novella.action import RunAction
 
 logger = logging.getLogger(__name__)
 
 
 class MkdocsTemplate(Template):
-  """ A template to bootstrap a pipeline for processing content for Mkdocs.
+  """ A template to bootstrap an Mkdocs build using Novella. It will set up actions to copy files from the
+  {@attr content_directory} and the `mkdocs.yml` config relative to the Novella configuration file (if the
+  configuration file exists). Then, unless {@attr apply_default_config} is disabled, it will apply a default
+  configuration that is delivered alongside the template (using the Mkdocs-material theme and enabling a
+  bunch of Markdown extensions), and then run Mkdocs to either serve or build the documentation.
 
-  __Example configuration__:
+  The generated action names are `mkdocs-copy-files`, `mkdocs-apply-default` and `mkdocs-run`.
+
+  __Example__
 
   ```py
   template "mkdocs" {
     content_directory = "docs"
-    source_directory = ".."
+  }
+
+  do "my-preprocessor" before: "mkdocs-run" {
+    # ...
   }
   ```
   """
 
   #: The directory that contains the Mkdocs context.
   content_directory: str = 'content'
-
-  #: The source directory that contains the Python source code relative to the Novella build script.
-  source_directory: str = '../src'
-
-  #: The module name(s) to load explicitly. If neither this nor {@attr packages} is set, the Python source
-  #: code to load will be detected automatically.
-  modules: list[str] | None = None
-
-  #: The package name(s) to load explicitly.
-  packages: list[str] | None = None
-
-  #: A list of directories that contains Mako templates to load for the `@pydoc` processor. Use this if you
-  #: want to override custom templates.
-  template_directories: list[str] = []
-
-  #: Options for the `@pydoc` processor.
-  options: dict[str, t.Any] = {}
 
   #: The site name to put into the Mkdocs.yml if #apply_default_config is enabled and the site name
   #: is not already set in your own configuration.
@@ -59,29 +49,18 @@ class MkdocsTemplate(Template):
 
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
-    context.option("site_dir", "d", description="Build directory for Mkdocs (not with --serve)", default="_site")
+    context.option("site_dir", "d", description='Build directory for Mkdocs (defaults to "_site")', default="_site")
 
     def configure_copy_files(copy_files):
       copy_files.paths = [ self.content_directory ]
       if (context.project_directory / 'mkdocs.yml').exists():
         copy_files.paths.append('mkdocs.yml')
-    context.do('copy-files', configure_copy_files)
+    context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
     def configure_apply_default(apply_default: MkdocsApplyDefaultAction):
       apply_default.site_name = self.site_name
     if self.apply_default_config:
-      context.do('mkdocs-apply-default', configure_apply_default)
-
-    def configure_process_markdown(process_markdown: ProcessMarkdownAction):
-      def configure_pydoc(pydoc: PydocTagProcessor):
-        pydoc.loader.search_path = [ context.project_directory / self.source_directory ]
-        pydoc.loader.modules = self.modules
-        pydoc.loader.packages = self.packages
-        pydoc.template_directories = self.template_directories
-        pydoc.options.update(self.options)
-      process_markdown.use('pydoc', configure_pydoc)
-      process_markdown.use('cat')
-    context.do('process-markdown', configure_process_markdown)
+      context.do('mkdocs-apply-default', configure_apply_default, name='mkdocs-apply-default')
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
@@ -89,7 +68,7 @@ class MkdocsTemplate(Template):
         run.args += [ "serve" ]
       else:
         run.args += [ "build", "-d", context.project_directory / context.options.get("site_dir") ]
-    context.do('run', configure_run)
+    context.do('run', configure_run, name='mkdocs-run')
 
 
 class MkdocsApplyDefaultAction(Action):
