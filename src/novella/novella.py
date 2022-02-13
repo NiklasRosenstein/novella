@@ -21,7 +21,8 @@ class Novella:
   def __init__(self, project_directory: Path, build_directory: Path | None) -> None:
     self.project_directory = project_directory
     self._build_directory = build_directory
-    self._actions: list[Action] = []
+    self._pipeline: list[Action] = []
+    self._actions: dict[str, Action] = {}
     self._option_names: list[str] = []
     self._argparser = argparse.ArgumentParser()
 
@@ -32,11 +33,31 @@ class Novella:
     assert self._build_directory
     return self._build_directory
 
-  def add_action(self, action: Action) -> None:
+  def add_action(
+    self,
+    action: Action,
+    name: str | None = None,
+    before: str | None = None,
+    after: str | None = None,
+  ) -> None:
     """ Add an action to the pipeline. """
 
-    self._actions.append(action)
+    if name in self._actions:
+      raise ValueError(f'action name {name!r} already used')
+    if before is not None and after is not None:
+      raise ValueError('arguments "before" and "after" cannot be given at the same time')
+
+    if before is not None:
+      index = self._pipeline.index(self._actions[before])
+    elif after is not None:
+      index = self._pipeline.index(self._actions[after]) + 1
+    else:
+      index = len(self._pipeline)
+
+    self._pipeline.insert(index, action)
     action.novella = self
+    if name is not None:
+      self._actions[name] = action
 
   def build(self, context: NovellaContext, args: list[str]) -> None:
     """ Run the actions in the Novella pipeline. """
@@ -55,8 +76,8 @@ class Novella:
         def unset_build_directory():
           self._build_directory = None
 
-      for action in self._actions:
-        logger.info('Executing action <info>%s</info>', action.get_name())
+      for action in self._pipeline:
+        logger.info('Executing action <info>%s</info>', action.get_description())
         action.execute()
 
   def execute_file(self, file: Path = Path('build.novella')) -> NovellaContext:
@@ -110,7 +131,14 @@ class NovellaContext:
     )
     self.novella._option_names.append(long_name)
 
-  def do(self, action_name: str, closure: t.Callable | None = None) -> None:
+  def do(
+    self,
+    action_name: str,
+    closure: t.Callable | None = None,
+    name: str | None = None,
+    before: str | None = None,
+    after: str | None = None,
+  ) -> None:
     """ Add an action to the Novella pipeline identified by the specified *action_name*. The action will be
     configured once it is created using the *closure*. """
 
@@ -119,7 +147,8 @@ class NovellaContext:
 
     callsite = get_callsite()
     action_cls = load_entrypoint('novella.actions', action_name)
-    self.novella._actions.append(_LazyAction(self.novella, action_name, action_cls, closure, callsite))
+    action = _LazyAction(self.novella, action_name, action_cls, closure, callsite)
+    self.novella.add_action(action, name, before, after)
 
   def template(self, template_name: str, init: t.Callable | None = None, post: t.Callable | None = None) -> None:
     """ Load a template and add it to the Novella pipeline. """
@@ -164,7 +193,7 @@ class _LazyAction(Action):
     return self._action
 
   def get_name(self) -> str:
-    inner_name = self._get_action().get_name()
+    inner_name = self._get_action().get_description()
     if inner_name:
       return f'{self.action_name} ({inner_name})'
     return self.action_name
