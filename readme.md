@@ -8,6 +8,6 @@ domain specific logic, but serves as a framework that [Pydoc-Markdown][] plugs i
   [Mkdocs]: https://www.mkdocs.org/
   [Hugo]: https://gohugo.io/
   [Pydoc-Markdown]: https://github.com/NiklasRosenstein/pydoc-markdown
-  [Novella Documentation]: niklasrosenstein.github.io/novella
+  [Novella Documentation]: https://niklasrosenstein.github.io/novella
 
 Check out the [Novella Documentation][] for more information.
