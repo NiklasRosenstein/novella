@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import logging
 import typing as t
 from pathlib import Path
@@ -15,8 +16,19 @@ if t.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
+class Option:
+  long_name: str | None
+  short_name: str | None
+  description: str | None
+  flag: bool
+  default: str | bool | None
+
+
 class Novella:
   """ This is the main class that controls the build environment and pipeline execution. """
+
+  BUILD_FILE = Path('build.novella')
 
   def __init__(self, project_directory: Path, build_directory: Path | None) -> None:
     self.project_directory = project_directory
@@ -24,7 +36,7 @@ class Novella:
     self._pipeline: list[Action] = []
     self._actions: dict[str, Action] = {}
     self._option_names: list[str] = []
-    self._argparser = argparse.ArgumentParser()
+    self._options: list[Option] = []
 
   @property
   def build_directory(self) -> Path:
@@ -59,13 +71,29 @@ class Novella:
     if name is not None:
       self._actions[name] = action
 
+  def update_argument_parser(self, parser: argparse.ArgumentParser) -> None:
+    for option in self._options:
+      option_names = []
+      if option.long_name:
+        option_names += [f"--{option.long_name}"]
+      if option.short_name:
+        option_names += [f"-{option.short_name}"]
+      parser.add_argument(
+        *option_names,
+        action="store_true" if option.flag else None,
+        help=option.description,
+        default=option.default
+      )
+
   def build(self, context: NovellaContext, args: list[str]) -> None:
     """ Run the actions in the Novella pipeline. """
 
     import contextlib
     import tempfile
 
-    parsed_args = self._argparser.parse_args(args)
+    parser = argparse.ArgumentParser()
+    self.update_argument_parser(parser)
+    parsed_args = parser.parse_args(args)
     for option_name in self._option_names:
       context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
@@ -80,12 +108,12 @@ class Novella:
         logger.info('Executing action <info>%s</info>', action.get_description())
         action.execute()
 
-  def execute_file(self, file: Path = Path('build.novella')) -> NovellaContext:
+  def execute_file(self, file: Path | None = None) -> NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
 
     from craftr.dsl import Closure
     context = NovellaContext(self)
-    Closure(None, None, context).run_code(file.read_text(), str(file))
+    Closure(None, None, context).run_code((file or self.BUILD_FILE).read_text(), str(file))
     return context
 
 
@@ -117,19 +145,8 @@ class NovellaContext:
     if len(long_name) == 1 and not short_name:
       long_name, short_name = '', long_name
 
-    option_names = []
-    if long_name:
-      option_names += [f"--{long_name}"]
-    if short_name:
-      option_names += [f"-{short_name}"]
-
-    self.novella._argparser.add_argument(
-      *option_names,
-      action="store_true" if flag else None,
-      help=description,
-      default=default
-    )
     self.novella._option_names.append(long_name)
+    self.novella._options.append(Option(long_name, short_name, description, flag, default))
 
   def do(
     self,

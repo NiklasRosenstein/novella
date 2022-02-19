@@ -24,12 +24,18 @@ def setup_logging():
 def main():
   setup_logging()
 
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument('-b', '--build-directory', type=Path)
+  parser.add_argument('-h', '--help', action='store_true')
   args, unknown_args = parser.parse_known_args()
 
   novella = Novella(Path.cwd(), args.build_directory)
   context = novella.execute_file()
+
+  if args.help:
+    novella.update_argument_parser(parser)
+    parser.print_help()
+    return
 
   try:
     novella.build(context, unknown_args)

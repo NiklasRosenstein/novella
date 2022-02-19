@@ -20,8 +20,9 @@ packages = [{ include="novella", from="src" }]
   novella = "novella.__main__:main"
 
   [tool.poetry.plugins."novella.actions"]
-  copy-files = "novella.actions.copy_files:CopyFilesAction"
-  run = "novella.actions.run:RunAction"
+  copy-files = "novella.action:CopyFilesAction"
+  nothing = "novella.action:VoidAction"
+  run = "novella.action:RunAction"
   mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
 
   [tool.poetry.plugins."novella.templates"]

@@ -1,5 +1,10 @@
-template "mkdocs" {
-  site_name = 'Novella Documentation'
-  from pydoc_markdown.contrib.renderer.markdown import MarkdownRenderer
-  renderer = MarkdownRenderer()
+option
+  "site_directory"
+  description: "The directory in which to generate the final HTML."
+  default: "_site"
+
+template "mkdocs"
+
+do "nothing" before: "mkdocs-run" closure: {
+  print "Before mkdocs-run!"
 }

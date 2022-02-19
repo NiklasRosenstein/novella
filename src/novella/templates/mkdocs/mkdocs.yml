@@ -3,6 +3,7 @@ site_name: My documentation
 theme: material
 markdown_extensions:
 - markdown.extensions.extra
+- meta
 - pymdownx.betterem
 - pymdownx.caret
 - pymdownx.details

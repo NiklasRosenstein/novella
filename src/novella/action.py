@@ -36,6 +36,14 @@ class Action(abc.ABC):
     return None
 
 
+class VoidAction(Action):
+  """ An action that does nothing. Sometimes used as placeholders in templates to allow users to insert actions
+  before or after the placeholder. """
+
+  def execute(self) -> None:
+    return None
+
+
 class CopyFilesAction(Action):
   """ An action to copy files from the project root to the build directory. This is usually the first step in a
   pipeline as further steps can then freely modify files in the build directory without affecting the original

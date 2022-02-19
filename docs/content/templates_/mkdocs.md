@@ -1,5 +1,3 @@
-# Templates
-
-@pydoc novella.template.Template
+# Mkdocs
 
 @pydoc novella.templates.mkdocs.MkdocsTemplate

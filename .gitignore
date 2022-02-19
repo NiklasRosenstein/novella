@@ -1,4 +1,4 @@
 /dist
-/docs/site
+/docs/_site/
 /poetry.lock
 *.egg-info
