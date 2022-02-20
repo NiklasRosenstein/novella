@@ -38,7 +38,7 @@ def main():
     return
 
   try:
-    novella.build(context, unknown_args)
+    novella.run_build(context, unknown_args)
   except PipelineError as exc:
     print()
     print(

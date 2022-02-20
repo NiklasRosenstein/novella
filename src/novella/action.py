@@ -3,18 +3,32 @@
 from __future__ import annotations
 
 import abc
+import enum
 import logging
 import shlex
 import shutil
 import subprocess as sp
 import sys
 import typing as t
+from functools import reduce
 from pathlib import Path
 
 if t.TYPE_CHECKING:
   from .novella import Novella
 
 logger = logging.getLogger(__name__)
+
+
+class ActionSemantics(enum.IntEnum):
+  """ Flags that indicate the behaviour of an action. """
+
+  #: No particular behaviour.
+  NONE = 0
+
+  #: The action in itself supports an automated reloading mechanism. While the action is
+  #: still running, it will not be re-launched when watched files in the project directory
+  #: changes and is synced to the build directory again.
+  HAS_INTERNAL_RELOADER = 1
 
 
 class Action(abc.ABC):
@@ -27,6 +41,14 @@ class Action(abc.ABC):
   @abc.abstractmethod
   def execute(self) -> None:
     """ Execute the action. """
+
+  def abort(self) -> None:
+    """ Abort the action if it is currently running. Block until the action is aborted. Do nothing otherwise. """
+
+  def get_semantic_flags(self) -> ActionSemantics:
+    """ Return flags for the action to indicate its semantics. """
+
+    return ActionSemantics.NONE
 
   def get_description(self) -> str | None:
     """ Return a short text description of the action. This is printed to the console when the action is executed.
@@ -60,11 +82,12 @@ class CopyFilesAction(Action):
 
   def execute(self) -> None:
     assert isinstance(self.paths, list)
-    logger.info('  Copy <fg=cyan>%s</fg> to <path>%s</path>', self.paths, self.novella.build_directory)
+    logger.info('Copy <fg=cyan>%s</fg> to <path>%s</path>', self.paths, self.novella.build.directory)
     for path in self.paths:
       assert isinstance(path, (str, Path)), repr(path)
       source = self.novella.project_directory / path
-      dest = self.novella.build_directory / path
+      dest = self.novella.build.directory / path
+      self.novella.build.watch(source)
       if source.is_file():
         shutil.copyfile(source, dest)
       else:
@@ -83,14 +106,41 @@ class RunAction(Action):
 
   def __init__(self) -> None:
     self.args: list[str | Path] = []
+    self._flags: ActionSemantics = ActionSemantics.NONE
+    self._proc: sp.Popen | None = None
+    self._aborted = False
 
-  def get_description(self) -> str | None:
-    return '$ ' + ' '.join(map(shlex.quote, map(str, self.args)))
+  @property
+  def flags(self) -> ActionSemantics:
+    return self._flags
+
+  @flags.setter
+  def flags(self, value: str | ActionSemantics) -> None:
+    if isinstance(value, str):
+      value = reduce(lambda a, b: a | b, (ActionSemantics[k.strip().upper()] for k in value.split('|')))
+    assert isinstance(value, ActionSemantics), type(value)
+    self._flags = value
 
   def execute(self) -> None:
     if not self.args:
       raise RuntimeError('no args specified')
     try:
-      sp.check_call(self.args, cwd=self.novella.build_directory)
+      self._proc = sp.Popen(self.args, cwd=self.novella.build.directory)
+      self._proc.wait()
+      if self._proc.returncode != 0 and not self._aborted:
+        raise RuntimeError(f'command exited with code {self._proc.returncode}')
     except KeyboardInterrupt:
-      sys.exit(1)
+      # TODO: Indicate failure of the subprocess?
+      return
+
+  def abort(self) -> None:
+    if self._proc:
+      self._aborted = True
+      self._proc.terminate()
+      self._proc.wait()
+
+  def get_semantic_flags(self) -> ActionSemantics:
+    return self._flags
+
+  def get_description(self) -> str | None:
+    return '$ ' + ' '.join(map(shlex.quote, map(str, self.args)))

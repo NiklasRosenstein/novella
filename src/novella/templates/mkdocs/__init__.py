@@ -5,7 +5,7 @@ import logging
 import typing as t
 from pathlib import Path
 
-from novella.action import Action
+from novella.action import Action, ActionSemantics
 from novella.novella import NovellaContext
 from novella.template import Template
 
@@ -65,6 +65,8 @@ class MkdocsTemplate(Template):
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
       if context.options.get("serve"):
+        context.enable_file_watching()
+        run.flags = ActionSemantics.HAS_INTERNAL_RELOADER
         run.args += [ "serve" ]
       else:
         run.args += [ "build", "-d", context.project_directory / context.options.get("site_dir") ]
@@ -79,13 +81,13 @@ class MkdocsApplyDefaultAction(Action):
 
   def execute(self) -> None:
     import yaml
-    mkdocs_yml = self.novella.build_directory / 'mkdocs.yml'
+    mkdocs_yml = self.novella.build.directory / 'mkdocs.yml'
     if mkdocs_yml.exists():
       mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
-      logger.info('  Updating <path>%s</path>', mkdocs_yml)
+      logger.info('Updating <path>%s</path>', mkdocs_yml)
     else:
       mkdocs_config = {}
-      logger.info('  Creating <path>%s</path>', mkdocs_yml)
+      logger.info('Creating <path>%s</path>', mkdocs_yml)
 
     default_config = yaml.safe_load(self._DEFAULT.read_text())
     if self.site_name:

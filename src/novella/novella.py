@@ -7,10 +7,11 @@ import logging
 import typing as t
 from pathlib import Path
 
-from .action import Action
+from novella.action import Action, ActionSemantics
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
+  from novella.build import Builder
   from novella.template import Template
 
 logger = logging.getLogger(__name__)
@@ -37,13 +38,15 @@ class Novella:
     self._actions: dict[str, Action] = {}
     self._option_names: list[str] = []
     self._options: list[Option] = []
+    self._enable_watching = True
+    self._build: Builder | None = None
 
   @property
-  def build_directory(self) -> Path:
-    """ Returns the build directory. Can only be used inside #Novella.run(). """
+  def build(self) -> Builder:
+    """ Returns the build manager. Can only be used inside #Novella.run(). """
 
-    assert self._build_directory
-    return self._build_directory
+    assert self._build is not None
+    return self._build
 
   def add_action(
     self,
@@ -86,11 +89,13 @@ class Novella:
         default=option.default
       )
 
-  def build(self, context: NovellaContext, args: list[str]) -> None:
-    """ Run the actions in the Novella pipeline. """
+  def run_build(self, context: NovellaContext, args: list[str]) -> None:
+    """ Execute the Novella pipeline. """
 
     import contextlib
     import tempfile
+
+    from .build import DefaultBuilder
 
     parser = argparse.ArgumentParser()
     self.update_argument_parser(parser)
@@ -98,16 +103,13 @@ class Novella:
     for option_name in self._option_names:
       context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
-    with contextlib.ExitStack() as exit_stack:
-      if not self._build_directory:
-        self._build_directory = Path(exit_stack.enter_context(tempfile.TemporaryDirectory(prefix='novella-')))
-        @exit_stack.callback
-        def unset_build_directory():
-          self._build_directory = None
-
-      for action in self._pipeline:
-        logger.info('Executing action <info>%s</info>', action.get_description())
-        action.execute()
+    try:
+      self._build = DefaultBuilder(list(self._actions.values()), self._build_directory)
+      if self._enable_watching:
+        self._build.enable_watching()
+      self._build.run()
+    finally:
+      self._build = None
 
   def execute_file(self, file: Path | None = None) -> NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
@@ -130,7 +132,7 @@ class NovellaContext:
 
   @property
   def build_directory(self) -> Path:
-    return self.novella.build_directory
+    return self.novella.build.directory
 
   def option(
     self,
@@ -181,6 +183,9 @@ class NovellaContext:
     if post:
       post(template)
 
+  def enable_file_watching(self) -> None:
+    self.novella._enable_watching = True
+
 
 class _LazyAction(Action):
 
@@ -210,11 +215,14 @@ class _LazyAction(Action):
         self.closure(self._action)
     return self._action
 
-  def get_name(self) -> str:
+  def get_description(self) -> str | None:
     inner_name = self._get_action().get_description()
     if inner_name:
       return f'{self.action_name} ({inner_name})'
     return self.action_name
+
+  def get_semantic_flags(self) -> ActionSemantics:
+    return self._get_action().get_semantic_flags()
 
   def execute(self) -> None:
     action = self._get_action()
@@ -222,6 +230,9 @@ class _LazyAction(Action):
       action.execute()
     except Exception as exc:
       raise PipelineError(self.action_name, self.callsite) from exc
+
+  def abort(self) -> None:
+    return self._get_action().abort()
 
 
 class PipelineError(Exception):
