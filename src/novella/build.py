@@ -64,7 +64,9 @@ class DefaultBuilder(Builder):
         builder._status = DefaultBuilder.Status.STARTING
         current_action = builder._current_action
 
+      logger.info('<fg=blue;attr=bold>Detected file changes, re-executing pipeline ...</fg>')
       if current_action and current_action.get_semantic_flags() & ActionSemantics.HAS_INTERNAL_RELOADER:
+        logger.info('  Keeping <fg=blue>%s</fg> alive.', current_action.get_description())
         builder._run_actions(builder._past_actions, True)
         with builder._lock:
           builder._status = DefaultBuilder.Status.RUNNING
