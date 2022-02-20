@@ -72,13 +72,14 @@ class Novella:
       self._actions[name] = action
 
   def update_argument_parser(self, parser: argparse.ArgumentParser) -> None:
+    group = parser.add_argument_group('script')
     for option in self._options:
       option_names = []
       if option.long_name:
         option_names += [f"--{option.long_name}"]
       if option.short_name:
         option_names += [f"-{option.short_name}"]
-      parser.add_argument(
+      group.add_argument(
         *option_names,
         action="store_true" if option.flag else None,
         help=option.description,
