@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "novella"
 version = "0.1.0"
-description = "Editable installs for packages developed with Poetry using Flit."
+description = "Linear build system for Markdown preprocessing and static site generation."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
 packages = [{ include="novella", from="src" }]
 
@@ -11,6 +11,7 @@ packages = [{ include="novella", from="src" }]
   pydoc-markdown = "^4.5.0"
   PyYAML = "^5.4.0"
   tomli = "^2.0.0"
+  watchdog = "^2.0.0"
 
   [tool.poetry.dev-dependencies]
   pytest = "^5.2"
