@@ -29,14 +29,14 @@ import typing as t
 from nr.util.scanner import Scanner
 
 
-class Tag(t.NamedTuple):
+class BlockTag(t.NamedTuple):
   name: str
   args: str
   line_idx: int
   end_line_idx: int
 
 
-def parse_tags(content: str | t.Sequence[str]) -> t.Iterator[Tag]:
+def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
   """ Parses all tags encountered in the Markdown content. """
 
   if isinstance(content, str):
@@ -73,18 +73,20 @@ def parse_tags(content: str | t.Sequence[str]) -> t.Iterator[Tag]:
     else:
       lines.advance()
 
-    yield Tag(name, args, start_lineno, max(start_lineno, lines.index - 2))
+    yield BlockTag(name, args, start_lineno, max(start_lineno, lines.index - 2))
 
 
-def replace_tags(content: str, repl: t.Callable[[Tag], str | t.Iterable[str]]) -> str:
+def replace_block_tags(content: str, repl: t.Callable[[BlockTag], str | t.Iterable[str]]) -> str:
   """ Replaces all tags in *content* by the text that *repl* returns for it. """
 
   lines = content.splitlines()
   offset = 0
-  for tag in parse_tags(lines[:]):
+  for tag in parse_block_tags(lines[:]):
     replacement = repl(tag)
     if isinstance(replacement, str):
       replacement = [replacement]
+    if replacement is None:
+      continue
     lines[tag.line_idx+offset:tag.end_line_idx+1+offset] = replacement
     offset -= (tag.end_line_idx - tag.line_idx + 1) - len(replacement)
   return '\n'.join(lines)

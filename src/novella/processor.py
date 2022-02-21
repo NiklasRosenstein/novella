@@ -22,7 +22,7 @@ plugin_registry: PluginRegistry = threadlocal()
 ENTRYPOINT = 'novella.markdown_processors'
 
 
-class MarkdownProcessor(abc.ABC):
+class MarkdownPreprocessor(abc.ABC):
   """ Interface for processing markdown files. When called, the processor is expected to read the contents of the
   file and rewrite its contents if needed. """
 
@@ -72,7 +72,7 @@ def novella_tag(arg):
         processor = processor()
       else:
         processor = _DelegateTagProcessor(arg, processor)
-      plugin_registry.register(MarkdownProcessor, arg, processor)
+      plugin_registry.register(MarkdownPreprocessor, arg, processor)
       return original
     return decorator
   else:
@@ -87,7 +87,7 @@ class NovellaTagContext(t.NamedTuple):
   args: str
 
 
-class NovellaTagProcessor(MarkdownProcessor):
+class NovellaTagProcessor(MarkdownPreprocessor):
   """ This class implements the detection and replacement of Novella tags in Markdown files. A Novella tag is an
   identifier that is prefixed with an `@` (at) character at the start of the line, outside of a Markdown code block.
   The content that the tag is replaced with must be implemented by a subclass in {@func replace_tag()}.

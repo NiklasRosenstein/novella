@@ -92,9 +92,6 @@ class Novella:
   def run_build(self, context: NovellaContext, args: list[str]) -> None:
     """ Execute the Novella pipeline. """
 
-    import contextlib
-    import tempfile
-
     from .build import DefaultBuilder
 
     parser = argparse.ArgumentParser()
@@ -104,7 +101,7 @@ class Novella:
       context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
     try:
-      self._build = DefaultBuilder(list(self._actions.values()), self._build_directory)
+      self._build = DefaultBuilder(self._pipeline, self._build_directory)
       if self._enable_watching:
         self._build.enable_watching()
       self._build.run()
@@ -166,7 +163,7 @@ class NovellaContext:
     from nr.util.plugins import load_entrypoint
 
     callsite = get_callsite()
-    action_cls = load_entrypoint('novella.actions', action_name)
+    action_cls = load_entrypoint(Action, action_name)
     action = _LazyAction(self.novella, action_name, action_cls, closure, callsite)
     self.novella.add_action(action, name, before, after)
 
@@ -174,8 +171,9 @@ class NovellaContext:
     """ Load a template and add it to the Novella pipeline. """
 
     from nr.util.plugins import load_entrypoint
+    from novella.template import Template
 
-    template_cls: type[Template] = load_entrypoint('novella.templates', template_name)
+    template_cls: type[Template] = load_entrypoint(Template, template_name)
     template = template_cls()
     if init:
       init(template)
@@ -203,6 +201,9 @@ class _LazyAction(Action):
     self.closure = closure
     self.callsite = callsite
     self._action: Action | None = None
+
+  def __repr__(self) -> str:
+    return f'_LazyAction({self.action_name!r})'
 
   def __str__(self) -> str:
     return self.action_name

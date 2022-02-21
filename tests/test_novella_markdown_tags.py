@@ -1,9 +1,9 @@
 
-from novella.markdown.tags import Tag, parse_tags, replace_tags
+from novella.markdown.tagparser import BlockTag, parse_block_tags, replace_block_tags
 
 
 def test_parse_tags():
-  assert list(parse_tags('''
+  assert list(parse_block_tags('''
 Hello, World!
 
 @cde
@@ -17,16 +17,16 @@ Normal content
 
 @abc Foobar
 ''')) == [
-  Tag('cde', '\nSpam and eggs\n  And more things\nAnd more', 3, 6),
-  Tag('abc', ' Foobar', 12, 12),
+  BlockTag('cde', '\nSpam and eggs\n  And more things\nAnd more', 3, 6),
+  BlockTag('abc', ' Foobar', 12, 12),
 ]
 
 
 def test_replace_tags():
-  def _repl(t: Tag) -> str:
+  def _repl(t: BlockTag) -> str:
     print(t)
     return ' '.join(t.args.split())
-  assert replace_tags('''
+  assert replace_block_tags('''
 @cdef Hello World!
 
 @abc Foo

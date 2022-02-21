@@ -73,7 +73,7 @@ class DefaultBuilder(Builder):
       elif current_action:
         current_action.abort()
 
-  def __init__(self, actions: list[Action], build_directory: Path | None) -> None:
+  def __init__(self, actions: t.Sequence[Action], build_directory: Path | None) -> None:
     import contextlib
 
     self._actions = actions
@@ -102,7 +102,7 @@ class DefaultBuilder(Builder):
       if not off_record:
         with self._lock:
           self._current_action = action
-          logger.debug('Executing action <info>%s</info>', action.get_description())
+          logger.info('Executing action <info>%s</info>', action.get_description())
       try:
         action.execute()
       finally:

@@ -44,7 +44,7 @@ allowing a user after the template was applied to inject actions into the sequen
 ```py
 template "mkdocs"
 
-do "process-markdown" before: "run-mkdocs" closure: {
+action "mkdocs-preprocess" {
   # ...
 }
 ```

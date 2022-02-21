@@ -11,6 +11,7 @@ from novella.template import Template
 
 if t.TYPE_CHECKING:
   from novella.action import RunAction
+  from novella.markdown.preprocessor import MarkdownPreprocessorAction
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,11 @@ class MkdocsTemplate(Template):
       apply_default.site_name = self.site_name
     if self.apply_default_config:
       context.do('mkdocs-apply-default', configure_apply_default, name='mkdocs-apply-default')
+
+    def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
+      preprocessor.use('cat')
+      preprocessor.use('anchor')
+    context.do('preprocess-markdown', configure_preprocess_markdown)
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]

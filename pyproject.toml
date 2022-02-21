@@ -25,6 +25,11 @@ packages = [{ include="novella", from="src" }]
   nothing = "novella.action:VoidAction"
   run = "novella.action:RunAction"
   mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
+  preprocess-markdown = "novella.markdown.preprocessor:MarkdownPreprocessorAction"
+
+  [tool.poetry.plugins."novella.markdown.preprocessors"]
+  cat = "novella.tags.cat:CatTagProcessor"
+  anchor = "novella.tags.anchor:AnchorTagProcessor"
 
   [tool.poetry.plugins."novella.templates"]
   mkdocs = "novella.templates.mkdocs:MkdocsTemplate"

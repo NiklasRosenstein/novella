@@ -34,6 +34,8 @@ class ActionSemantics(enum.IntEnum):
 class Action(abc.ABC):
   """ Base class for actions that can be embedded in a Novella pipeline. """
 
+  ENTRYPOINT = 'novella.actions'
+
   #: The instance of the Novella application object that controls the pipeline and lifecycle of the build process.
   #: This is set when the action is added to the pipeline and is always available {@meth execute()} is called.
   novella: Novella
