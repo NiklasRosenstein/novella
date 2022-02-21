@@ -32,6 +32,7 @@ from nr.util.scanner import Scanner
 class BlockTag(t.NamedTuple):
   name: str
   args: str
+  options: dict[str, t.Any]
   line_idx: int
   end_line_idx: int
 
@@ -73,7 +74,11 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
     else:
       lines.advance()
 
-    yield BlockTag(name, args, start_lineno, max(start_lineno, lines.index - 2))
+    # Parse TOML options after encountering the `:with` keyword.
+    args, _, options_string = args.partition(':with')
+    options = parse_options(options_string) if options_string else {}
+
+    yield BlockTag(name, args, options, start_lineno, max(start_lineno, lines.index - 2))
 
 
 def replace_block_tags(content: str, repl: t.Callable[[BlockTag], str | t.Iterable[str]]) -> str:
@@ -90,3 +95,27 @@ def replace_block_tags(content: str, repl: t.Callable[[BlockTag], str | t.Iterab
     lines[tag.line_idx+offset:tag.end_line_idx+1+offset] = replacement
     offset -= (tag.end_line_idx - tag.line_idx + 1) - len(replacement)
   return '\n'.join(lines)
+
+
+def parse_options(options: str) -> dict[str, t.Any]:
+  """ Parses options formatted as TOML. Inline tables may be used without additional wrapping.
+
+  Examples:
+
+  * `value = "foo"` &rarr; Returns `{ "value": "foo" }`
+  * `{ value1 = "foo", value = 42 }` &rarr; Returns `{ "value1": "foo", "value": 42 }`
+
+  Normal TOML spanning multiple lines and using section names is supported as well.
+  """
+
+  import tomli
+  options = options.strip()
+
+  if options.startswith('{'):
+    mapping = tomli.loads(f'a = [{options}]')
+    return mapping.popitem()[1][0]
+  elif options.startswith('['):
+    raise ValueError('option string cannot start with `[`')
+  else:
+    mapping = tomli.loads(options)
+    return mapping

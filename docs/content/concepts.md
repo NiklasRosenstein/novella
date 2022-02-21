@@ -10,6 +10,7 @@ Novella itself:
 2. Actions
 3. Templates
 
+@anchor docs:novella:concepts:options
 ## Options
 
 An option is defined using the `NovellaContext.option()` function and allows you to define a command-line option that
@@ -22,6 +23,7 @@ option
   default: "_site"
 ```
 
+@anchor docs:novella:concepts:actions
 ## Actions
 
 Actions are plugins that execute some logic when its their turn and are declared using the `NovellaContext.do()`
@@ -49,6 +51,7 @@ action "mkdocs-preprocess" {
 }
 ```
 
+@anchor docs:novella:concepts:templates
 ## Templates
 
 A template is a plugin that takes over definition of the Novella pipeline to avoid some boilerplate in your
