@@ -4,6 +4,8 @@ from __future__ import annotations
 import dataclasses
 import logging
 import os
+import re
+import textwrap
 import typing as t
 from pathlib import Path
 
@@ -97,9 +99,9 @@ class MkdocsTemplate(Template):
 
   1. `mkdocs-copy-files` &ndash; a `copy-files` action to copy the #content_directory and the `mkdocs.yml` (if it
      exists) to the build directory.
-  2. `mkdocs-apply-default` &ndash; An internal action provided by the Mkdocs template to apply the default
-     configuration delivered with the template on top of your existing `mkdocs.yml`; or if you dont provide your
-     own `mkdocs.yml` configuration file, the template configuration will be materialized as is.
+  2. `mkdocs-apply-default` &ndash; An internal action provided by the Mkdocs template to either create an `mkdocs.yml`
+     or apply defaults from the template delivered with Novella. Check out the #MkdocsApplyDefaultAction for more
+     details.
   3. `mkdocs-preprocess-markdown` &ndash; An instance of the `preprocess-markdown` action, setup with builtin
      preprocessors such as `cat` and `anchor`. The anchor plugin is preconfigured with a
      #MkdocsMkdocsAnchorAndLinkRenderer instance which renders the correct links for Mkdocs compatible markdown files.
@@ -146,7 +148,7 @@ class MkdocsTemplate(Template):
     context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
     def configure_apply_default(apply_default: MkdocsApplyDefaultAction):
-      apply_default.site_name = self.site_name
+      apply_default.site_name = lambda: self.site_name
     if self.apply_default_config:
       context.do('mkdocs-apply-default', configure_apply_default, name='mkdocs-apply-default')
 
@@ -169,10 +171,38 @@ class MkdocsTemplate(Template):
 
 
 class MkdocsApplyDefaultAction(Action):
+  r""" An action to apply the Novella mkdocs template default configuration, which enables the Material theme and
+  a number of useful Mkdocs extensions. If a configuration file already exists, it will be updated to fill in any
+  values from the template that are not already present on the top-level.
+
+  The default configuration that is generated or applied on the existing configuration is:
+
+  ```
+  docs_dir: content
+  site_name: My documentation
+  theme: material
+  markdown_extensions:
+  - markdown.extensions.extra
+  - meta
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed: { alternate_style: true }
+  - pymdownx.tasklist: { custom_checkbox: true }
+  - pymdownx.tilde
+  ```
+  """
 
   _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
+  _DEFAULT_CONFIG = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))
 
-  site_name: str | None = None
+  site_name: Supplier[str] | None = None
 
   def execute(self) -> None:
     import yaml
@@ -184,9 +214,9 @@ class MkdocsApplyDefaultAction(Action):
       mkdocs_config = {}
       logger.info('Creating <path>%s</path>', mkdocs_yml)
 
-    default_config = yaml.safe_load(self._DEFAULT.read_text())
+    default_config = yaml.safe_load(self._DEFAULT_CONFIG)
     if self.site_name:
-      default_config['site_name'] = self.site_name
+      default_config['site_name'] = self.site_name()
 
     for key in default_config:
       if key not in mkdocs_config:
