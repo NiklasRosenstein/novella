@@ -1,5 +1,5 @@
 
-from novella.markdown.tagparser import Tag, parse_block_tags, parse_inline_tags, replace_block_tags
+from novella.markdown.tagparser import Tag, parse_block_tags, parse_inline_tags, replace_tags
 
 
 def test_parse_block_tags():
@@ -24,16 +24,14 @@ Normal content
   assert text[slice(*tags[0].offset_span)] == '''@cde
   Spam and eggs
     And more things
-  And more
-'''
+  And more'''
 
   assert text[slice(*tags[1].offset_span)] == '''@abc Foobar
-  Spam and eggs
-'''
+  Spam and eggs'''
 
   assert tags == [
-    Tag('cde', '\nSpam and eggs\n  And more things\nAnd more', {}, (16, 68), (3, 6)),
-    Tag('abc', ' Foobar\nSpam and eggs', {}, (108, 136), (12, 13)),
+    Tag('cde', '\nSpam and eggs\n  And more things\nAnd more', {}, (16, 67), (3, 6)),
+    Tag('abc', ' Foobar\nSpam and eggs', {}, (108, 135), (12, 13)),
   ]
 
 
@@ -41,7 +39,7 @@ def test_replace_block_tags():
   def _repl(t: Tag) -> str:
     print(t)
     return ' '.join(t.args.split())
-  assert replace_block_tags('''
+  text = '''
 @cdef Hello World!
 
 @abc Foo
@@ -49,7 +47,9 @@ def test_replace_block_tags():
     Baz
   Bazinga
 
-    @not a tag''', _repl) == '''
+    @not a tag'''
+  tags = parse_block_tags(text)
+  assert replace_tags(text, tags, _repl) == '''
 Hello World!
 
 Foo Bar Baz Bazinga
