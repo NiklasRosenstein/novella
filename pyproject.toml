@@ -23,6 +23,8 @@ packages = [{ include="novella", from="src" }]
 
   [tool.poetry.dev-dependencies]
   pytest = "*"
+  mkdocs = "*"
+  mkdocs-material = "*"
   mypy = "*"
   types-PyYAML = "^5.4.0"
 
