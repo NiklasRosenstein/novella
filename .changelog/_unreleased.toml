@@ -9,3 +9,9 @@ id = "6325f493-38a5-4dc9-842e-557efa94fcda"
 type = "docs"
 description = "include Mkdocs default configuration delivered with Novella in `MkdocsApplDefaultAction` docstring"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "f8f29519-982c-49c1-a5d9-336731d42453"
+type = "feature"
+description = "implement `@shell` tag preprocessor"
+author = "@NiklasRosenstein"

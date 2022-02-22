@@ -153,6 +153,7 @@ class MkdocsTemplate(Template):
       context.do('mkdocs-apply-default', configure_apply_default, name='mkdocs-apply-default')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
+      preprocessor.use('shell')
       preprocessor.use('cat')
       def configure_anchor(anchor: AnchorTagProcessor):
         anchor.renderer = MkdocsMkdocsAnchorAndLinkRenderer(lambda: self.content_directory)

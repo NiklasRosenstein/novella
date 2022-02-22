@@ -37,8 +37,9 @@ packages = [{ include="novella", from="src" }]
   preprocess-markdown = "novella.markdown.preprocessor:MarkdownPreprocessorAction"
 
   [tool.poetry.plugins."novella.markdown.preprocessors"]
-  cat = "novella.tags.cat:CatTagProcessor"
   anchor = "novella.tags.anchor:AnchorTagProcessor"
+  cat = "novella.tags.cat:CatTagProcessor"
+  shell = "novella.tags.shell:ShellTagProcessor"
 
   [tool.poetry.plugins."novella.templates"]
   mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
