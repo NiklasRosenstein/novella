@@ -142,7 +142,7 @@ class MkdocsTemplate(Template):
         run.flags = ActionSemantics.HAS_INTERNAL_RELOADER
         run.args += [ "serve" ]
       else:
-        run.args += [ "build", "-d", context.project_directory / str(context.options.get("site-dir")) ]
+        run.args += [ "build", "-d", context.project_directory / str(context.options["site-dir"]) ]
     context.do('run', configure_run, name='mkdocs-run')
 
 
