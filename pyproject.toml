@@ -3,11 +3,18 @@ name = "novella"
 version = "0.1.0"
 description = "Linear build system for Markdown preprocessing and static site generation."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
+license = "MIT"
+readme = "readme.md"
 packages = [{ include="novella", from="src" }]
+
+  [tool.poetry.urls]
+  Homepage = "https://github.com/NiklasRosenstein/novella"
+  Documentation = "https://niklasrosenstein.github.io/novella"
 
   [tool.poetry.dependencies]
   python = "^3.10"
   mako = "^1.1.6"
+  "nr.util" = ">=0.7.1"
   pydoc-markdown = "^4.5.0"
   PyYAML = "^5.4.0"
   tomli = "^2.0.0"
@@ -15,6 +22,7 @@ packages = [{ include="novella", from="src" }]
 
   [tool.poetry.dev-dependencies]
   pytest = "^5.2"
+  mypy = "*"
   types-PyYAML = "^5.4.0"
 
   [tool.poetry.scripts]
@@ -33,6 +41,14 @@ packages = [{ include="novella", from="src" }]
 
   [tool.poetry.plugins."novella.templates"]
   mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
+
+[tool.slam]
+typed = true
+
+  [tool.slam.test]
+  pytest = "pytest -vv tests/"
+  mypy = "mypy src/"
+  check = "slam check"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
