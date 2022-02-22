@@ -1,2 +1,4 @@
 @anchor docs:novella:home
-@cat ../../readme.md
+# Welcome to the Novella documentation!
+
+@cat ../../readme.md :with slice_lines = "2:"

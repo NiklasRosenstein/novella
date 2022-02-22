@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+import logging
 import typing as t
 from pathlib import Path
 
@@ -10,11 +11,25 @@ from novella.novella import Novella
 if t.TYPE_CHECKING:
   from novella.markdown.tagparser import Tag
 
+logger = logging.getLogger(__name__)
+
 
 class CatTagProcessor(MarkdownPreprocessor):
-  """ Replaces `@cat <filename>` tags with the contents of the referenced filename. The string `$project` may be
-  used in the filename argument to reference the project directory; otherwise the path will be considered relative
-  to the current file in the project directory (not the temporary build directory). """
+  """ Replaces `@cat <filename>` tags with the contents of the referenced filename. If the filename argument
+  starts with a slash, the path is considered relative to the project root directory (the one where the Novella
+  build file resides in). The filename is resolved in the project directory (not the temporary build directory).
+
+  __Options__
+
+  * `slice_lines` (str) &ndash; A Python-style slice string that will slice the lines that are inserted into
+    the file. Useful to strip parts of the referenced file.
+
+  __Example__
+
+      # Welcome to the Novella documentation!
+
+      @cat ../../readme.md :with slice_lines = "2:"
+  """
 
   def process_files(self, files: MarkdownFiles) -> None:
     from novella.markdown.tagparser import parse_block_tags, replace_tags
@@ -24,7 +39,6 @@ class CatTagProcessor(MarkdownPreprocessor):
 
   def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag) -> str | None:
     if tag.name != 'cat': return None
-    # TODO (@NiklasRosenstein): Parse TOML options in block tag
     args = tag.args.strip()
     if args.startswith('/'):
       path = Path(novella.project_directory / args[1:])
@@ -34,7 +48,15 @@ class CatTagProcessor(MarkdownPreprocessor):
       path = (novella.project_directory / path)
     path = path.resolve()
     try:
-      return path.resolve().read_text()
+      text = path.resolve().read_text()
     except FileNotFoundError:
-      # TODO (@NiklasRosenstein): Log a warning
+      logger.warning('@cat unable to resolve <fg=cyan>%s</fg> in file <fg=yellow>%s</fg>', args, file_path)
       return None
+
+    if 'slice_lines' in tag.options:
+      # TODO (@NiklasRosenstein): This is pretty dirty; we should parse the slice ourselves.
+      lines = text.splitlines()
+      lines = eval(f'lines[{tag.options["slice_lines"]}]')
+      text = '\n'.join(lines)
+
+    return text
