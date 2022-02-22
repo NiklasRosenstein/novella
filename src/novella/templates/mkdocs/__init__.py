@@ -115,7 +115,7 @@ class MkdocsTemplate(Template):
 
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
-    context.option("site_dir", "d", description='Build directory for Mkdocs (defaults to "_site")', default="_site")
+    context.option("site-dir", "d", description='Build directory for Mkdocs (defaults to "_site")', default="_site")
 
     def configure_copy_files(copy_files):
       copy_files.paths = [ self.content_directory ]
