@@ -64,10 +64,20 @@ class MarkdownPreprocessorAction(Action):
       if file.changed():
         (root / file.path).write_text(file.content, self.encoding)
 
-  def use(self, processor: str | MarkdownPreprocessor, closure: _Closure | None = None, name: str | None = None) -> None:
+  def use(
+    self,
+    processor: str | MarkdownPreprocessor,
+    closure: _Closure | None = None,
+    name: str | None = None,
+    before: str | None = None,
+    head: bool = False,
+  ) -> None:
     """ Register a processor for use in the plugin. """
 
     from nr.util.plugins import load_entrypoint, NoSuchEntrypointError
+
+    if head and before is not None:
+      raise ValueError('arguments "head" and "before" cannot be used at the same time')
 
     if isinstance(processor, str):
       try:
@@ -83,9 +93,17 @@ class MarkdownPreprocessorAction(Action):
     if not isinstance(processor, MarkdownPreprocessor):
       raise TypeError(f'expected MarkdownProcessor, got {type(processor).__name__}')
 
+    if head:
+      insert_index = 0
+    elif before is not None:
+      insert_index = self._pipeline.index(self._processors[before])
+    else:
+      insert_index = len(self._pipeline)
+
     if closure:
       closure(processor)
-    self._pipeline.append(processor)
+
+    self._pipeline.insert(insert_index, processor)
     if name is not None:
       self._processors[name] = processor
 
