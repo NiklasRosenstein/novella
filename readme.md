@@ -11,3 +11,5 @@ specific logic, but serves as a framework that [Pydoc-Markdown][] plugs into.
   [Novella Documentation]: https://niklasrosenstein.github.io/novella
 
 Check out the [Novella Documentation][] for more information.
+
+> Note: Novella is currently a work in progress project and is considered unstable.

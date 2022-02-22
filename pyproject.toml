@@ -14,9 +14,7 @@ packages = [{ include="novella", from="src" }]
   [tool.poetry.dependencies]
   python = "^3.10"
   craftr-dsl = "^0.7.4"
-  mako = "^1.1.6"
   "nr.util" = ">=0.7.1"
-  pydoc-markdown = "^4.5.0"
   PyYAML = "^5.4.0"
   tomli = "^2.0.0"
   watchdog = "^2.0.0"
