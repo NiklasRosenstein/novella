@@ -102,7 +102,7 @@ class AnchorTagProcessor(MarkdownPreprocessor):
 
     return self.renderer.render_anchor(anchor)
 
-  def _replace_link(self, file: MarkdownFile, tag: Tag) -> str:
+  def _replace_link(self, file: MarkdownFile, tag: Tag) -> str | None:
     assert self.renderer
 
     if tag.name != 'link':

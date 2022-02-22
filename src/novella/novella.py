@@ -84,7 +84,7 @@ class Novella:
         option_names += [f"-{option.short_name}"]
       group.add_argument(
         *option_names,
-        action="store_true" if option.flag else None,
+        action="store_true" if option.flag else None,  # type: ignore
         help=option.description,
         default=option.default
       )
@@ -163,7 +163,7 @@ class NovellaContext:
     from nr.util.plugins import load_entrypoint
 
     callsite = get_callsite()
-    action_cls = load_entrypoint(Action, action_name)
+    action_cls = load_entrypoint(Action, action_name)  # type: ignore
     action = _LazyAction(self.novella, action_name, action_cls, closure, callsite)
     self.novella.add_action(action, name, before, after)
 
@@ -173,7 +173,7 @@ class NovellaContext:
     from nr.util.plugins import load_entrypoint
     from novella.template import Template
 
-    template_cls: type[Template] = load_entrypoint(Template, template_name)
+    template_cls: type[Template] = load_entrypoint(Template, template_name)  # type: ignore
     template = template_cls()
     if init:
       init(template)

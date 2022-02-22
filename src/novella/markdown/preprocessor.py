@@ -10,7 +10,6 @@ from pathlib import Path
 
 from novella.action import Action
 from novella.novella import Novella
-from novella.processor import MarkdownPreprocessor
 
 _Closure: t.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
 
@@ -29,7 +28,7 @@ class MarkdownFile:
 
 class MarkdownFiles(list[MarkdownFile]):
 
-  def __init__(self, files: t.Iterable[MarkdownFiles], novella: Novella) -> None:
+  def __init__(self, files: t.Iterable[MarkdownFile], novella: Novella) -> None:
     super().__init__(files)
     self.novella = novella
 
@@ -81,7 +80,7 @@ class MarkdownPreprocessorAction(Action):
 
     if isinstance(processor, str):
       try:
-        processor_cls = load_entrypoint(MarkdownPreprocessor, processor)
+        processor_cls = load_entrypoint(MarkdownPreprocessor, processor)  # type: ignore
         name = name or processor
       except NoSuchEntrypointError:
         module_name, class_name = processor.rpartition('.')[::2]

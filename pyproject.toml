@@ -47,7 +47,7 @@ typed = true
 
   [tool.slam.test]
   pytest = "pytest -vv tests/"
-  mypy = "mypy src/"
+  mypy = "mypy src/ --namespace-packages"
   check = "slam check"
 
 [build-system]

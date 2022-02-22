@@ -119,7 +119,7 @@ class RunAction(Action):
   @flags.setter
   def flags(self, value: str | ActionSemantics) -> None:
     if isinstance(value, str):
-      value = reduce(lambda a, b: a | b, (ActionSemantics[k.strip().upper()] for k in value.split('|')))
+      value = reduce(lambda a, b: t.cast(ActionSemantics, a | b), (ActionSemantics[k.strip().upper()] for k in value.split('|')))
     assert isinstance(value, ActionSemantics), type(value)
     self._flags = value
 

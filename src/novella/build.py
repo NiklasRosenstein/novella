@@ -10,8 +10,8 @@ import time
 import typing as t
 from pathlib import Path
 
-import watchdog.events
-import watchdog.observers
+import watchdog.events  # type: ignore[import]
+import watchdog.observers  # type: ignore[import]
 
 from novella.action import ActionSemantics
 
@@ -156,6 +156,6 @@ class DefaultBuilder(Builder):
             break  # All actions have run without interruption
 
   @property
-  def directory(self) -> Path:
+  def directory(self) -> Path:  # type: ignore
     assert self._build_directory
     return self._build_directory
