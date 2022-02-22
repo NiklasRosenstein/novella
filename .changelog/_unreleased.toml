@@ -1,0 +1,11 @@
+[[entries]]
+id = "8c9d2f05-5367-4826-bf53-298b36fcbd0c"
+type = "feature"
+description = "support `slice_lines` option for `@cat` tag"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "6325f493-38a5-4dc9-842e-557efa94fcda"
+type = "docs"
+description = "include Mkdocs default configuration delivered with Novella in `MkdocsApplDefaultAction` docstring"
+author = "@NiklasRosenstein"
