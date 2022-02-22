@@ -1,1 +1,3 @@
-template "mkdocs"
+template "mkdocs" {
+  site_name = "Novella"
+}
