@@ -12,3 +12,9 @@ author = "@NiklasRosenstein"
 issues = [
     "https://github.com/NiklasRosenstein/novella/issues/1",
 ]
+
+[[entries]]
+id = "b361efa4-9697-4dd6-974d-0a1372003074"
+type = "hygiene"
+description = "downgrade minimum pyyaml dependency requirement (`>=4.0`)"
+author = "@NiklasRosenstein"

@@ -15,7 +15,7 @@ packages = [{ include="novella", from="src" }]
   python = "^3.10"
   craftr-dsl = "^0.7.4"
   "nr.util" = ">=0.7.1"
-  PyYAML = "^5.4.0"
+  PyYAML = ">=4.0"
   tomli = "^2.0.0"
   watchdog = "^2.0.0"
 
