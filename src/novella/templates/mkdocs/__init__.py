@@ -88,17 +88,39 @@ class MkdocsTemplate(Template):
   configuration that is delivered alongside the template (using the Mkdocs-material theme and enabling a
   bunch of Markdown extensions), and then run Mkdocs to either serve or build the documentation.
 
-  The generated action names are `mkdocs-copy-files`, `mkdocs-apply-default` and `mkdocs-run`.
+  The template registers the following options:
+
+      --serve         Use mkdocs serve
+      --site-dir, -d  Build directory for Mkdocs (defaults to "_site")
+
+  The template produces the following actions:
+
+  1. `mkdocs-copy-files` &ndash; a `copy-files` action to copy the #content_directory and the `mkdocs.yml` (if it
+     exists) to the build directory.
+  2. `mkdocs-apply-default` &ndash; An internal action provided by the Mkdocs template to apply the default
+     configuration delivered with the template on top of your existing `mkdocs.yml`; or if you dont provide your
+     own `mkdocs.yml` configuration file, the template configuration will be materialized as is.
+  3. `mkdocs-preprocess-markdown` &ndash; An instance of the `preprocess-markdown` action, setup with builtin
+     preprocessors such as `cat` and `anchor`. The anchor plugin is preconfigured with a
+     #MkdocsMkdocsAnchorAndLinkRenderer instance which renders the correct links for Mkdocs compatible markdown files.
+  4. `mkdocs-run` &ndash; A `run` action that invokes `mkdocs build`, or `mkdocs serve` if the `--serve` option is
+     provided.
+
+  If the `--serve` option is provided, the template enables file watching for everything copied by the
+  `mkdocs-copy-files` action and marks the `mkdocs-run` as reload-capable, allowing for a seemless live
+  editing experience while using Novella as a preprocessor.
 
   __Example__
 
   ```py
   template "mkdocs" {
-    content_directory = "docs"
+    site_name = "Novella"
   }
 
-  do "my-preprocessor" before: "mkdocs-run" {
-    # ...
+  action "mkdocs-preprocess-markdown" {
+    preprocessor "anchor" {
+      renderer.relative_links = True
+    }
   }
   ```
   """
@@ -106,7 +128,7 @@ class MkdocsTemplate(Template):
   #: The directory that contains the Mkdocs context.
   content_directory: str = 'content'
 
-  #: The site name to put into the Mkdocs.yml if #apply_default_config is enabled and the site name
+  #: The site name to put into the `mkdocs.yml`` if #apply_default_config is enabled and the site name
   #: is not already set in your own configuration.
   site_name: str | None = None
 
@@ -133,7 +155,7 @@ class MkdocsTemplate(Template):
       def configure_anchor(anchor: AnchorTagProcessor):
         anchor.renderer = MkdocsMkdocsAnchorAndLinkRenderer(lambda: self.content_directory)
       preprocessor.use('anchor', configure_anchor)
-    context.do('preprocess-markdown', configure_preprocess_markdown)
+    context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]

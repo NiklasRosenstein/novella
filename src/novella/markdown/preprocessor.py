@@ -106,7 +106,7 @@ class MarkdownPreprocessorAction(Action):
     if name is not None:
       self._processors[name] = processor
 
-  def processor(self, processor_name: str, closure: _Closure | None = None) -> MarkdownPreprocessor:
+  def preprocessor(self, processor_name: str, closure: _Closure | None = None) -> MarkdownPreprocessor:
     """ Access or reconfigure a markdown processor that is already registered. """
 
     processor = self._processors[processor_name]

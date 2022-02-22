@@ -113,7 +113,8 @@ class Novella:
 
     from craftr.dsl import Closure
     context = NovellaContext(self)
-    Closure(None, None, context).run_code((file or self.BUILD_FILE).read_text(), str(file))
+    file = file or self.BUILD_FILE
+    Closure(None, None, context).run_code(file.read_text(), str(file))
     return context
 
 
@@ -167,6 +168,16 @@ class NovellaContext:
     action = _LazyAction(self.novella, action_name, action_cls, closure, callsite)
     self.novella.add_action(action, name, before, after)
 
+  def action(self, action_name: str, closure: t.Callable | None = None) -> Action:
+    """ Access an action by its given name, and optionally apply the *closure*. """
+
+    action = self.novella._actions[action_name]
+    if isinstance(action, _LazyAction):
+      action = action._get_action()
+    if closure is not None:
+      closure(action)
+    return action
+
   def template(self, template_name: str, init: t.Callable | None = None, post: t.Callable | None = None) -> None:
     """ Load a template and add it to the Novella pipeline. """
 
@@ -204,9 +215,6 @@ class _LazyAction(Action):
 
   def __repr__(self) -> str:
     return f'_LazyAction({self.action_name!r})'
-
-  def __str__(self) -> str:
-    return self.action_name
 
   def _get_action(self) -> Action:
     if self._action is None:
