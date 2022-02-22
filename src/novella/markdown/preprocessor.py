@@ -58,6 +58,9 @@ class MarkdownPreprocessorAction(Action):
     for processor in self._pipeline:
       processor.process_files(files)
     for file in files:
+      # Correct escaped inline tags.
+      # NOTE (@NiklasRosenstein): This is a bit hacky.. maybe we can find a better place in the code to do this.
+      file.content = file.content.replace('\\{@', '{@')
       if file.changed():
         (root / file.path).write_text(file.content, self.encoding)
 

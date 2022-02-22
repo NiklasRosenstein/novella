@@ -8,7 +8,7 @@ from pathlib import Path
 from novella.action import Action, ActionSemantics
 from novella.novella import NovellaContext
 from novella.template import Template
-from novella.tags.anchor import Flavor as AnchorFlavor
+from novella.tags.anchor import AnchorAndLinkRenderer
 
 if t.TYPE_CHECKING:
   from novella.action import RunAction
@@ -18,10 +18,12 @@ if t.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class MkdocsAnchorFlavor(AnchorFlavor):
+class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
 
   def render_anchor(self, anchor: Anchor) -> str | None:
-    return None
+    if not anchor.header_text:
+      return f'<a id="{anchor.id}"></a>'
+    return ''
 
   def render_link(self, link: Link) -> str:
     return 'LINK HERE'
@@ -77,7 +79,7 @@ class MkdocsTemplate(Template):
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
       preprocessor.use('cat')
       def configure_anchor(anchor: AnchorTagProcessor):
-        anchor.flavor = MkdocsAnchorFlavor()
+        anchor.renderer = MkdocsMkdocsAnchorAndLinkRenderer()
       preprocessor.use('anchor', configure_anchor)
     context.do('preprocess-markdown', configure_preprocess_markdown)
 

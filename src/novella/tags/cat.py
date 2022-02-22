@@ -8,7 +8,7 @@ from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
 from novella.novella import Novella
 
 if t.TYPE_CHECKING:
-  from novella.markdown.tagparser import BlockTag
+  from novella.markdown.tagparser import Tag
 
 
 class CatTagProcessor(MarkdownPreprocessor):
@@ -17,11 +17,12 @@ class CatTagProcessor(MarkdownPreprocessor):
   to the current file in the project directory (not the temporary build directory). """
 
   def process_files(self, files: MarkdownFiles) -> None:
-    from novella.markdown.tagparser import replace_block_tags
+    from novella.markdown.tagparser import parse_block_tags, replace_tags
     for file in files:
-      file.content = replace_block_tags(file.content, lambda t: self._replace_tag(files.novella, file.path, t))
+      tags = parse_block_tags(file.content)
+      file.content = replace_tags(file.content, tags, lambda t: self._replace_tag(files.novella, file.path, t))
 
-  def _replace_tag(self, novella: Novella, file_path: Path, tag: BlockTag) -> str | None:
+  def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag) -> str | None:
     if tag.name != 'cat': return None
     # TODO (@NiklasRosenstein): Parse TOML options in block tag
     args = tag.args.strip()

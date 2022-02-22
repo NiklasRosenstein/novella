@@ -5,12 +5,12 @@
 ### `@anchor`
 
 This tag can be used to mark a location in a Markdown file with a global identifier that can be linked
-to using the `{@link}` inline tag. Depending on the Markdown parser that is targeted, the tag may not be
-replaced by any content at all but the `{@link}` tag may instead resolve it from the Markdown header that
+to using the `\{@link}` inline tag. Depending on the Markdown parser that is targeted, the tag may not be
+replaced by any content at all but the `\{@link}` tag may instead resolve it from the Markdown header that
 the tag is placed in front of.
 
 Note that the tag does not need to be placed in front of a Markdown header, but if it is not, the anchor
-name must be set explicitly, otherwise `{@link}`s to the anchor will render a placeholder name.
+name must be set explicitly, otherwise `\{@link}`s to the anchor will render a placeholder name.
 
 __Arguments__
 
@@ -48,14 +48,14 @@ __Settings__
 
 ### `@link`
 
-The `{@link}` inline tag is used to link to an anchor, potentially from another page. The anchor
+The `\{@link}` inline tag is used to link to an anchor, potentially from another page. The anchor
 name is placed as the name of the link, unless overwritten via the settings or the second link
 argument.
 
 __Arguments__
 
-    {@link <anchor_id> [<text>]}
+    \{@link <anchor_id> [<text>]}
 
 __Example__
 
-    Check out the {@link examples}. Also check out the {@link faq FAQ}.
+    Check out the \{@link examples}. Also check out the \{@link faq FAQ}.

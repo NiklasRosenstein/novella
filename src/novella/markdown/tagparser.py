@@ -23,30 +23,151 @@ deindentation is found.
 ```
 """
 
+import itertools
 import re
 import typing as t
 
-from nr.util.scanner import Scanner
+
+#: Function signature for replacing tags found in Markdown files. If an iterable of strings is returned,
+#: the strings will be concatenated by newlines.
+ReplacementFunc: t.TypeAlias = 't.Callable[[Tag], str | t.Iterable[str]]'
 
 
-class BlockTag(t.NamedTuple):
+class Tag(t.NamedTuple):
   name: str
   args: str
   options: dict[str, t.Any]
-  line_idx: int
-  end_line_idx: int
+  offset_span: tuple[int, int]
+  line_span: tuple[int, int]
 
 
-def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
-  """ Parses all tags encountered in the Markdown content. """
+def parse_inline_tags(content: str) -> t.Iterator[Tag]:
+  """ Parses all inline tags encountered in *content*. An inline tag starts with the sequence `{@` (curly brace open,
+  at) followed by the tag name and arguments and closed with `}` (curly brace closed). The tag may span over multiple
+  lines. TOML-style options can be specified in the arguments after the `:with` keyword. To encode a curly brace in
+  the arguments _before_ the `:with` statement, escape it with a backslash.
+
+  __Example__
+
+      {@mytag arguments here \\} :with key = "value"}
+  """
+
+  from io import StringIO
+  from nr.util.parsing import Scanner
+
+  TAG_BEGIN = r'\\?\{@([\w\d_\-]+)\b'
+  scanner = Scanner(content)
+
+  def _parse_args() -> str | None:
+    """ Parse until a closing curly brace is found. After encountering the `:with` keyword, opening curly braces
+    must first be matched with a closing curly brace before the closing curly brace we're looking for is used. """
+
+    args = StringIO()
+    in_with = False
+    braces_to_close = 1
+
+    while scanner:
+
+      # On encountering the `:with` keyword, we switch the parsing mode to count braces to make sure
+      # we parse a full TOML string.
+      if not in_with and (match := scanner.match(r'\s:with\b')):
+        in_with = True
+        args.write(match.group(0))
+        continue
+
+      # Match escaped closing curly braces which should be consumed
+      elif not in_with and scanner.match(r'\\}'):
+        args.write('}')
+        continue
+
+      # Match what appears like a new tag opening. Only allowed if escaped; otherwise the current tag
+      # is considered broken.
+      elif (match := scanner.match(TAG_BEGIN)):
+        if match.group(0).startswith('\\'):
+          args.write(match.group(0)[1:])
+          continue
+        else:
+          # Unescaped new tag begin inside the current tag arguments.
+          return None
+
+      # Match closing curly brace, to either close a brace within the TOML options or to end the tag.
+      elif scanner.char == '}':
+        braces_to_close -= 1
+        if braces_to_close == 0:
+          scanner.next()
+          break
+
+      # Match an opening curly brace for TOML inline tables.
+      elif in_with and scanner.char == '{':
+        braces_to_close += 1
+
+      args.write(scanner.char)
+      scanner.next()
+
+    # If we're at the end of the text without closing all braces, the tag is invalid.
+    if braces_to_close > 0:
+      return None
+
+    return args.getvalue()
+
+  while scanner:
+    pos = scanner.pos
+    match = scanner.match(TAG_BEGIN)
+    if not match:
+      scanner.next()
+      continue
+
+    if match.group(0).startswith('\\'):
+      continue
+
+    tag_name = match.group(1)
+    print('matched tag', tag_name)
+    args = _parse_args()
+    if args is None:
+      print('break free from parsing', tag_name)
+      scanner.pos = pos
+      scanner.seek(len(tag_name), 'cur')
+      print('moved from', pos, 'to', scanner.pos)
+      continue
+
+    # Parse TOML options after encountering the `:with` keyword.
+    args, _, options_string = args.partition(':with')
+    options = parse_options(options_string) if options_string else {}
+
+    yield Tag(
+      tag_name,
+      args,
+      options,
+      (pos.offset, scanner.pos.offset),
+      (pos.line, scanner.pos.line),
+    )
+
+
+def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[Tag]:
+  """ Parses all block tags encountered in *content*. A block tag is a line starting with an `@` (at) symbol
+  followed by the tag name and arguments, which may span over the following lines if indented. TOML-style
+  options can be specified in the arguments after the `:with` keyword.
+
+  __Example__
+
+      @mytag arguments here
+        and more arguments here
+        :with
+        key = "value"
+    """
+
+  from nr.util.iter import SequenceWalker
 
   if isinstance(content, str):
     content = content.splitlines()
 
-  lines = Scanner(content)
+  lines = SequenceWalker(content)
   in_code_block = False
+  offsets = list(itertools.accumulate(map(lambda l: len(l) + 1, content)))
+  offsets.insert(0, 0)
 
-  for line in lines.ensure_advancing():
+  for line in lines.safe_iter():
+
     if line.startswith('```'):
       in_code_block = not in_code_block
       lines.advance()
@@ -59,7 +180,7 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
 
     name = match.group(1)
     args = line[match.end():]
-    start_lineno = lines.index
+    start_lineno = end_lineno = lines.index
 
     indent = None
     while lines.has_next() and (line := lines.next()):
@@ -71,6 +192,7 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
       if indent is None:
         indent = len(match.group(1))
       args += '\n' + line[indent:]
+      end_lineno += 1
     else:
       lines.advance()
 
@@ -78,23 +200,30 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[BlockTag]:
     args, _, options_string = args.partition(':with')
     options = parse_options(options_string) if options_string else {}
 
-    yield BlockTag(name, args, options, start_lineno, max(start_lineno, lines.index - 2))
+    yield Tag(
+      name,
+      args,
+      options,
+      (offsets[start_lineno], offsets[end_lineno+1] - 1),
+      (start_lineno, end_lineno),
+    )
 
 
-def replace_block_tags(content: str, repl: t.Callable[[BlockTag], str | t.Iterable[str]]) -> str:
-  """ Replaces all tags in *content* by the text that *repl* returns for it. """
+def replace_tags(content: str, tags: t.Iterable[Tag], repl: ReplacementFunc) -> str:
+  """ Replaces all inline tags in *content* by the text that *repl* returns. """
 
-  lines = content.splitlines()
-  offset = 0
-  for tag in parse_block_tags(lines[:]):
+  from nr.util.text import substitute_ranges
+
+  ranges = []
+  for tag in tags:
     replacement = repl(tag)
-    if isinstance(replacement, str):
-      replacement = [replacement]
     if replacement is None:
       continue
-    lines[tag.line_idx+offset:tag.end_line_idx+1+offset] = replacement
-    offset -= (tag.end_line_idx - tag.line_idx + 1) - len(replacement)
-  return '\n'.join(lines)
+    if isinstance(replacement, str):
+      replacement = [replacement]
+    ranges.append((tag.offset_span[0], tag.offset_span[1], '\n'.join(replacement)))
+
+  return substitute_ranges(content, ranges)
 
 
 def parse_options(options: str) -> dict[str, t.Any]:

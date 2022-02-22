@@ -102,7 +102,7 @@ class DefaultBuilder(Builder):
       if not off_record:
         with self._lock:
           self._current_action = action
-          logger.info('Executing action <info>%s</info>', action.get_description())
+          logger.debug('Executing action <info>%s</info>', action.get_description())
       try:
         action.execute()
       finally:
