@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "novella"
-version = "0.1.0"
+version = "0.1.1"
 description = "Linear build system for Markdown preprocessing and static site generation."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
 license = "MIT"
