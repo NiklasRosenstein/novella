@@ -1,0 +1,5 @@
+[[entries]]
+id = "659a29e3-3623-47fc-b651-c58a3015fd1b"
+type = "fix"
+description = "fix return code when an error is encountered in the pipeline"
+author = "@NiklasRosenstein"

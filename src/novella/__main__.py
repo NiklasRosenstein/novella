@@ -48,6 +48,7 @@ def main():
     cause = exc.__cause__
     import traceback
     traceback.print_exception(type(cause), cause, cause.__traceback__)
+    sys.exit(1)
 
 
 if __name__ == '__main__':
