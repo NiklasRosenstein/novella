@@ -48,10 +48,10 @@ class ShellTagProcessor(MarkdownPreprocessor):
     env['BUILD_DIR'] = str(novella.build.directory)
 
     try:
-      output = sp.check_output(command, shell=True, cwd=novella.project_directory, env=env).decode()
+      output = sp.check_output(command, shell=True, cwd=novella.project_directory, env=env, stderr=sp.PIPE).decode()
     except sp.CalledProcessError as exc:
       logger.exception('@shell command <fg=cyan>%s</fg> exited with return code <fg=red>%s</fg>', command, exc.returncode)
-      output = textwrap.indent(output, '    ')
+      output = textwrap.indent((exc.stdout or b'').decode() + '' + (exc.stderr or b'').decode(), '    ')
       output = f'    $ {command}  # exited with return code {exc.returncode}\n{output}'
 
     return output
