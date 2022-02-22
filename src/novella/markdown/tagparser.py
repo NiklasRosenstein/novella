@@ -121,13 +121,10 @@ def parse_inline_tags(content: str) -> t.Iterator[Tag]:
       continue
 
     tag_name = match.group(1)
-    print('matched tag', tag_name)
     args = _parse_args()
     if args is None:
-      print('break free from parsing', tag_name)
       scanner.pos = pos
       scanner.seek(len(tag_name), 'cur')
-      print('moved from', pos, 'to', scanner.pos)
       continue
 
     # Parse TOML options after encountering the `:with` keyword.

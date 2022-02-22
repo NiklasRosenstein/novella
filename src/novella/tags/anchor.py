@@ -76,7 +76,6 @@ class AnchorTagProcessor(MarkdownPreprocessor):
     # Replace link tags.
     for file in files:
       tags = list(parse_inline_tags(file.content))
-      print(file.path, tags)
       file.content = replace_tags(file.content, tags, lambda t: self._replace_link(file, t))
 
   def _replace_anchor(self, file: MarkdownFile, tag: Tag) -> str | None:
