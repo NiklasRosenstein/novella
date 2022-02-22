@@ -201,9 +201,9 @@ class MkdocsApplyDefaultAction(Action):
   """
 
   _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
-  _DEFAULT_CONFIG = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))
+  _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
-  site_name: Supplier[str] | None = None
+  site_name: Supplier[str | None] | None = None
 
   def execute(self) -> None:
     import yaml
@@ -216,8 +216,8 @@ class MkdocsApplyDefaultAction(Action):
       logger.info('Creating <path>%s</path>', mkdocs_yml)
 
     default_config = yaml.safe_load(self._DEFAULT_CONFIG)
-    if self.site_name:
-      default_config['site_name'] = self.site_name()
+    if self.site_name and (site_name := self.site_name()):
+      default_config['site_name'] = site_name
 
     for key in default_config:
       if key not in mkdocs_config:
