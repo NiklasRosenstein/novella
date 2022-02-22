@@ -41,7 +41,7 @@ class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
 
   def _get_anchor_html_id(self, anchor: Anchor) -> str:
     if anchor.header_text:
-      # TODO (@NiklasRosenstein): Sanitize the Markdown header in the same way as Mkdocs.
+      # TODO (@NiklasRosenstein): Sanitize the Markdown header in the same way as MkDocs.
       return anchor.header_text.lower()
     return anchor.id
 
@@ -84,27 +84,27 @@ class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
 
 
 class MkdocsTemplate(Template):
-  """ A template to bootstrap an Mkdocs build using Novella. It will set up actions to copy files from the
+  """ A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
   {@attr content_directory} and the `mkdocs.yml` config relative to the Novella configuration file (if the
   configuration file exists). Then, unless {@attr apply_default_config} is disabled, it will apply a default
-  configuration that is delivered alongside the template (using the Mkdocs-material theme and enabling a
-  bunch of Markdown extensions), and then run Mkdocs to either serve or build the documentation.
+  configuration that is delivered alongside the template (using the MkDocs-material theme and enabling a
+  bunch of Markdown extensions), and then run MkDocs to either serve or build the documentation.
 
   The template registers the following options:
 
       --serve         Use mkdocs serve
-      --site-dir, -d  Build directory for Mkdocs (defaults to "_site")
+      --site-dir, -d  Build directory for MkDocs (defaults to "_site")
 
   The template produces the following actions:
 
   1. `mkdocs-copy-files` &ndash; a `copy-files` action to copy the #content_directory and the `mkdocs.yml` (if it
      exists) to the build directory.
-  2. `mkdocs-apply-default` &ndash; An internal action provided by the Mkdocs template to either create an `mkdocs.yml`
+  2. `mkdocs-update-config` &ndash; An internal action provided by the MkDocs template to either create an `mkdocs.yml`
      or apply defaults from the template delivered with Novella. Check out the #MkdocsApplyDefaultAction for more
      details.
   3. `mkdocs-preprocess-markdown` &ndash; An instance of the `preprocess-markdown` action, setup with builtin
      preprocessors such as `cat` and `anchor`. The anchor plugin is preconfigured with a
-     #MkdocsMkdocsAnchorAndLinkRenderer instance which renders the correct links for Mkdocs compatible markdown files.
+     #MkdocsMkdocsAnchorAndLinkRenderer instance which renders the correct links for MkDocs compatible markdown files.
   4. `mkdocs-run` &ndash; A `run` action that invokes `mkdocs build`, or `mkdocs serve` if the `--serve` option is
      provided.
 
@@ -127,19 +127,20 @@ class MkdocsTemplate(Template):
   ```
   """
 
-  #: The directory that contains the Mkdocs context.
+  #: The directory that contains the MkDocs context.
   content_directory: str = 'content'
 
-  #: The site name to put into the `mkdocs.yml`` if #apply_default_config is enabled and the site name
-  #: is not already set in your own configuration.
-  site_name: str | None = None
+  #: Apply the default MkDocs configuration provided by this template. This action is performed by the
+  #: #MkdocsUpdateConfigAction. Enabled by default.
+  apply_default: bool = True
 
-  #: Apply the default Mkdocs configuration provided alongside this template. Enabled by default.
-  apply_default_config: bool = True
+  #: The site name to put into the `mkdocs.yml`. Overrides the site name if it is configured in your MkDocs
+  #: configuration file. This action is performed by the #MkdocsUpdateConfigAction.
+  site_name: str | None = None
 
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
-    context.option("site-dir", "d", description='Build directory for Mkdocs (defaults to "_site")', default="_site")
+    context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
 
     def configure_copy_files(copy_files):
       copy_files.paths = [ self.content_directory ]
@@ -147,10 +148,10 @@ class MkdocsTemplate(Template):
         copy_files.paths.append('mkdocs.yml')
     context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
-    def configure_apply_default(apply_default: MkdocsApplyDefaultAction):
-      apply_default.site_name = lambda: self.site_name
-    if self.apply_default_config:
-      context.do('mkdocs-apply-default', configure_apply_default, name='mkdocs-apply-default')
+    def configure_apply_default(update_config: MkdocsUpdateConfigAction):
+      update_config.apply_default = lambda: self.apply_default
+      update_config.site_name = lambda: self.site_name
+    context.do('mkdocs-update-config', configure_apply_default, name='mkdocs-update-config')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
       preprocessor.use('shell')
@@ -171,12 +172,16 @@ class MkdocsTemplate(Template):
     context.do('run', configure_run, name='mkdocs-run')
 
 
-class MkdocsApplyDefaultAction(Action):
-  r""" An action to apply the Novella mkdocs template default configuration, which enables the Material theme and
-  a number of useful Mkdocs extensions. If a configuration file already exists, it will be updated to fill in any
-  values from the template that are not already present on the top-level.
+class MkdocsUpdateConfigAction(Action):
+  r""" An action to update the MkDocs configuration file, or create one if the user did not provide it.
 
-  The default configuration that is generated or applied on the existing configuration is:
+  __Configuration defaults__
+
+  The following configuration serves as the default configuration if the user did not provide an MkDocs
+  configuration of their own. If a configuration file is already present, it will be updated such that top-level
+  keys that don't exist in the provided configuration are set to the one present in the default below.
+
+  To disable this behaviour, set #apply_default to `False`.
 
   ```
   docs_dir: content
@@ -198,29 +203,41 @@ class MkdocsApplyDefaultAction(Action):
   - pymdownx.tasklist: { custom_checkbox: true }
   - pymdownx.tilde
   ```
+
+  __Site name__
+
+  The site name can be updated from the Novella configuration, usually through #MkdocsTemplate.site_name, or
+  alternatively by directly setting the #site_name attribute.
   """
 
-  _DEFAULT = Path(__file__).parent / 'mkdocs.yml'
   _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
-  site_name: Supplier[str | None] | None = None
+  apply_default: Supplier[bool] | bool = False
+  site_name: Supplier[str | None] | str | None = None
 
   def execute(self) -> None:
+    import copy
     import yaml
+
+    apply_default = Supplier.get(self.apply_default)
+    site_name = Supplier.get(self.site_name)
     mkdocs_yml = self.novella.build.directory / 'mkdocs.yml'
+
     if mkdocs_yml.exists():
       mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
-      logger.info('Updating <path>%s</path>', mkdocs_yml)
     else:
       mkdocs_config = {}
-      logger.info('Creating <path>%s</path>', mkdocs_yml)
+    original_config = copy.deepcopy(mkdocs_config)
 
-    default_config = yaml.safe_load(self._DEFAULT_CONFIG)
-    if self.site_name and (site_name := self.site_name()):
-      default_config['site_name'] = site_name
+    if apply_default:
+      default_config = yaml.safe_load(self._DEFAULT_CONFIG)
+      for key in default_config:
+        if key not in mkdocs_config:
+          mkdocs_config[key] = default_config[key]
 
-    for key in default_config:
-      if key not in mkdocs_config:
-        mkdocs_config[key] = default_config[key]
+    if site_name:
+      mkdocs_config['site_name'] = site_name
 
-    mkdocs_yml.write_text(yaml.dump(mkdocs_config))
+    if original_config != mkdocs_config:
+      logger.info('%s <fg=yellow>%s</fg>', 'Updating' if mkdocs_yml.exists() else 'Generating new', mkdocs_yml)
+      mkdocs_yml.write_text(yaml.dump(mkdocs_config))

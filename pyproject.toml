@@ -33,7 +33,7 @@ packages = [{ include="novella", from="src" }]
   copy-files = "novella.action:CopyFilesAction"
   nothing = "novella.action:VoidAction"
   run = "novella.action:RunAction"
-  mkdocs-apply-default = "novella.templates.mkdocs:MkdocsApplyDefaultAction"
+  mkdocs-update-config = "novella.templates.mkdocs:MkdocsUpdateConfigAction"
   preprocess-markdown = "novella.markdown.preprocessor:MarkdownPreprocessorAction"
 
   [tool.poetry.plugins."novella.markdown.preprocessors"]
