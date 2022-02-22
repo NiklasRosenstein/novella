@@ -3,3 +3,12 @@ id = "e5331252-dbd3-4115-8c9a-f5617c2dca56"
 type = "breaking change"
 description = "rename `MkdocsTemplate.apply_default_config` to `~.apply_config`, make adding of `mkdocs-update-config` action unconditional and allow updating the MkDocs site name seperate from applying the default config"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "14123f0d-ae9d-4342-abde-61875daaabe7"
+type = "feature"
+description = "implement automatic detection of Git repository URL and current branch name to inject MkDocs `repo_url` and `edit_uri` settings"
+author = "@NiklasRosenstein"
+issues = [
+    "https://github.com/NiklasRosenstein/novella/issues/1",
+]

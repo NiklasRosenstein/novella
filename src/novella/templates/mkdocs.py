@@ -138,6 +138,10 @@ class MkdocsTemplate(Template):
   #: configuration file. This action is performed by the #MkdocsUpdateConfigAction.
   site_name: str | None = None
 
+  #: Whether the Git repository URL should be automatically detected in #MkdocsUpdateConfigAction. Only if
+  #: the `repo_url` setting is not already set.
+  autodetect_repo_url: bool = True
+
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
     context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
@@ -148,10 +152,9 @@ class MkdocsTemplate(Template):
         copy_files.paths.append('mkdocs.yml')
     context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
-    def configure_apply_default(update_config: MkdocsUpdateConfigAction):
-      update_config.apply_default = lambda: self.apply_default
-      update_config.site_name = lambda: self.site_name
-    context.do('mkdocs-update-config', configure_apply_default, name='mkdocs-update-config')
+    def configure_update_config(update_config: MkdocsUpdateConfigAction):
+      update_config.template = self
+    context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
       preprocessor.use('shell')
@@ -181,7 +184,7 @@ class MkdocsUpdateConfigAction(Action):
   configuration of their own. If a configuration file is already present, it will be updated such that top-level
   keys that don't exist in the provided configuration are set to the one present in the default below.
 
-  To disable this behaviour, set #apply_default to `False`.
+  To disable this behaviour, set #MkdocsTemplate.apply_default to `False`.
 
   ```
   docs_dir: content
@@ -206,21 +209,23 @@ class MkdocsUpdateConfigAction(Action):
 
   __Site name__
 
-  The site name can be updated from the Novella configuration, usually through #MkdocsTemplate.site_name, or
-  alternatively by directly setting the #site_name attribute.
+  The site name can be updated from the Novella configuration, usually through #MkdocsTemplate.site_name.
+
+  __Autodetect Git repository__
+
+  Automatically detect the Git repository URL and inject it into the MkDocs `repo_url` and `edit_url`
+  options unless already configure and only if the #MkdocsTemplate.autodetect_repo_url is enabled. This is enabled
+  by default.
   """
 
   _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
-  apply_default: Supplier[bool] | bool = False
-  site_name: Supplier[str | None] | str | None = None
+  template: MkdocsTemplate
 
   def execute(self) -> None:
     import copy
     import yaml
 
-    apply_default = Supplier.get(self.apply_default)
-    site_name = Supplier.get(self.site_name)
     mkdocs_yml = self.novella.build.directory / 'mkdocs.yml'
 
     if mkdocs_yml.exists():
@@ -229,15 +234,49 @@ class MkdocsUpdateConfigAction(Action):
       mkdocs_config = {}
     original_config = copy.deepcopy(mkdocs_config)
 
-    if apply_default:
+    if self.template.apply_default:
       default_config = yaml.safe_load(self._DEFAULT_CONFIG)
       for key in default_config:
         if key not in mkdocs_config:
           mkdocs_config[key] = default_config[key]
 
-    if site_name:
-      mkdocs_config['site_name'] = site_name
+    if self.template.site_name:
+      mkdocs_config['site_name'] = self.template.site_name
+
+    if self.template.autodetect_repo_url:
+      repo_info = get_repository_details(self.novella.project_directory)
+      if 'repo_url' not in mkdocs_config and repo_info:
+          mkdocs_config['repo_url'] = repo_info.url
+          logger.info('Detected Git repository URL: <fg=cyan>%s</fg>', repo_info.url)
+      else:
+        logger.warning('Could not detect Git repository URL')
+      if 'edit_uri' not in mkdocs_config and repo_info:
+        content_dir = (self.novella.project_directory / self.template.content_directory)
+        edit_uri = f'blob/{repo_info.branch}/' + str(content_dir.relative_to(repo_info.root))
+        mkdocs_config['edit_uri'] = edit_uri
+        logger.info('Detected edit URI: <fg=cyan>%s</fg>', edit_uri)
 
     if original_config != mkdocs_config:
       logger.info('%s <fg=yellow>%s</fg>', 'Updating' if mkdocs_yml.exists() else 'Generating new', mkdocs_yml)
       mkdocs_yml.write_text(yaml.dump(mkdocs_config))
+
+
+class RepositoryDetails(t.NamedTuple):
+  root: Path
+  url: str
+  branch: str
+
+
+def get_repository_details(path: Path) -> RepositoryDetails | None:
+  from nr.util.git import Git
+  git = Git(path)
+  if not (toplevel := git.get_toplevel()):
+    return None
+  remote = next(iter(git.remotes()), None)
+  if not remote:
+    return None
+  url = remote.fetch
+  if url.startswith('git@'):
+    url = 'https://' + url[4:].replace(':', '/')
+  url = url.removesuffix('.git')
+  return RepositoryDetails(Path(toplevel), url, git.get_current_branch_name())
