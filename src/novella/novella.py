@@ -7,7 +7,7 @@ import logging
 import typing as t
 from pathlib import Path
 
-from novella.action import Action, ActionSemantics
+from novella.action import Action, ActionInterceptor, ActionSemantics
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
@@ -31,7 +31,12 @@ class Novella:
 
   BUILD_FILE = Path('build.novella')
 
-  def __init__(self, project_directory: Path, build_directory: Path | None) -> None:
+  def __init__(
+    self,
+    project_directory: Path,
+    build_directory: Path | None,
+    interceptor: ActionInterceptor | None = None,
+  ) -> None:
     self.project_directory = project_directory
     self._build_directory = build_directory
     self._pipeline: list[Action] = []
@@ -40,6 +45,7 @@ class Novella:
     self._options: list[Option] = []
     self._enable_watching = True
     self._build: Builder | None = None
+    self._interceptor = interceptor or ActionInterceptor.void()
 
   @property
   def build(self) -> Builder:
@@ -165,7 +171,7 @@ class NovellaContext:
 
     callsite = get_callsite()
     action_cls = load_entrypoint(Action, action_name)  # type: ignore
-    action = _LazyAction(self.novella, action_name, action_cls, closure, callsite)
+    action = _LazyAction(self.novella, action_name, name, action_cls, closure, callsite)
     self.novella.add_action(action, name, before, after)
 
   def action(self, action_name: str, closure: t.Callable | None = None) -> Action:
@@ -202,15 +208,19 @@ class _LazyAction(Action):
     self,
     novella: Novella,
     action_name: str,
+    name: str,
     action_cls: type[Action],
     closure: t.Callable | None,
     callsite: Callsite,
   ) -> None:
     self.novella = novella
     self.action_name = action_name
+    self.name = name
     self.action_cls = action_cls
     self.closure = closure
     self.callsite = callsite
+    self._interceptor_data = {}
+    self.interceptor = novella._interceptor.prefix((name or action_name) + ':', self._interceptor_data)
     self._action: Action | None = None
 
   def __repr__(self) -> str:
@@ -220,6 +230,9 @@ class _LazyAction(Action):
     if self._action is None:
       self._action = self.action_cls()
       self._action.novella = self.novella
+      self._action.interceptor = self.interceptor
+      self._interceptor_data['action'] = self._action
+      self.interceptor.notify('configure')
       if self.closure:
         self.closure(self._action)
     return self._action
@@ -235,12 +248,15 @@ class _LazyAction(Action):
 
   def execute(self) -> None:
     action = self._get_action()
+    self.interceptor.notify('execute')
     try:
       action.execute()
     except Exception as exc:
+      self.interceptor.notify('error', {'error':exc})
       raise PipelineError(self.action_name, self.callsite) from exc
 
   def abort(self) -> None:
+    self.interceptor.notify('abort')
     return self._get_action().abort()
 
 

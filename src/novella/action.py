@@ -19,6 +19,29 @@ if t.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class ActionInterceptor(abc.ABC):
+
+  @abc.abstractmethod
+  def notify(self, event: str, data: dict[str, t.Any] | None) -> None: ...
+
+  @staticmethod
+  def void() -> ActionInterceptor:
+    class VoidActionInterceptor(ActionInterceptor):
+      def notify(self, event: str, data: dict[str, t.Any] | None = None) -> None:
+        pass
+      def prefix(self, event_prefix: str, data: dict[str, t.Any]) -> None:
+        return self
+    return VoidActionInterceptor()
+
+  def prefix(self, event_prefix: str, data: dict[str, t.Any]) -> None:
+    parent = self
+    parent_data = data
+    class PrefixActionInterceptor(ActionInterceptor):
+      def notify(self, event: str, data: dict[str, t.Any] | None = None) -> None:
+        return parent.notify(event_prefix + event, {**(parent_data or {}), **(data or {})} or None)
+    return PrefixActionInterceptor()
+
+
 class ActionSemantics(enum.IntEnum):
   """ Flags that indicate the behaviour of an action. """
 
@@ -39,6 +62,11 @@ class Action(abc.ABC):
   #: The instance of the Novella application object that controls the pipeline and lifecycle of the build process.
   #: This is set when the action is added to the pipeline and is always available {@meth execute()} is called.
   novella: Novella
+
+  #: Provides a callback for the action, allowing it to provide potential intercept points to the caller of
+  #: the action. Intercept points can be used, for example, to pause the pipeline execution for example via the
+  #: Novella CLI.
+  interceptor: ActionInterceptor
 
   @abc.abstractmethod
   def execute(self) -> None:

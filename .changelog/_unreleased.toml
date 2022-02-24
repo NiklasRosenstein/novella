@@ -6,3 +6,9 @@ author = "@NiklasRosenstein"
 issues = [
     "https://github.com/NiklasRosenstein/novella/issues/3",
 ]
+
+[[entries]]
+id = "41bee5ef-220b-4fd8-8018-c727aa4f2811"
+type = "feature"
+description = "add `--intercept` and `--intercept-log` options to CLI"
+author = "@NiklasRosenstein"
