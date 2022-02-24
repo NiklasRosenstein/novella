@@ -191,6 +191,7 @@ class MkdocsUpdateConfigAction(Action):
   site_name: My documentation
   theme: material
   markdown_extensions:
+  - admonition
   - markdown.extensions.extra
   - meta
   - pymdownx.betterem
