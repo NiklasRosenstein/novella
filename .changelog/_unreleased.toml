@@ -1,0 +1,8 @@
+[[entries]]
+id = "2780b4cf-5e57-4dda-bb21-253030448fc8"
+type = "improvement"
+description = "sluggify anchor HTML ID for the @anchor flavor provided by the `mkdocs` template using `markdown.extensions.toc.slugify()`"
+author = "@NiklasRosenstein"
+issues = [
+    "https://github.com/NiklasRosenstein/novella/issues/3",
+]

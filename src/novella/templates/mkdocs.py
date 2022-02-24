@@ -9,6 +9,7 @@ import textwrap
 import typing as t
 from nr.util.functional import Supplier
 
+from markdown.extensions.toc import slugify
 from novella.action import Action, ActionSemantics
 from novella.novella import NovellaContext
 from novella.template import Template
@@ -40,8 +41,7 @@ class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
 
   def _get_anchor_html_id(self, anchor: Anchor) -> str:
     if anchor.header_text:
-      # TODO (@NiklasRosenstein): Sanitize the Markdown header in the same way as MkDocs.
-      return anchor.header_text.lower()
+      return slugify(anchor.header_text.lower(), '-')
     return anchor.id
 
   def _get_absolute_href(self, link: Link) -> str:
