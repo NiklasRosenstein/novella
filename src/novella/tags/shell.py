@@ -41,9 +41,9 @@ class ShellTagProcessor(MarkdownPreprocessor):
       block_tags = parse_block_tags(file.content)
       file.content = replace_tags(file.content, block_tags, lambda t: self._replace_tag(files.novella, file.path, t))
       inline_tags = parse_inline_tags(file.content)
-      file.content = replace_tags(file.content, inline_tags, lambda t: self._replace_tag(files.novella, file.path, t))
+      file.content = replace_tags(file.content, inline_tags, lambda t: self._replace_tag(files.novella, file.path, t, True))
 
-  def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag) -> str | None:
+  def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag, strip: bool = False) -> str | None:
     if tag.name != 'shell':
       return None
 
@@ -58,4 +58,4 @@ class ShellTagProcessor(MarkdownPreprocessor):
       output = textwrap.indent((exc.stdout or b'').decode() + '' + (exc.stderr or b'').decode(), '    ')
       output = f'    $ {command}  # exited with return code {exc.returncode}\n{output}'
 
-    return output
+    return output.strip() if strip else output

@@ -1,0 +1,5 @@
+[[entries]]
+id = "91516949-5fde-4e14-bfc9-f564ea476129"
+type = "improvement"
+description = "`@shell` inline tag strips output"
+author = "@NiklasRosenstein"
