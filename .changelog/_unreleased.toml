@@ -1,0 +1,5 @@
+[[entries]]
+id = "f2f3bcaa-2743-418c-a88a-72e6a025cb2b"
+type = "improvement"
+description = "`@shell` tag can now be used inline"
+author = "@NiklasRosenstein"

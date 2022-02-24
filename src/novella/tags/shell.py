@@ -9,6 +9,7 @@ import subprocess as sp
 from pathlib import Path
 
 from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
+from novella.markdown.tagparser import parse_inline_tags
 from novella.novella import Novella
 
 if t.TYPE_CHECKING:
@@ -27,6 +28,7 @@ class ShellTagProcessor(MarkdownPreprocessor):
   __Example__
 
       @shell cd .. && slam changelog format --all --markdown
+      {@shell git describe --tag}
 
   !!! note The example shows how to embed a changelog generated and formatted by [Slam][].
 
@@ -36,8 +38,10 @@ class ShellTagProcessor(MarkdownPreprocessor):
   def process_files(self, files: MarkdownFiles) -> None:
     from novella.markdown.tagparser import parse_block_tags, replace_tags
     for file in files:
-      tags = parse_block_tags(file.content)
-      file.content = replace_tags(file.content, tags, lambda t: self._replace_tag(files.novella, file.path, t))
+      block_tags = parse_block_tags(file.content)
+      file.content = replace_tags(file.content, block_tags, lambda t: self._replace_tag(files.novella, file.path, t))
+      inline_tags = parse_inline_tags(file.content)
+      file.content = replace_tags(file.content, inline_tags, lambda t: self._replace_tag(files.novella, file.path, t))
 
   def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag) -> str | None:
     if tag.name != 'shell':
