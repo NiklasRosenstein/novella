@@ -3,3 +3,9 @@ id = "5955ad93-5e77-49e1-abec-edf2f9838c0b"
 type = "improvement"
 description = "enable `admonition` extension in MkDocs config template"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "a1dcd3a5-4567-47df-8206-c4b9cb6508cd"
+type = "feature"
+description = "add `novella.repository` module"
+author = "@NiklasRosenstein"

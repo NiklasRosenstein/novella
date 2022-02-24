@@ -7,14 +7,13 @@ import os
 import re
 import textwrap
 import typing as t
-from pathlib import Path
-
 from nr.util.functional import Supplier
 
 from novella.action import Action, ActionSemantics
 from novella.novella import NovellaContext
 from novella.template import Template
 from novella.tags.anchor import AnchorAndLinkRenderer
+from novella.repository import detect_repository
 
 if t.TYPE_CHECKING:
   from novella.action import RunAction
@@ -139,7 +138,7 @@ class MkdocsTemplate(Template):
   site_name: str | None = None
 
   #: Whether the Git repository URL should be automatically detected in #MkdocsUpdateConfigAction. Only if
-  #: the `repo_url` setting is not already set.
+  #: the `repo_url` setting in the MkDocs config is not already set, and if #repository is not set.
   autodetect_repo_url: bool = True
 
   def define_pipeline(self, context: NovellaContext) -> None:
@@ -245,7 +244,7 @@ class MkdocsUpdateConfigAction(Action):
       mkdocs_config['site_name'] = self.template.site_name
 
     if self.template.autodetect_repo_url:
-      repo_info = get_repository_details(self.novella.project_directory)
+      repo_info = detect_repository(self.novella.project_directory)
       if 'repo_url' not in mkdocs_config and repo_info:
           mkdocs_config['repo_url'] = repo_info.url
           logger.info('Detected Git repository URL: <fg=cyan>%s</fg>', repo_info.url)
@@ -260,24 +259,3 @@ class MkdocsUpdateConfigAction(Action):
     if original_config != mkdocs_config:
       logger.info('%s <fg=yellow>%s</fg>', 'Updating' if mkdocs_yml.exists() else 'Generating new', mkdocs_yml)
       mkdocs_yml.write_text(yaml.dump(mkdocs_config))
-
-
-class RepositoryDetails(t.NamedTuple):
-  root: Path
-  url: str
-  branch: str
-
-
-def get_repository_details(path: Path) -> RepositoryDetails | None:
-  from nr.util.git import Git
-  git = Git(path)
-  if not (toplevel := git.get_toplevel()):
-    return None
-  remote = next(iter(git.remotes()), None)
-  if not remote:
-    return None
-  url = remote.fetch
-  if url.startswith('git@'):
-    url = 'https://' + url[4:].replace(':', '/')
-  url = url.removesuffix('.git')
-  return RepositoryDetails(Path(toplevel), url, git.get_current_branch_name())
