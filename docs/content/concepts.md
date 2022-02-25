@@ -6,7 +6,7 @@ The Novella build process is described using a `build.novella` file using the [C
 which is (almost) a superset of Python. There are three relevant concepts for the configuration that are provided by
 Novella itself:
 
-1. Options (which are made accessible via the CLI)
+1. Options
 2. Actions
 3. Templates
 
@@ -30,9 +30,6 @@ Actions are plugins that execute some logic when its their turn and are declared
 function. Inside the configuration closure of actions, the `NovellaContext.options` dictionary can be used to
 read option values that have been passed via the CLI.
 
-As built-in actions, Novella provides the `blank`, `copy-files` and `run` action types. New action types can be defined
-by registering them under the `novella.actions` entrypoint.
-
 ```py
 do "copy-files" {
   paths = [ "content", "mkdocs.yml" ]
@@ -51,6 +48,11 @@ action "mkdocs-preprocess" {
 }
 ```
 
+!!! note
+
+    New actions can be implemented using the `novella.action.Action` base class and registering the subclass under
+    the `novella.actions` entrypoint.
+
 @anchor docs:novella:concepts:templates
 ## Templates
 
@@ -64,3 +66,8 @@ template "mkdocs" {
   apply_default_config = False
 }
 ```
+
+!!! note
+
+    New templates can be implemented using the `novella.template.Template` base class and registering the subclass
+    under the `novella.templates` entrypoint.
