@@ -489,10 +489,27 @@
 code. It is designed for the preprocessing of documentation source code such as Markdown files before they are
 passed into a static site generator such as <a href="https://www.mkdocs.org/">Mkdocs</a> or <a href="https://gohugo.io/">Hugo</a>. Novella in itself provides little domain
 specific logic, but serves as a framework that <a href="https://github.com/NiklasRosenstein/pydoc-markdown">Pydoc-Markdown</a> plugs into.</p>
-<p>Check out the <a href="https://niklasrosenstein.github.io/novella">Novella Documentation</a> for more information.</p>
-<blockquote>
-<p>Note: Novella is currently a work in progress project and is considered unstable.</p>
-</blockquote>
+<div class="highlight"><pre><span></span><code>usage: novella [-h] [-c PATH] [-b PATH] [-r] [--dot] [--intercept ACTION]
+
+options:
+  -h, --help            Show this help output.
+  -c PATH, --config-file PATH
+                        The configuration file to load. (default:
+                        build.novella)
+  -b PATH, --build-directory PATH
+                        The build directory. If not specified, a temporary
+                        directory will be created.
+  -r, --use-reloader    Enable reloading, which will re-execute the pipeline
+                        if a watched file changes.
+  --dot                 Produce a DotViz representation of the build graph.
+  --intercept ACTION    The name of an action to intercept and pause the
+                        execution, waiting for user input to continue. Useful
+                        for debugging intermediate steps of the build process.
+                        Currently, the action name must be matched exactly and
+                        actions can only be intercepted before they are run.
+                        If this option is provided, all possible intercept
+                        points are logged to the console.
+</code></pre></div>
 
               
             </article>
