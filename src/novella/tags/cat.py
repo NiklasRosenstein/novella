@@ -6,9 +6,9 @@ import typing as t
 from pathlib import Path
 
 from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
-from novella.novella import Novella
 
 if t.TYPE_CHECKING:
+  from novella.build import BuildContext
   from novella.markdown.tagparser import Tag
 
 logger = logging.getLogger(__name__)
@@ -37,10 +37,10 @@ class CatTagProcessor(MarkdownPreprocessor):
       tags = parse_block_tags(file.content)
       file.content = replace_tags(
         file.content, tags,
-        lambda t: self._replace_tag(files.context.novella.project_directory, file.path, t),
+        lambda t: self._replace_tag(files.context.novella.project_directory, file.path, files.build, t),
       )
 
-  def _replace_tag(self, project_directory: Path, file_path: Path, tag: Tag) -> str | None:
+  def _replace_tag(self, project_directory: Path, file_path: Path, build: BuildContext, tag: Tag) -> str | None:
     if tag.name != 'cat': return None
     args = tag.args.strip()
     if args.startswith('/'):
@@ -49,7 +49,9 @@ class CatTagProcessor(MarkdownPreprocessor):
       assert not file_path.is_absolute(), file_path
       path = file_path.parent / args
       path = (project_directory / path)
+
     path = path.resolve()
+    build.watch(path)
     try:
       text = path.resolve().read_text()
     except FileNotFoundError:

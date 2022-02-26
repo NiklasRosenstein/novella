@@ -48,3 +48,9 @@ id = "d6ef6d01-a301-41fe-8d18-ad27261cef58"
 type = "hygiene"
 description = "cleanup build logic"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "8626833d-5b99-44c7-83fb-ea758ffcacbb"
+type = "improvement"
+description = "`@cat` tag registers reference file to be watched for changes"
+author = "@NiklasRosenstein"
