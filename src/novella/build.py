@@ -11,7 +11,9 @@ import typing as t
 from pathlib import Path
 
 import watchdog.events  # type: ignore[import]
-import watchdog.observers  # type: ignore[import]
+import watchdog.observers
+
+from novella.action import ActionAborted  # type: ignore[import]
 
 if t.TYPE_CHECKING:
   from novella.action import Action
@@ -85,9 +87,12 @@ class NovellaBuilder(BuildContext):
         with builder._lock:
           builder._status = NovellaBuilder.Status.RUNNING
       elif current_action:
-        current_action.abort()
+        with builder._lock:
+          if builder._abort_callback:
+            builder._abort_callback()
+            builder._abort_callback = None
 
-  def __init__(self, context: NovellaContext, build_directory: Path | None) -> None:
+  def __init__(self, context: NovellaContext, build_directory: Path | None, enable_reloading: bool = False) -> None:
     import contextlib
 
     self._context = context
@@ -97,10 +102,10 @@ class NovellaBuilder(BuildContext):
     self._current_action: Action | None = None
     self._exit_stack = contextlib.ExitStack()
     self._observer = watchdog.observers.Observer()
-    self._watching_enabled = False
-    self._lock = threading.Lock()
+    self._lock = threading.RLock()
     self._last_reload: float | None = None
     self._status = NovellaBuilder.Status.PENDING
+    self._enable_reloading = enable_reloading
 
   def _create_temporary_directory(self, exit_stack: contextlib.ExitStack) -> None:
     import tempfile
@@ -122,6 +127,11 @@ class NovellaBuilder(BuildContext):
           logger.debug('Executing action <info>%s</info>', action.get_description())
       try:
         action.execute(self)
+      except ActionAborted as exc:
+        if self.is_aborted():
+          pass
+        else:
+          raise
       except Exception as exc:
         raise PipelineError(action.name, action.callsite) from exc
       finally:
@@ -138,17 +148,6 @@ class NovellaBuilder(BuildContext):
     with self._lock:
       return self._status
 
-  def enable_watching(self) -> None:
-    """ Enables watching files for changes and restarting the build process. """
-
-    if self._watching_enabled and self._observer.is_alive():
-      return
-
-    self._watching_enabled = True
-    self._observer.start()
-    self._exit_stack.callback(self._observer.join)
-    self._exit_stack.callback(self._observer.stop)
-
   def watch(self, path: Path) -> None:
     """ Watch the path for changes to file contents. If any file contents change, the Novella pipeline is
     executed again (but the build script will not be reloaded). After a restart, the observer is reset. """
@@ -161,10 +160,16 @@ class NovellaBuilder(BuildContext):
     pass
 
   def is_aborted(self) -> bool:
-    return False
+    # Build is starting again, so current actions should abort.
+    with self._lock:
+      return self._status == NovellaBuilder.Status.STARTING
 
   def on_abort(self, callback: t.Callable[[], t.Any]) -> None:
-    pass
+    with self._lock:
+      if self.is_aborted():
+        callback()
+      else:
+        self._abort_callback = callback
 
   def build(self) -> None:
     with self._lock:
@@ -176,7 +181,7 @@ class NovellaBuilder(BuildContext):
     with self._exit_stack:
 
       # Check if any action supports reloading and enable file watching.
-      if any(action.supports_reloading for action in self._actions):
+      if self._enable_reloading or any(action.supports_reloading for action in self._actions):
         self._observer = watchdog.observers.Observer()
         self._observer.start()
         self._exit_stack.callback(self._observer.join)

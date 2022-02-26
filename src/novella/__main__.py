@@ -46,6 +46,7 @@ def main() -> None:
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument('-b', '--build-directory', type=Path)
   parser.add_argument('-h', '--help', action='store_true')
+  parser.add_argument('-r', '--use-reloader', action='store_true')
   parser.add_argument('--intercept')
   args, unknown_args = parser.parse_known_args()
 
@@ -58,7 +59,11 @@ def main() -> None:
     return
 
   context.configure(unknown_args)
-  builder = CustomBuilder(context, Path(args.build_directory) if args.build_directory else None)
+  builder = CustomBuilder(
+    context=context,
+    build_directory=Path(args.build_directory) if args.build_directory else None,
+    enable_reloading=args.use_reloader,
+  )
   builder.intercept_action = args.intercept
 
   try:

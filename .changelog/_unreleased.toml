@@ -18,3 +18,9 @@ id = "5a4c3aa1-1dbe-4c45-b84a-d87f4f24dd45"
 type = "breaking change"
 description = "Split up responsibilities of `Novella` class between `Novella`, `NovellaContext` and `BuildContext`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "2f3be16c-12e8-4474-80d4-6e30832b9760"
+type = "feature"
+description = "add `-r, --use-reloader` option to CLI"
+author = "@NiklasRosenstein"
