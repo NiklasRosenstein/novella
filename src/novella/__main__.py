@@ -47,10 +47,32 @@ def main() -> None:
   setup_logging()
 
   parser = argparse.ArgumentParser(add_help=False)
-  parser.add_argument('-b', '--build-directory', type=Path)
-  parser.add_argument('-h', '--help', action='store_true')
-  parser.add_argument('-r', '--use-reloader', action='store_true')
-  parser.add_argument('--intercept')
+  parser.add_argument(
+    '-b', '--build-directory',
+    type=Path,
+    help='The build directory. If not specified, a temporary directory will be created.',
+  )
+  parser.add_argument(
+    '-h', '--help',
+    action='store_true',
+    help='Show this help output.',
+  )
+  parser.add_argument(
+    '-r', '--use-reloader',
+    action='store_true',
+    help='Enable reloading, which will re-execute the pipeline if a watched file changes.',
+  )
+  parser.add_argument(
+    '--dot',
+    action='store_true',
+    help='Produce a DotViz representation of the build graph.',
+  )
+  parser.add_argument(
+    '--intercept',
+    help='The name of an action to intercept and pause the execution, waiting for user input to continue. Useful '
+      'for debugging intermediate steps of the build process. Currently, the action name must be matched exactly and '
+      'actions can only be intercepted before they are run.'
+  )
   args, unknown_args = parser.parse_known_args()
 
   novella = Novella(Path.cwd())
