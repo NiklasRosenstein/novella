@@ -11,7 +11,7 @@ import typing as t
 from pathlib import Path
 
 import watchdog.events  # type: ignore[import]
-import watchdog.observers
+import watchdog.observers  # type: ignore[import]
 
 from novella.action import ActionAborted  # type: ignore[import]
 
@@ -125,6 +125,7 @@ class NovellaBuilder(BuildContext):
         with self._lock:
           self._current_action = action
           logger.debug('Executing action <info>%s</info>', action.get_description())
+      self.notify(action, 'before_execute', None)
       try:
         action.execute(self)
       except ActionAborted as exc:

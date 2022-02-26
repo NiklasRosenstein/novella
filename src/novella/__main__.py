@@ -21,10 +21,13 @@ class CustomBuilder(NovellaBuilder):
   intercept_action: str | None = None
 
   def notify(self, action: Action, event: str, commit: t.Callable[[], t.Any] | None = None) -> None:
-    logger.info('+ Event <fg=magenta>%s :: %s</fg>', action.name, event)
-    if self.intercept_action is not None and self.intercept_action == action.name:
-      print('Intercepted', action, event, '; press enter to continue')
-      input()
+    if self.intercept_action is not None:
+      logger.info('+ Event <fg=magenta>%s :: %s</fg>', action.name, event)
+      if self.intercept_action == action.name and event == 'before_execute':
+        print('Intercepted', action, event, '; press enter to continue')
+        if commit:
+          commit()
+        input()
     return super().notify(action, event, commit)
 
 
