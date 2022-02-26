@@ -42,3 +42,9 @@ id = "f8825dca-1b7d-4d24-8d18-eff2f4ab58eb"
 type = "fix"
 description = "fix `-h,--help` when no Novella build script is available in the current directory"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "d6ef6d01-a301-41fe-8d18-ad27261cef58"
+type = "hygiene"
+description = "cleanup build logic"
+author = "@NiklasRosenstein"
