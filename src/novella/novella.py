@@ -10,8 +10,8 @@ from pathlib import Path
 from novella.action import Action
 
 if t.TYPE_CHECKING:
+  from nr.util.digraph import DiGraph
   from nr.util.inspect import Callsite
-  from novella.build import BuildContext
   from novella.template import Template
 
 logger = logging.getLogger(__name__)
@@ -175,10 +175,8 @@ class NovellaContext:
       closure(action)
     self._action_configurators.clear()
 
-  def get_actions_ordered(self) -> list[Action]:
+  def get_actions_graph(self) -> DiGraph[str, Action, None]:
     from nr.util.digraph import DiGraph
-    from nr.util.digraph.algorithm.topological_sort import topological_sort
-
     graph = DiGraph[str, None, None]()
     for action_name, action in self._actions.items():
       assert action.name == action_name, (action, action_name)
@@ -189,7 +187,11 @@ class NovellaContext:
           action.dependencies = [self._fallback_dependencies[action]]
       for dep in action.dependencies or []:
         graph.add_edge(dep.name, action.name, None)
+    return graph
 
+  def get_actions_ordered(self) -> list[Action]:
+    from nr.util.digraph.algorithm.topological_sort import topological_sort
+    graph = self.get_actions_graph()
     return [self._actions[k] for k in topological_sort(graph)]
 
 

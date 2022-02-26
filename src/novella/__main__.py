@@ -1,6 +1,7 @@
 
+from __future__ import annotations
+
 import argparse
-from fnmatch import fnmatch
 import logging
 import sys
 import typing as t
@@ -12,6 +13,10 @@ from nr.util.logging.formatters.terminal_colors import TerminalColorFormatter
 from novella.action import Action
 from novella.novella import Novella, PipelineError
 from novella.build import NovellaBuilder
+
+if t.TYPE_CHECKING:
+  from nr.util.digraph import DiGraph
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +46,15 @@ def setup_logging() -> None:
 
   # lib2to3, which is used by docspec_python, logs these to the root logger on INFO, which is annoying.
   logging.root.filters.append(SimpleFilter('root', not_contains='Generating grammar tables from'))
+
+
+def print_dotviz(graph: DiGraph[str, Action, None]) -> None:
+  print('digraph G {')
+  for node in graph.nodes:
+    print(f'  "{node}"')
+  for edge in graph.edges:
+    print(f'  "{edge[0]}" -> "{edge[1]}"')
+  print('}')
 
 
 def main() -> None:
@@ -84,6 +98,11 @@ def main() -> None:
     return
 
   context.configure(unknown_args)
+
+  if args.dot:
+    print_dotviz(context.get_actions_graph())
+    return
+
   builder = CustomBuilder(
     context=context,
     build_directory=Path(args.build_directory) if args.build_directory else None,
