@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.2">
     
     
       
@@ -29,7 +29,7 @@
       
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -563,7 +563,7 @@
 which is (almost) a superset of Python. There are three relevant concepts for the configuration that are provided by
 Novella itself:</p>
 <ol>
-<li>Options (which are made accessible via the CLI)</li>
+<li>Options</li>
 <li>Actions</li>
 <li>Templates</li>
 </ol>
@@ -579,8 +579,6 @@ is parsed by Novella when running your build script.</p>
 <p>Actions are plugins that execute some logic when its their turn and are declared using the <code>NovellaContext.do()</code>
 function. Inside the configuration closure of actions, the <code>NovellaContext.options</code> dictionary can be used to
 read option values that have been passed via the CLI.</p>
-<p>As built-in actions, Novella provides the <code>blank</code>, <code>copy-files</code> and <code>run</code> action types. New action types can be defined
-by registering them under the <code>novella.actions</code> entrypoint.</p>
 <div class="highlight"><pre><span></span><code><span class="n">do</span> <span class="s2">&quot;copy-files&quot;</span> <span class="p">{</span>
   <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="s2">&quot;mkdocs.yml&quot;</span> <span class="p">]</span>
 <span class="p">}</span>
@@ -594,6 +592,11 @@ allowing a user after the template was applied to inject actions into the sequen
   <span class="c1"># ...</span>
 <span class="p">}</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New actions can be implemented using the <code>novella.action.Action</code> base class and registering the subclass under
+the <code>novella.actions</code> entrypoint.</p>
+</div>
 <h2 id="templates">Templates</h2>
 <p>A template is a plugin that takes over definition of the Novella pipeline to avoid some boilerplate in your
 configuration script. Templates are invoked via the <code>NovellaContext.template()</code> function and can also be
@@ -603,6 +606,11 @@ itself delivers an <code>mkdocs</code> template out of the box.</p>
   <span class="n">apply_default_config</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">}</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New templates can be implemented using the <code>novella.template.Template</code> base class and registering the subclass
+under the <code>novella.templates</code> entrypoint.</p>
+</div>
 
               
             </article>
@@ -671,7 +679,7 @@ itself delivers an <code>mkdocs</code> template out of the box.</p>
     <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
-      <script src="../assets/javascripts/bundle.8aa65030.min.js"></script>
+      <script src="../assets/javascripts/bundle.9f3ca3d1.min.js"></script>
       
     
   </body>
