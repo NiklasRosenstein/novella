@@ -28,10 +28,11 @@ class CustomBuilder(NovellaBuilder):
     return super().notify(action, event, commit)
 
 
-def setup_logging():
+def setup_logging() -> None:
   logging.basicConfig(level=logging.INFO)
 
   formatter = TerminalColorFormatter('%(message)s')
+  assert formatter.styles
   formatter.styles.add_style('path', 'yellow')
   formatter.install()
 
@@ -39,7 +40,7 @@ def setup_logging():
   logging.root.filters.append(SimpleFilter('root', not_contains='Generating grammar tables from'))
 
 
-def main():
+def main() -> None:
   setup_logging()
 
   parser = argparse.ArgumentParser(add_help=False)

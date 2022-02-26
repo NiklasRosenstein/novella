@@ -58,7 +58,7 @@ class MarkdownPreprocessorAction(Action):
       if path.suffix == '.md':
         files.append(MarkdownFile(path.relative_to(root), path.read_text(self.encoding)))
 
-    def _commit_files():
+    def _commit_files() -> None:
       for file in files:
         if file.changed():
           (root / file.path).write_text(file.content, self.encoding)
@@ -66,7 +66,7 @@ class MarkdownPreprocessorAction(Action):
     for preprocessor in self._pipeline:
       name = next((k for k, v in self._processors.items() if v is preprocessor), None)
       if name:
-        build.notify(self, 'preprocess ({name})', _commit_files)
+        build.notify(self, f'preprocess ({name})', _commit_files)
       preprocessor.process_files(files)
 
     for file in files:

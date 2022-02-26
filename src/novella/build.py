@@ -66,7 +66,7 @@ class NovellaBuilder(BuildContext):
     def __init__(self, builder: NovellaBuilder) -> None:
       self._builder = builder
 
-    def on_any_event(self, event):
+    def on_any_event(self, event: watchdog.events.FileSystemEvent) -> None:
       builder = self._builder
       with builder._lock:
         # Prevent multiple reloads in a small timeframe.
@@ -79,7 +79,7 @@ class NovellaBuilder(BuildContext):
         current_action = builder._current_action
 
       logger.info('<fg=blue;attr=bold>Detected file changes, re-executing pipeline ...</fg>')
-      if current_action and current_action.get_semantic_flags() & ActionSemantics.HAS_INTERNAL_RELOADER:
+      if current_action and current_action.supports_reloading:
         logger.info('  Keeping <fg=blue>%s</fg> alive.', current_action.get_description())
         builder._run_actions(builder._past_actions, True)
         with builder._lock:
@@ -99,7 +99,7 @@ class NovellaBuilder(BuildContext):
     self._observer = watchdog.observers.Observer()
     self._watching_enabled = False
     self._lock = threading.Lock()
-    self._last_reload = None
+    self._last_reload: float | None = None
     self._status = NovellaBuilder.Status.PENDING
 
   def _create_temporary_directory(self, exit_stack: contextlib.ExitStack) -> None:
@@ -174,6 +174,14 @@ class NovellaBuilder(BuildContext):
       assert self._past_actions == []
 
     with self._exit_stack:
+
+      # Check if any action supports reloading and enable file watching.
+      if any(action.supports_reloading for action in self._actions):
+        self._observer = watchdog.observers.Observer()
+        self._observer.start()
+        self._exit_stack.callback(self._observer.join)
+        self._exit_stack.callback(self._observer.stop)
+
       while True:
         with contextlib.ExitStack() as local_exit_stack:
           if not self._build_directory:

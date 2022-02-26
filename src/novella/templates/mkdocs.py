@@ -18,7 +18,7 @@ from novella.tags.anchor import AnchorAndLinkRenderer
 from novella.repository import detect_repository
 
 if t.TYPE_CHECKING:
-  from novella.action import RunAction
+  from novella.action import CopyFilesAction, RunAction
   from novella.markdown.preprocessor import MarkdownPreprocessorAction
   from novella.tags.anchor import Anchor, AnchorTagProcessor, Link
 
@@ -146,20 +146,20 @@ class MkdocsTemplate(Template):
     context.option("serve", description="Use mkdocs serve", flag=True)
     context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
 
-    def configure_copy_files(copy_files):
+    def configure_copy_files(copy_files: CopyFilesAction) -> None:
       copy_files.paths = [ self.content_directory ]
       if (context.project_directory / 'mkdocs.yml').exists():
         copy_files.paths.append('mkdocs.yml')
     context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
-    def configure_update_config(update_config: MkdocsUpdateConfigAction):
+    def configure_update_config(update_config: MkdocsUpdateConfigAction) -> None:
       update_config.template = self
     context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
 
-    def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction):
+    def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction) -> None:
       preprocessor.use('shell')
       preprocessor.use('cat')
-      def configure_anchor(anchor: AnchorTagProcessor):
+      def configure_anchor(anchor: AnchorTagProcessor) -> None:
         anchor.renderer = MkdocsMkdocsAnchorAndLinkRenderer(lambda: self.content_directory)
       preprocessor.use('anchor', configure_anchor)
     context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')

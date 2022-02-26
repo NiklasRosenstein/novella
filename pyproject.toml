@@ -50,7 +50,7 @@ typed = true
 
   [tool.slam.test]
   pytest = "pytest -vv tests/"
-  mypy = "mypy src/ --namespace-packages"
+  mypy = "mypy src/ --namespace-packages --disallow-untyped-defs"
   check = "slam check"
 
 [build-system]
