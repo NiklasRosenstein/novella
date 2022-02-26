@@ -30,3 +30,15 @@ id = "5b7568e2-dac6-4bd4-be5d-70079d9c50c9"
 type = "feature"
 description = "add `--dot` option to CLI"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "c3702d55-65c7-4b50-ac08-3db12b024005"
+type = "feature"
+description = "add `-c,--config-file` option"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "f8825dca-1b7d-4d24-8d18-eff2f4ab58eb"
+type = "fix"
+description = "fix `-h,--help` when no Novella build script is available in the current directory"
+author = "@NiklasRosenstein"

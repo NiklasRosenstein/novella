@@ -62,14 +62,22 @@ def main() -> None:
 
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
-    '-b', '--build-directory',
-    type=Path,
-    help='The build directory. If not specified, a temporary directory will be created.',
-  )
-  parser.add_argument(
     '-h', '--help',
     action='store_true',
     help='Show this help output.',
+  )
+  parser.add_argument(
+    '-c', '--config-file',
+    type=Path,
+    default=Novella.BUILD_FILE,
+    help='The configuration file to load. (default: %(default)s)',
+    metavar='PATH',
+  )
+  parser.add_argument(
+    '-b', '--build-directory',
+    type=Path,
+    help='The build directory. If not specified, a temporary directory will be created.',
+    metavar='PATH',
   )
   parser.add_argument(
     '-r', '--use-reloader',
@@ -85,17 +93,30 @@ def main() -> None:
     '--intercept',
     help='The name of an action to intercept and pause the execution, waiting for user input to continue. Useful '
       'for debugging intermediate steps of the build process. Currently, the action name must be matched exactly and '
-      'actions can only be intercepted before they are run.'
+      'actions can only be intercepted before they are run. If this option is provided, all possible intercept '
+      'points are logged to the console.',
+    metavar='ACTION',
   )
   args, unknown_args = parser.parse_known_args()
 
   novella = Novella(Path.cwd())
-  context = novella.execute_file()
+
+  try:
+    context = novella.execute_file(Path(args.config_file) if args.config_file else None)
+  except FileNotFoundError:
+    context = None
+    exc_info = sys.exc_info()
+  else:
+    exc_info = None
 
   if args.help:
-    context.update_argument_parser(parser)
+    if context:
+      context.update_argument_parser(parser)
     parser.print_help()
     return
+
+  if exc_info:
+    raise exc_info[1]
 
   context.configure(unknown_args)
 
@@ -116,7 +137,7 @@ def main() -> None:
     logger.error(
       f'<fg=red>Uncaught exception in action "{exc.action_name}" defined at '
       f'{exc.callsite.filename}:{exc.callsite.lineno}</fg>',
-      exc_info=exc.__cause__
+      exc_info=exc.__cause__,
     )
     sys.exit(1)
 
