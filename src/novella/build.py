@@ -13,32 +13,46 @@ from pathlib import Path
 import watchdog.events  # type: ignore[import]
 import watchdog.observers  # type: ignore[import]
 
-from novella.action import ActionSemantics
-
 if t.TYPE_CHECKING:
-  from .action import Action
+  from novella.action import Action
+  from novella.novella import NovellaContext
 
 logger = logging.getLogger(__name__)
 
 
-class Builder(abc.ABC):
+class BuildContext(abc.ABC):
+  """ The build context is passed to actions for execution. """
 
-  directory: Path
-
-  @abc.abstractmethod
-  def __init__(self, actions: list[Action], build_directory: Path | None) -> None: ...
-
-  @abc.abstractmethod
-  def enable_watching(self) -> None: ...
+  @abc.abstractproperty
+  def directory(self) -> Path:
+    """ The writable build directory. Actions should absolute avoid making any changes to the filesystem inside the
+    #Novella.project_directory. """
 
   @abc.abstractmethod
-  def watch(self, path: Path) -> None: ...
+  def watch(self, path: Path) -> None:
+    """ Register the specified *path* to watch for changes in file or directory contents. When an action that
+    supports live reloading is running, or Novella itself has reloading enabled, the pipeline will be re-executed
+    (up until the point of the action that is currently running and supports live reloading, if any). """
 
   @abc.abstractmethod
-  def run(self) -> None: ...
+  def is_aborted(self) -> bool:
+    """ Returns `True` to indicate that the build is aborted and the action should terminate early, if possible.
+    The action may raise an #ActionAborted exception to indicate that it recognized the message and aborted early. """
+
+  @abc.abstractmethod
+  def on_abort(self, callback: t.Callable[[], t.Any]) -> None:
+    """ Adds a callback that is called when the build is aborted. Allows the action to respond immediately to the
+    event and initiate any sequences to abort the executio early. """
+
+  @abc.abstractmethod
+  def notify(self,  action: Action, event: str, commit: t.Callable[[], t.Any] | None = None) -> None:
+    """ Send a notification about an event in the build process. The main purpose of this method is to implement
+    the Novella `--intercept` CLI option, allowing you to pause the execution. The *commit* function is called
+    before the intercept occurs, allowing the action to commit state to disk, allowing for introspection wil the
+    execution is paused (only relevant if your action operates mostly in-memory). """
 
 
-class DefaultBuilder(Builder):
+class NovellaBuilder(BuildContext):
   """ Handles the execution of the Novella pipeline. """
 
   class Status(enum.Enum):
@@ -49,7 +63,7 @@ class DefaultBuilder(Builder):
 
   class EventHandler(watchdog.events.FileSystemEventHandler):
 
-    def __init__(self, builder: DefaultBuilder) -> None:
+    def __init__(self, builder: NovellaBuilder) -> None:
       self._builder = builder
 
     def on_any_event(self, event):
@@ -58,10 +72,10 @@ class DefaultBuilder(Builder):
         # Prevent multiple reloads in a small timeframe.
         if builder._last_reload is not None and time.time() - builder._last_reload < 1:
           return
-        if builder._status != DefaultBuilder.Status.RUNNING:
+        if builder._status != NovellaBuilder.Status.RUNNING:
           return
         builder._last_reload = time.time()
-        builder._status = DefaultBuilder.Status.STARTING
+        builder._status = NovellaBuilder.Status.STARTING
         current_action = builder._current_action
 
       logger.info('<fg=blue;attr=bold>Detected file changes, re-executing pipeline ...</fg>')
@@ -69,14 +83,15 @@ class DefaultBuilder(Builder):
         logger.info('  Keeping <fg=blue>%s</fg> alive.', current_action.get_description())
         builder._run_actions(builder._past_actions, True)
         with builder._lock:
-          builder._status = DefaultBuilder.Status.RUNNING
+          builder._status = NovellaBuilder.Status.RUNNING
       elif current_action:
         current_action.abort()
 
-  def __init__(self, actions: t.Sequence[Action], build_directory: Path | None) -> None:
+  def __init__(self, context: NovellaContext, build_directory: Path | None) -> None:
     import contextlib
 
-    self._actions = actions
+    self._context = context
+    self._actions = context.get_actions_ordered()
     self._past_actions: list[Action] = []
     self._build_directory = build_directory
     self._current_action: Action | None = None
@@ -85,18 +100,20 @@ class DefaultBuilder(Builder):
     self._watching_enabled = False
     self._lock = threading.Lock()
     self._last_reload = None
-    self._status = DefaultBuilder.Status.PENDING
+    self._status = NovellaBuilder.Status.PENDING
 
   def _create_temporary_directory(self, exit_stack: contextlib.ExitStack) -> None:
     import tempfile
     assert not self._build_directory
-    assert self._status == DefaultBuilder.Status.STARTING
+    assert self._status == NovellaBuilder.Status.STARTING
     tmpdir = exit_stack.enter_context(tempfile.TemporaryDirectory(prefix='novella-'))
     logger.info('Created temporary build directory <fg=yellow>%s</fg>', tmpdir)
     self._build_directory = Path(tmpdir)
     exit_stack.callback(setattr, self, '_build_directory', None)
 
   def _run_actions(self, actions: t.Sequence[Action], off_record: bool = False) -> Status:
+    from novella.novella import PipelineError
+
     past_actions = [] if off_record else self._past_actions
     for action in actions:
       if not off_record:
@@ -104,7 +121,9 @@ class DefaultBuilder(Builder):
           self._current_action = action
           logger.debug('Executing action <info>%s</info>', action.get_description())
       try:
-        action.execute()
+        action.execute(self)
+      except Exception as exc:
+        raise PipelineError(action.name, action.callsite) from exc
       finally:
         if not off_record:
           with self._lock:
@@ -113,7 +132,7 @@ class DefaultBuilder(Builder):
 
       if not off_record:
         with self._lock:
-          if self._status == DefaultBuilder.Status.STARTING:
+          if self._status == NovellaBuilder.Status.STARTING:
             break  # If the status has transitioned back to STARTING, it means we want to restart.
 
     with self._lock:
@@ -136,13 +155,22 @@ class DefaultBuilder(Builder):
 
     # TODO: What's not so good right now is that on a reload, actions might call this again
     #   and append the same path again to the observer.
-    self._observer.schedule(DefaultBuilder.EventHandler(self), path, recursive=True)
+    self._observer.schedule(NovellaBuilder.EventHandler(self), path, recursive=True)
 
-  def run(self) -> None:
+  def notify(self, action: Action, event: str, commit: t.Callable[[], t.Any] | None = None) -> None:
+    pass
+
+  def is_aborted(self) -> bool:
+    return False
+
+  def on_abort(self, callback: t.Callable[[], t.Any]) -> None:
+    pass
+
+  def build(self) -> None:
     with self._lock:
-      if self._status != DefaultBuilder.Status.PENDING:
-        raise RuntimeError('cannot restart build with same DefaultBuilder instance')
-      self._status = DefaultBuilder.Status.STARTING
+      if self._status != NovellaBuilder.Status.PENDING:
+        raise RuntimeError('cannot restart build with same NovellaBuilder instance')
+      self._status = NovellaBuilder.Status.STARTING
       assert self._past_actions == []
 
     with self._exit_stack:
@@ -151,8 +179,8 @@ class DefaultBuilder(Builder):
           if not self._build_directory:
             self._create_temporary_directory(local_exit_stack)
           with self._lock:
-            self._status = DefaultBuilder.Status.RUNNING
-          if self._run_actions(self._actions, False) != DefaultBuilder.Status.STARTING:
+            self._status = NovellaBuilder.Status.RUNNING
+          if self._run_actions(self._actions, False) != NovellaBuilder.Status.STARTING:
             break  # All actions have run without interruption
 
   @property

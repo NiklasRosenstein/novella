@@ -12,3 +12,9 @@ id = "41bee5ef-220b-4fd8-8018-c727aa4f2811"
 type = "feature"
 description = "add `--intercept` and `--intercept-log` options to CLI"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "5a4c3aa1-1dbe-4c45-b84a-d87f4f24dd45"
+type = "breaking change"
+description = "Split up responsibilities of `Novella` class between `Novella`, `NovellaContext` and `BuildContext`"
+author = "@NiklasRosenstein"

@@ -9,24 +9,23 @@ from pathlib import Path
 from nr.util.logging.filters.simple_filter import SimpleFilter
 from nr.util.logging.formatters.terminal_colors import TerminalColorFormatter
 
-from novella.action import ActionInterceptor
+from novella.action import Action
 from novella.novella import Novella, PipelineError
+from novella.build import NovellaBuilder
 
 logger = logging.getLogger(__name__)
 
 
-class Interceptor(ActionInterceptor):
+class CustomBuilder(NovellaBuilder):
 
-  def __init__(self, patterns: list[str], log: bool = False) -> None:
-    self.patterns = patterns
-    self.log = log
+  intercept_action: str | None = None
 
-  def notify(self, event: str, data: dict[str, t.Any] | None = None) -> None:
-    matches = any(fnmatch(event, p) for p in self.patterns)
-    if self.log or matches:
-      logger.info('+ Event <fg=magenta>%s</fg>', event)
-    if matches:
-      import pdb; pdb.set_trace()
+  def notify(self, action: Action, event: str, commit: t.Callable[[], t.Any] | None = None) -> None:
+    logger.info('+ Event <fg=magenta>%s :: %s</fg>', action.name, event)
+    if self.intercept_action is not None and self.intercept_action == action.name:
+      print('Intercepted', action, event, '; press enter to continue')
+      input()
+    return super().notify(action, event, commit)
 
 
 def setup_logging():
@@ -47,29 +46,28 @@ def main():
   parser.add_argument('-b', '--build-directory', type=Path)
   parser.add_argument('-h', '--help', action='store_true')
   parser.add_argument('--intercept')
-  parser.add_argument('--intercept-log', action='store_true')
   args, unknown_args = parser.parse_known_args()
 
-  interceptor = Interceptor([args.intercept] if args.intercept else [], args.intercept_log)
-  novella = Novella(Path.cwd(), args.build_directory, interceptor)
+  novella = Novella(Path.cwd())
   context = novella.execute_file()
 
   if args.help:
-    novella.update_argument_parser(parser)
+    context.update_argument_parser(parser)
     parser.print_help()
     return
 
+  context.configure(unknown_args)
+  builder = CustomBuilder(context, Path(args.build_directory) if args.build_directory else None)
+  builder.intercept_action = args.intercept
+
   try:
-    novella.run_build(context, unknown_args)
+    builder.build()
   except PipelineError as exc:
-    print()
-    print(
-      f'Uncaught exception in action "{exc.action_name}" defined at {exc.callsite.filename}:{exc.callsite.lineno}',
-      file=sys.stderr,
+    logger.error(
+      f'<fg=red>Uncaught exception in action "{exc.action_name}" defined at '
+      f'{exc.callsite.filename}:{exc.callsite.lineno}</fg>',
+      exc_info=exc.__cause__
     )
-    cause = exc.__cause__
-    import traceback
-    traceback.print_exception(type(cause), cause, cause.__traceback__)
     sys.exit(1)
 
 

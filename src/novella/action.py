@@ -8,50 +8,22 @@ import logging
 import shlex
 import shutil
 import subprocess as sp
-import sys
 import typing as t
 from functools import reduce
 from pathlib import Path
 
 if t.TYPE_CHECKING:
-  from .novella import Novella
+  from nr.util.inspect import Callsite
+  from novella.novella import NovellaContext
+  from novella.build import BuildContext
 
 logger = logging.getLogger(__name__)
 
 
-class ActionInterceptor(abc.ABC):
+class ActionAborted(Exception):
 
-  @abc.abstractmethod
-  def notify(self, event: str, data: dict[str, t.Any] | None) -> None: ...
-
-  @staticmethod
-  def void() -> ActionInterceptor:
-    class VoidActionInterceptor(ActionInterceptor):
-      def notify(self, event: str, data: dict[str, t.Any] | None = None) -> None:
-        pass
-      def prefix(self, event_prefix: str, data: dict[str, t.Any]) -> None:
-        return self
-    return VoidActionInterceptor()
-
-  def prefix(self, event_prefix: str, data: dict[str, t.Any]) -> None:
-    parent = self
-    parent_data = data
-    class PrefixActionInterceptor(ActionInterceptor):
-      def notify(self, event: str, data: dict[str, t.Any] | None = None) -> None:
-        return parent.notify(event_prefix + event, {**(parent_data or {}), **(data or {})} or None)
-    return PrefixActionInterceptor()
-
-
-class ActionSemantics(enum.IntEnum):
-  """ Flags that indicate the behaviour of an action. """
-
-  #: No particular behaviour.
-  NONE = 0
-
-  #: The action in itself supports an automated reloading mechanism. While the action is
-  #: still running, it will not be re-launched when watched files in the project directory
-  #: changes and is synced to the build directory again.
-  HAS_INTERNAL_RELOADER = 1
+  def __init__(self, action: Action) -> None:
+    self.action = action
 
 
 class Action(abc.ABC):
@@ -61,39 +33,55 @@ class Action(abc.ABC):
 
   #: The instance of the Novella application object that controls the pipeline and lifecycle of the build process.
   #: This is set when the action is added to the pipeline and is always available {@meth execute()} is called.
-  novella: Novella
+  context: NovellaContext
 
-  #: Provides a callback for the action, allowing it to provide potential intercept points to the caller of
-  #: the action. Intercept points can be used, for example, to pause the pipeline execution for example via the
-  #: Novella CLI.
-  interceptor: ActionInterceptor
+  #: The name of the action.
+  name: str
 
-  @abc.abstractmethod
-  def execute(self) -> None:
-    """ Execute the action. """
+  #: The callsite at which the action was created.
+  callsite: Callsite
 
-  def abort(self) -> None:
-    """ Abort the action if it is currently running. Block until the action is aborted. Do nothing otherwise. """
+  #: A list of dependencies; actions that must have been executed before this one.
+  dependencies: list[Action] | None = None
 
-  def get_semantic_flags(self) -> ActionSemantics:
-    """ Return flags for the action to indicate its semantics. """
+  #: Set to True to indicate that the action supports content reloading while it is running. This is
+  #: relevant for actions that trigger static site generators serving content that already have automatic reloading
+  #: capabilities as this will tell Novella to not kill the action and instead rerun the parts of the pipeline that
+  #: came before it.
+  supports_reloading: bool = False
 
-    return ActionSemantics.NONE
+  def __init__(self, context: NovellaContext, name: str, callsite: Callsite | None = None) -> None:
+    from nr.util.inspect import get_callsite
+    self.context = context
+    self.name = name
+    self.callsite = callsite or get_callsite()
+    self.__post_init__()
+
+  def __post_init__(self) -> None:
+    pass
 
   def get_description(self) -> str | None:
-    """ Return a short text description of the action. This is printed to the console when the action is executed.
-    Note that actions are usually configured through {@meth NovellaContext.do()}, which wraps it in a "lazy action",
-    and will prefix the action description with the action plugin name. """
+    """ Return a short text description of the action. It may be shown while the action is running to information the
+    user of what is currently happening. """
 
     return None
 
+  def depends_on(self, *actions: Action | str) -> None:
+    """ Call this to indicate that this action depends on another action. Note that if the action does not indicate
+    any dependencies explicitly (i.e. #dependencies stays `None`), Novella will assign a default dependency to the
+    action (usually the action that was created before this one to make linear execution the default). """
 
-class VoidAction(Action):
-  """ An action that does nothing. Sometimes used as placeholders in templates to allow users to insert actions
-  before or after the placeholder. """
+    if self.dependencies is None:
+      self.dependencies = []
+    for action in actions:
+      if isinstance(action, str):
+        action = self.context.action(action)
+      assert isinstance(action, Action), action
+      self.dependencies.append(action)
 
-  def execute(self) -> None:
-    return None
+  @abc.abstractmethod
+  def execute(self, build: BuildContext) -> None:
+    """ Execute the action. """
 
 
 class CopyFilesAction(Action):
@@ -107,17 +95,18 @@ class CopyFilesAction(Action):
   #: The list of paths, relative to the project directory, to copy to the temporary build directory.
   paths: list[str | Path]
 
-  def __init__(self) -> None:
+  def __post_init__(self) -> None:
     self.paths: list[str | Path] = []
 
-  def execute(self) -> None:
-    assert isinstance(self.paths, list)
-    logger.info('Copy <fg=cyan>%s</fg> to <path>%s</path>', self.paths, self.novella.build.directory)
+  def execute(self, build: BuildContext) -> None:
+    assert isinstance(self.paths, list), self.paths
+    logger.info('Copy <fg=cyan>%s</fg> to <path>%s</path>', self.paths, build.directory)
+
     for path in self.paths:
       assert isinstance(path, (str, Path)), repr(path)
-      source = self.novella.project_directory / path
-      dest = self.novella.build.directory / path
-      self.novella.build.watch(source)
+      source = self.context.project_directory / path
+      dest = build.directory / path
+      build.watch(source)
       if source.is_file():
         shutil.copyfile(source, dest)
       else:
@@ -134,43 +123,24 @@ class RunAction(Action):
   #: A list of the arguments to run. Only a single command can be run using this action.
   args: list[str | Path]
 
-  def __init__(self) -> None:
-    self.args: list[str | Path] = []
-    self._flags: ActionSemantics = ActionSemantics.NONE
-    self._proc: sp.Popen | None = None
-    self._aborted = False
+  def __post_init__(self) -> None:
+    self.args = []
 
-  @property
-  def flags(self) -> ActionSemantics:
-    return self._flags
+  def get_description(self) -> str | None:
+    return '$ ' + ' '.join(map(shlex.quote, map(str, self.args)))
 
-  @flags.setter
-  def flags(self, value: str | ActionSemantics) -> None:
-    if isinstance(value, str):
-      value = reduce(lambda a, b: t.cast(ActionSemantics, a | b), (ActionSemantics[k.strip().upper()] for k in value.split('|')))
-    assert isinstance(value, ActionSemantics), type(value)
-    self._flags = value
+  def execute(self, build: BuildContext) -> None:
+    assert self.args, 'no RunAction.args specified'
+    logger.info('Run <fg=cyan>$%s</fg>', ' '.join(map(lambda s: shlex.quote(str(s)),  self.args)))
 
-  def execute(self) -> None:
-    if not self.args:
-      raise RuntimeError('no args specified')
     try:
-      self._proc = sp.Popen(self.args, cwd=self.novella.build.directory)
+      self._proc = sp.Popen(self.args, cwd=build.directory)
+      build.on_abort(self._proc.terminate)
       self._proc.wait()
-      if self._proc.returncode != 0 and not self._aborted:
+      if build.is_aborted():
+        raise ActionAborted(self)
+      if self._proc.returncode != 0:
         raise RuntimeError(f'command exited with code {self._proc.returncode}')
     except KeyboardInterrupt:
       # TODO: Indicate failure of the subprocess?
       return
-
-  def abort(self) -> None:
-    if self._proc:
-      self._aborted = True
-      self._proc.terminate()
-      self._proc.wait()
-
-  def get_semantic_flags(self) -> ActionSemantics:
-    return self._flags
-
-  def get_description(self) -> str | None:
-    return '$ ' + ' '.join(map(shlex.quote, map(str, self.args)))

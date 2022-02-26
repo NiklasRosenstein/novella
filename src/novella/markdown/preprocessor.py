@@ -9,7 +9,8 @@ import typing as t
 from pathlib import Path
 
 from novella.action import Action
-from novella.novella import Novella
+from novella.build import BuildContext
+from novella.novella import Novella, NovellaContext
 
 _Closure: t.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
 
@@ -28,9 +29,10 @@ class MarkdownFile:
 
 class MarkdownFiles(list[MarkdownFile]):
 
-  def __init__(self, files: t.Iterable[MarkdownFile], novella: Novella) -> None:
+  def __init__(self, files: t.Iterable[MarkdownFile], context: NovellaContext, build: BuildContext) -> None:
     super().__init__(files)
-    self.novella = novella
+    self.context = context
+    self.build = build
 
 
 class MarkdownPreprocessorAction(Action):
@@ -43,37 +45,36 @@ class MarkdownPreprocessorAction(Action):
   #: The encoding to read and write files as.
   encoding: str | None = None
 
-  def __init__(self) -> None:
+  def __post_init__(self) -> None:
     self._pipeline: list[MarkdownPreprocessor] = []
     self._processors: dict[str, MarkdownPreprocessor] = {}
 
-  def execute(self) -> None:
+  def execute(self, build: BuildContext) -> None:
     from nr.util.fs import recurse_directory
-    root = self.path or self.novella.build.directory
-    files = MarkdownFiles([], self.novella)
+    root = self.path or build.directory
+    files = MarkdownFiles([], self.context, build)
 
     for path in recurse_directory(root):
       if path.suffix == '.md':
         files.append(MarkdownFile(path.relative_to(root), path.read_text(self.encoding)))
 
-    for preprocessor in self._pipeline:
-      name = next((k for k, v in self._processors.items() if v is preprocessor), None)
-      if name:
-        self.interceptor.notify(f'preprocess:{name}', {'preprocessor': preprocessor})
-      preprocessor.process_files(files)
-
-      # We wouldn't need to write the files back to disk actually, but it is useful for debugging
-      # when using the --intercept option.
+    def _commit_files():
       for file in files:
         if file.changed():
           (root / file.path).write_text(file.content, self.encoding)
+
+    for preprocessor in self._pipeline:
+      name = next((k for k, v in self._processors.items() if v is preprocessor), None)
+      if name:
+        build.notify(self, 'preprocess ({name})', _commit_files)
+      preprocessor.process_files(files)
 
     for file in files:
       # Correct escaped inline tags.
       # NOTE (@NiklasRosenstein): This is a bit hacky.. maybe we can find a better place in the code to do this.
       file.content = file.content.replace('\\{@', '{@')
-      if file.changed():
-        (root / file.path).write_text(file.content, self.encoding)
+
+    _commit_files()
 
   def use(
     self,

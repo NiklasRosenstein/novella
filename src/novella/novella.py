@@ -7,11 +7,11 @@ import logging
 import typing as t
 from pathlib import Path
 
-from novella.action import Action, ActionInterceptor, ActionSemantics
+from novella.action import Action
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
-  from novella.build import Builder
+  from novella.build import BuildContext
   from novella.template import Template
 
 logger = logging.getLogger(__name__)
@@ -27,92 +27,12 @@ class Option:
 
 
 class Novella:
-  """ This is the main class that controls the build environment and pipeline execution. """
+  """ This class is the main entrypoint for starting and controlling a Novella build. """
 
   BUILD_FILE = Path('build.novella')
 
-  def __init__(
-    self,
-    project_directory: Path,
-    build_directory: Path | None,
-    interceptor: ActionInterceptor | None = None,
-  ) -> None:
+  def __init__(self, project_directory: Path) -> None:
     self.project_directory = project_directory
-    self._build_directory = build_directory
-    self._pipeline: list[Action] = []
-    self._actions: dict[str, Action] = {}
-    self._option_names: list[str] = []
-    self._options: list[Option] = []
-    self._enable_watching = True
-    self._build: Builder | None = None
-    self._interceptor = interceptor or ActionInterceptor.void()
-
-  @property
-  def build(self) -> Builder:
-    """ Returns the build manager. Can only be used inside #Novella.run(). """
-
-    assert self._build is not None
-    return self._build
-
-  def add_action(
-    self,
-    action: Action,
-    name: str | None = None,
-    before: str | None = None,
-    after: str | None = None,
-  ) -> None:
-    """ Add an action to the pipeline. """
-
-    if name in self._actions:
-      raise ValueError(f'action name {name!r} already used')
-    if before is not None and after is not None:
-      raise ValueError('arguments "before" and "after" cannot be given at the same time')
-
-    if before is not None:
-      index = self._pipeline.index(self._actions[before])
-    elif after is not None:
-      index = self._pipeline.index(self._actions[after]) + 1
-    else:
-      index = len(self._pipeline)
-
-    self._pipeline.insert(index, action)
-    action.novella = self
-    if name is not None:
-      self._actions[name] = action
-
-  def update_argument_parser(self, parser: argparse.ArgumentParser) -> None:
-    group = parser.add_argument_group('script')
-    for option in self._options:
-      option_names = []
-      if option.long_name:
-        option_names += [f"--{option.long_name}"]
-      if option.short_name:
-        option_names += [f"-{option.short_name}"]
-      group.add_argument(
-        *option_names,
-        action="store_true" if option.flag else None,  # type: ignore
-        help=option.description,
-        default=option.default
-      )
-
-  def run_build(self, context: NovellaContext, args: list[str]) -> None:
-    """ Execute the Novella pipeline. """
-
-    from .build import DefaultBuilder
-
-    parser = argparse.ArgumentParser()
-    self.update_argument_parser(parser)
-    parsed_args = parser.parse_args(args)
-    for option_name in self._option_names:
-      context.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
-
-    try:
-      self._build = DefaultBuilder(self._pipeline, self._build_directory)
-      if self._enable_watching:
-        self._build.enable_watching()
-      self._build.run()
-    finally:
-      self._build = None
 
   def execute_file(self, file: Path | None = None) -> NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
@@ -125,18 +45,32 @@ class Novella:
 
 
 class NovellaContext:
+  """ The Novella context contains the action pipeline and all the data collected during the build script execution. """
 
   def __init__(self, novella: Novella) -> None:
-    self.novella = novella
-    self.options: dict[str, str | bool | None] = {}
+    self._novella = novella
+    self._init_sequence: bool = True
+
+    self._actions: dict[str, Action] = {}
+    self._last_action_added: Action | None = None
+    self._fallback_dependencies: dict[Action, Action] = {}
+    self._action_configurators: list[tuple[Action, t.Callable]] = []
+
+    self._options: dict[str, str | bool | None] = {}
+    self._option_spec: list[Option] = []
+    self._option_names: list[str] = []
+
+  @property
+  def novella(self) -> Novella:
+    return self._novella
+
+  @property
+  def options(self) -> dict[str, str | bool | None]:
+    return self._options
 
   @property
   def project_directory(self) -> Path:
     return self.novella.project_directory
-
-  @property
-  def build_directory(self) -> Path:
-    return self.novella.build.directory
 
   def option(
     self,
@@ -152,35 +86,46 @@ class NovellaContext:
     if len(long_name) == 1 and not short_name:
       long_name, short_name = '', long_name
 
-    self.novella._option_names.append(long_name)
-    self.novella._options.append(Option(long_name, short_name, description, flag, default))
+    self._option_names.append(long_name)
+    self._option_spec.append(Option(long_name, short_name, description, flag, default))
 
   def do(
     self,
-    action_name: str,
+    action_type_name: str,
     closure: t.Callable | None = None,
     name: str | None = None,
-    before: str | None = None,
-    after: str | None = None,
   ) -> None:
-    """ Add an action to the Novella pipeline identified by the specified *action_name*. The action will be
+    """ Add an action to the Novella pipeline identified by the specified *action_type_name*. The action will be
     configured once it is created using the *closure*. """
 
     from nr.util.inspect import get_callsite
     from nr.util.plugins import load_entrypoint
 
-    callsite = get_callsite()
-    action_cls = load_entrypoint(Action, action_name)  # type: ignore
-    action = _LazyAction(self.novella, action_name, name, action_cls, closure, callsite)
-    self.novella.add_action(action, name, before, after)
+    if name is None:
+      name = action_type_name
+
+    if name in self._actions:
+      raise ValueError(f'action name {name!r} already used')
+
+    action_cls = load_entrypoint(Action, action_type_name)  # type: ignore
+    action = action_cls(self, name, get_callsite())
+    self._actions[name] = action
+    if closure is not None:
+      if self._init_sequence:
+        self._action_configurators.append((action, closure))
+      else:
+        closure(action)
+    if self._last_action_added:
+      self._fallback_dependencies[action] = self._last_action_added
+    self._last_action_added = action
 
   def action(self, action_name: str, closure: t.Callable | None = None) -> Action:
     """ Access an action by its given name, and optionally apply the *closure*. """
 
-    action = self.novella._actions[action_name]
-    if isinstance(action, _LazyAction):
-      action = action._get_action()
-    if closure is not None:
+    action = self._actions[action_name]
+    if self._init_sequence and closure:
+      self._action_configurators.append((action, closure))
+    elif closure:
       closure(action)
     return action
 
@@ -198,66 +143,54 @@ class NovellaContext:
     if post:
       post(template)
 
-  def enable_file_watching(self) -> None:
-    self.novella._enable_watching = True
+  def update_argument_parser(self, parser: argparse.ArgumentParser) -> None:
+    group = parser.add_argument_group('script')
+    for option in self._option_spec:
+      option_names = []
+      if option.long_name:
+        option_names += [f"--{option.long_name}"]
+      if option.short_name:
+        option_names += [f"-{option.short_name}"]
+      group.add_argument(
+        *option_names,
+        action="store_true" if option.flag else None,  # type: ignore
+        help=option.description,
+        default=option.default
+      )
 
+  def configure(self, args: list[str]) -> None:
+    """ Parse the argument list and run the configuration for all registered actions. """
 
-class _LazyAction(Action):
+    if not self._init_sequence:
+      raise RuntimeError('already configured')
+    self._init_sequence = False
 
-  def __init__(
-    self,
-    novella: Novella,
-    action_name: str,
-    name: str,
-    action_cls: type[Action],
-    closure: t.Callable | None,
-    callsite: Callsite,
-  ) -> None:
-    self.novella = novella
-    self.action_name = action_name
-    self.name = name
-    self.action_cls = action_cls
-    self.closure = closure
-    self.callsite = callsite
-    self._interceptor_data = {}
-    self.interceptor = novella._interceptor.prefix((name or action_name) + ':', self._interceptor_data)
-    self._action: Action | None = None
+    parser = argparse.ArgumentParser()
+    self.update_argument_parser(parser)
+    parsed_args = parser.parse_args(args)
+    for option_name in self._option_names:
+      self.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
-  def __repr__(self) -> str:
-    return f'_LazyAction({self.action_name!r})'
+    for action, closure in self._action_configurators:
+      closure(action)
+    self._action_configurators.clear()
 
-  def _get_action(self) -> Action:
-    if self._action is None:
-      self._action = self.action_cls()
-      self._action.novella = self.novella
-      self._action.interceptor = self.interceptor
-      self._interceptor_data['action'] = self._action
-      self.interceptor.notify('configure')
-      if self.closure:
-        self.closure(self._action)
-    return self._action
+  def get_actions_ordered(self) -> list[Action]:
+    from nr.util.digraph import DiGraph
+    from nr.util.digraph.algorithm.topological_sort import topological_sort
 
-  def get_description(self) -> str | None:
-    inner_name = self._get_action().get_description()
-    if inner_name:
-      return f'{self.action_name} ({inner_name})'
-    return self.action_name
+    graph = DiGraph[str, None, None]()
+    for action_name, action in self._actions.items():
+      assert action.name == action_name, (action, action_name)
+      graph.add_node(action.name, None)
+    for action in self._actions.values():
+      if action.dependencies is None:
+        if action in self._fallback_dependencies:
+          action.dependencies = [self._fallback_dependencies[action]]
+      for dep in action.dependencies or []:
+        graph.add_edge(dep.name, action.name, None)
 
-  def get_semantic_flags(self) -> ActionSemantics:
-    return self._get_action().get_semantic_flags()
-
-  def execute(self) -> None:
-    action = self._get_action()
-    self.interceptor.notify('execute')
-    try:
-      action.execute()
-    except Exception as exc:
-      self.interceptor.notify('error', {'error':exc})
-      raise PipelineError(self.action_name, self.callsite) from exc
-
-  def abort(self) -> None:
-    self.interceptor.notify('abort')
-    return self._get_action().abort()
+    return [self._actions[k] for k in topological_sort(graph)]
 
 
 class PipelineError(Exception):

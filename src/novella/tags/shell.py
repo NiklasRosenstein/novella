@@ -7,6 +7,7 @@ import textwrap
 import typing as t
 import subprocess as sp
 from pathlib import Path
+from novella.build import BuildContext
 
 from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
 from novella.markdown.tagparser import parse_inline_tags
@@ -39,20 +40,26 @@ class ShellTagProcessor(MarkdownPreprocessor):
     from novella.markdown.tagparser import parse_block_tags, replace_tags
     for file in files:
       block_tags = parse_block_tags(file.content)
-      file.content = replace_tags(file.content, block_tags, lambda t: self._replace_tag(files.novella, file.path, t))
+      file.content = replace_tags(
+        file.content, block_tags,
+        lambda t: self._replace_tag(files.context.novella.project_directory, files.build.directory, t),
+      )
       inline_tags = parse_inline_tags(file.content)
-      file.content = replace_tags(file.content, inline_tags, lambda t: self._replace_tag(files.novella, file.path, t, True))
+      file.content = replace_tags(
+        file.content, inline_tags,
+        lambda t: self._replace_tag(files.context.novella.project_directory, files.build.directory, t, True),
+      )
 
-  def _replace_tag(self, novella: Novella, file_path: Path, tag: Tag, strip: bool = False) -> str | None:
+  def _replace_tag(self, project_directory: Path, build_directory: Path, tag: Tag, strip: bool = False) -> str | None:
     if tag.name != 'shell':
       return None
 
     command = tag.args.strip()
     env = os.environ.copy()
-    env['BUILD_DIR'] = str(novella.build.directory)
+    env['BUILD_DIR'] = str(build_directory)
 
     try:
-      output = sp.check_output(command, shell=True, cwd=novella.project_directory, env=env, stderr=sp.PIPE).decode()
+      output = sp.check_output(command, shell=True, cwd=project_directory, env=env, stderr=sp.PIPE).decode()
     except sp.CalledProcessError as exc:
       logger.exception('@shell command <fg=cyan>%s</fg> exited with return code <fg=red>%s</fg>', command, exc.returncode)
       output = textwrap.indent((exc.stdout or b'').decode() + '' + (exc.stderr or b'').decode(), '    ')
