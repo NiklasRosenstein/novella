@@ -177,10 +177,10 @@ class NovellaContext:
 
   def get_actions_graph(self) -> DiGraph[str, Action, None]:
     from nr.util.digraph import DiGraph
-    graph = DiGraph[str, None, None]()
+    graph = DiGraph[str, Action, None]()
     for action_name, action in self._actions.items():
       assert action.name == action_name, (action, action_name)
-      graph.add_node(action.name, None)
+      graph.add_node(action.name, action)
     for action in self._actions.values():
       if action.dependencies is None:
         if action in self._fallback_dependencies:

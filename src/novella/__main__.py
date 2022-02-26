@@ -101,13 +101,12 @@ def main() -> None:
 
   novella = Novella(Path.cwd())
 
+  exception: Exception | None = None
   try:
     context = novella.execute_file(Path(args.config_file) if args.config_file else None)
-  except FileNotFoundError:
+  except FileNotFoundError as exc:
     context = None
-    exc_info = sys.exc_info()
-  else:
-    exc_info = None
+    exception = exc
 
   if args.help:
     if context:
@@ -115,9 +114,10 @@ def main() -> None:
     parser.print_help()
     return
 
-  if exc_info:
-    raise exc_info[1]
+  if exception:
+    raise exception
 
+  assert context
   context.configure(unknown_args)
 
   if args.dot:
