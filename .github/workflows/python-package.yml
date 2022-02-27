@@ -60,10 +60,9 @@ jobs:
         name: docs
         path: docs/_site
 
-    - name: Deploy to GitHub Pages
-      uses: Cecilapp/GitHub-Pages-deploy@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish docs
+      uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
-        email: rosensteinniklas@gmail.com
-        build_dir: docs/_site
+        branch: gh-pages
+        folder: docs/_site
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
