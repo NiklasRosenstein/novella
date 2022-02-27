@@ -121,6 +121,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - uses: actions/checkout@v2
+
     - uses: actions/download-artifact@v2
       with:
         name: docs
