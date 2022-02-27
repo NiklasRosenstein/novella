@@ -22,6 +22,10 @@
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
         
+          
+          
+          <meta name="theme-color" content="#000000">
+        
       
     
     
@@ -48,7 +52,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="teal">
   
     
     
@@ -70,7 +74,9 @@
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Novella" class="md-header__button md-logo" aria-label="Novella" data-md-component="logo">
       
@@ -148,13 +154,83 @@
     
   </nav>
   
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../changelog/" class="md-tabs__link">
+      Changelog
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Concepts
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../components/actions/" class="md-tabs__link">
+        Components
+      </a>
+    </li>
+  
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
-        
-          
         
       
       <main class="md-main" data-md-component="main">
@@ -167,8 +243,12 @@
                   <div class="md-sidebar__inner">
                     
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Novella" class="md-nav__button md-logo" aria-label="Novella" data-md-component="logo">
       
@@ -202,7 +282,7 @@
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
-        Welcome to the Novella documentation!
+        Home
       </a>
     </li>
   
@@ -308,16 +388,24 @@
       
       
       
+        
+          
+        
+          
+        
+          
+        
+      
       
         <label class="md-nav__link" for="__nav_4">
-          Actions
+          Components
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Actions" data-md-level="1">
+      <nav class="md-nav" aria-label="Components" data-md-level="1">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
-          Actions
+          Components
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -326,13 +414,45 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../actions/" class="md-nav__link">
-        Action
-      </a>
-    </li>
-  
-
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" >
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../components/actions/">Actions</a>
+          
+            <label for="__nav_4_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Actions" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Actions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
             
           
             
@@ -341,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../actions/copy_files/" class="md-nav__link">
+      <a href="../components/actions/copy_files/" class="md-nav__link">
         Copy files
       </a>
     </li>
@@ -355,7 +475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../actions/run/" class="md-nav__link">
+      <a href="../components/actions/run/" class="md-nav__link">
         Run
       </a>
     </li>
@@ -368,48 +488,51 @@
     </li>
   
 
-    
-      
-      
-      
-
+            
+          
+            
+              
   
   
   
     
-    <li class="md-nav__item md-nav__item--nested">
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
       
       
       
+        
+          
+            
+          
+        
+          
+        
       
-        <label class="md-nav__link" for="__nav_5">
-          Preprocessing
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
-      <nav class="md-nav" aria-label="Preprocessing" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../components/preprocessing/">Preprocessing</a>
+          
+            <label for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Preprocessing" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
           <span class="md-nav__icon md-icon"></span>
           Preprocessing
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../preprocessing/" class="md-nav__link">
-        Markdown Preprocessing
-      </a>
-    </li>
-  
-
-            
           
             
               
@@ -417,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../preprocessing/builtin/" class="md-nav__link">
+      <a href="../components/preprocessing/builtin/" class="md-nav__link">
         Builtin tags
       </a>
     </li>
@@ -430,48 +553,51 @@
     </li>
   
 
-    
-      
-      
-      
-
+            
+          
+            
+              
   
   
   
     
-    <li class="md-nav__item md-nav__item--nested">
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
       
       
       
+        
+          
+            
+          
+        
+          
+        
       
-        <label class="md-nav__link" for="__nav_6">
-          Templates 
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
-      <nav class="md-nav" aria-label="Templates " data-md-level="1">
-        <label class="md-nav__title" for="__nav_6">
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../components/templates_/">Templates </a>
+          
+            <label for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Templates " data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
           <span class="md-nav__icon md-icon"></span>
           Templates 
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../templates_/" class="md-nav__link">
-        Template
-      </a>
-    </li>
-  
-
-            
           
             
               
@@ -479,9 +605,16 @@
   
   
     <li class="md-nav__item">
-      <a href="../templates_/mkdocs/" class="md-nav__link">
+      <a href="../components/templates_/mkdocs/" class="md-nav__link">
         Mkdocs
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -500,53 +633,6 @@
               </div>
             
             
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    Options
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#actions" class="md-nav__link">
-    Actions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#templates" class="md-nav__link">
-    Templates
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
@@ -559,13 +645,12 @@
 
 
 <h1 id="concepts">Concepts</h1>
-<p>The Novella build process is described using a <code>build.novella</code> file using the <a href="https://github.com/craftr-build/craftr-dsl/">Craftr-Dsl</a> configuration language,
-which is (almost) a superset of Python. There are three relevant concepts for the configuration that are provided by
+<p>There are three relevant concepts for the configuration that are provided by
 Novella itself:</p>
 <ol>
-<li>Options</li>
-<li>Actions</li>
-<li>Templates</li>
+<li><a href="#options">Options</a></li>
+<li><a href="#actions">Actions</a></li>
+<li><a href="#templates">Templates</a></li>
 </ol>
 <h2 id="options">Options</h2>
 <p>An option is defined using the <code>NovellaContext.option()</code> function and allows you to define a command-line option that
@@ -617,6 +702,11 @@ under the <code>novella.templates</code> entrypoint.</p>
           </div>
         </div>
         
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
       </main>
       
         <footer class="md-footer">
@@ -640,7 +730,7 @@ under the <code>novella.templates</code> entrypoint.</p>
       
       
         
-        <a href="../actions/" class="md-footer__link md-footer__link--next" aria-label="Next: Action" rel="next">
+        <a href="../components/actions/" class="md-footer__link md-footer__link--next" aria-label="Next: Action" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
@@ -676,7 +766,7 @@ under the <code>novella.templates</code> entrypoint.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "toc.integrate", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
       <script src="../assets/javascripts/bundle.9f3ca3d1.min.js"></script>
