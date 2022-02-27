@@ -54,3 +54,9 @@ id = "8626833d-5b99-44c7-83fb-ea758ffcacbb"
 type = "improvement"
 description = "`@cat` tag registers reference file to be watched for changes"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "291a9147-26d3-40b3-ab98-f7a4c91dc5da"
+type = "improvement"
+description = "add `MkdocsUpdateConfigAction.upadte()` and `.update_with()`, update MkDocs config template to add Material features"
+author = "@NiklasRosenstein"

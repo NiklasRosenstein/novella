@@ -1,14 +1,12 @@
 # Concepts
 
-  [Craftr-Dsl]: https://github.com/craftr-build/craftr-dsl/
-
-The Novella build process is described using a `build.novella` file using the [Craftr-Dsl][] configuration language,
-which is (almost) a superset of Python. There are three relevant concepts for the configuration that are provided by
+There are three relevant concepts for the configuration that are provided by
 Novella itself:
 
-1. Options
-2. Actions
-3. Templates
+1. {@link docs:novella:concepts:options}
+2. {@link docs:novella:concepts:actions}
+3. {@link docs:novella:concepts:templates}
+
 
 @anchor docs:novella:concepts:options
 ## Options

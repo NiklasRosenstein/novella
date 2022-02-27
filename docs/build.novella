@@ -1,3 +1,11 @@
+# type: ignore
+
 template "mkdocs" {
   site_name = "Novella"
+}
+
+action "mkdocs-update-config" {
+  update '$.theme.features' add: ['toc.integrate', 'navigation.tabs', 'navigation.tabs.sticky']
+  update '$.theme.palette' set: {'primary': 'black', 'accent': 'teal'}
+
 }

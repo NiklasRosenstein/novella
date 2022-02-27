@@ -7,7 +7,8 @@ import os
 import re
 import textwrap
 import typing as t
-from nr.util.functional import Supplier
+
+from nr.util.singleton import NotSet
 
 from markdown.extensions.toc import slugify
 from novella.action import Action
@@ -18,6 +19,7 @@ from novella.tags.anchor import AnchorAndLinkRenderer
 from novella.repository import detect_repository
 
 if t.TYPE_CHECKING:
+  from nr.util.functional import Supplier
   from novella.action import CopyFilesAction, RunAction
   from novella.markdown.preprocessor import MarkdownPreprocessorAction
   from novella.tags.anchor import Anchor, AnchorTagProcessor, Link
@@ -188,7 +190,14 @@ class MkdocsUpdateConfigAction(Action):
   ```
   docs_dir: content
   site_name: My documentation
-  theme: material
+  theme:
+    name: material
+    features:
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
   markdown_extensions:
   - admonition
   - markdown.extensions.extra
@@ -207,6 +216,9 @@ class MkdocsUpdateConfigAction(Action):
   - pymdownx.tilde
   ```
 
+  Check out the the [Material for MkDocs // Setup](https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/)
+  documentation for more information. Other common theme features to enable are `toc.integrate` and `navigation.tabs`.
+
   __Site name__
 
   The site name can be updated from the Novella configuration, usually through #MkdocsTemplate.site_name.
@@ -216,11 +228,76 @@ class MkdocsUpdateConfigAction(Action):
   Automatically detect the Git repository URL and inject it into the MkDocs `repo_url` and `edit_url`
   options unless already configure and only if the #MkdocsTemplate.autodetect_repo_url is enabled. This is enabled
   by default.
+
+  __Update instructions__
+
+  Using the #update() method, a string similar to JSONpath and an operation can be provided that will be applied to
+  the MkDocs configuration. A function to update the MkDocs configuration can be specified with the #update_func()
+  method.
   """
 
   _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
   template: MkdocsTemplate
+
+  def update(self, json_path: str, *, add: t.Any = NotSet.Value, set: t.Any = NotSet.Value, do: t.Callable[[t.Any], t.Any] | None = None) -> None:
+    """ A helper function to update a value in the MkDocs configuration by either setting it to the
+    value specified to the *set* argument or by adding to it (e.g. updating it if it is a dictionary
+    or summing them in case of other values like strings or lists) the value of *add*. The *do* operation
+    can also be used to perform an action on the existing value at *json_path*, but the value must be
+    directly mutated and already exist in the configuration.
+
+    Note that the *json_path* argument is treated very simplisticly and does not support wildcards or
+    indexing. The string must begin with `$`. Quotes in keys are not supported either.
+
+    __Example__
+
+
+    ```py
+    action "mkdocs-update-config" {
+      update '$.theme.features' add: ['toc.integrate', 'navigation.tabs']
+      update '$.theme.palette' set: {'primary': 'black', 'accent': 'amber'}
+    }
+    ```
+    """
+
+    arg_count = sum([add is not NotSet.Value, set is not NotSet.Value, do is not None])
+    if arg_count == 0:
+      raise ValueError('missing "add", "set" or "do" argument')
+    elif arg_count > 1:
+      raise ValueError('incompatible arguments')
+
+    parts = json_path.split('.')
+    if parts[0] != '$':
+      raise ValueError(f'invalid json_path, must begin with `$.`: {json_path!r}')
+
+    def _mutator(config: dict[str, t.Any]) -> None:
+      for part in parts[1:-1]:
+        if part not in config:
+          config[part] = {}
+        config = config[part]
+      part = parts[-1]
+      if do is not None:
+        do(config[part])
+      elif part not in config or set is not NotSet.Value:
+        config[part] = add if set is NotSet.Value else set
+      else:
+        if isinstance(config[part], dict):
+          config[part] = {**config[part], **add}
+        else:
+          config[part] = config[part] + add
+
+    self._updaters.append(_mutator)
+
+  def update_with(self, func: t.Callable[[dict[str, t.Any]], t.Any]) -> None:
+    """ Adds a callback that can modify the MkDocs config before it is updated. """
+
+    self._updaters.append(func)
+
+  # Action
+
+  def __post_init__(self) -> None:
+    self._updaters: list[t.Callable] = []
 
   def execute(self, build: BuildContext) -> None:
     import copy
@@ -255,6 +332,9 @@ class MkdocsUpdateConfigAction(Action):
         edit_uri = f'blob/{repo_info.branch}/' + str(content_dir.relative_to(repo_info.root))
         mkdocs_config['edit_uri'] = edit_uri
         logger.info('Detected edit URI: <fg=cyan>%s</fg>', edit_uri)
+
+    for mutator in self._updaters:
+      mutator(mkdocs_config)
 
     if original_config != mkdocs_config:
       logger.info('%s <fg=yellow>%s</fg>', 'Updating' if mkdocs_yml.exists() else 'Generating new', mkdocs_yml)
