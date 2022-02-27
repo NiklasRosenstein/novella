@@ -1,3 +1,7 @@
+---
+title: Home
+---
+
 @anchor docs:novella:home
 # Welcome to the Novella documentation!
 

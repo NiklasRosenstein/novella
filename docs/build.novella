@@ -5,7 +5,6 @@ template "mkdocs" {
 }
 
 action "mkdocs-update-config" {
-  update '$.theme.features' add: ['toc.integrate', 'navigation.tabs', 'navigation.tabs.sticky']
+  update '$.theme.features' add: ['toc.integrate', 'navigation.sections', 'navigation.tabs', 'navigation.tabs.sticky']
   update '$.theme.palette' set: {'primary': 'black', 'accent': 'teal'}
-
 }
