@@ -49,7 +49,7 @@ jobs:
         path: docs/_site
 
   publish-docs:
-    needs: [ "test" ]
+    needs: [ "build" ]
     runs-on: ubuntu-latest
     steps:
 
