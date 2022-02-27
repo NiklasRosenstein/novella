@@ -13,6 +13,7 @@ from nr.util.singleton import NotSet
 from markdown.extensions.toc import slugify
 from novella.action import Action
 from novella.build import BuildContext
+from novella.compat import removesuffix
 from novella.novella import NovellaContext
 from novella.template import Template
 from novella.tags.anchor import AnchorAndLinkRenderer
@@ -66,8 +67,8 @@ class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
     if target == 'index':
       target = '..'
     elif target.startswith('../') and target.endswith('/index'):
-      target = target.removesuffix('/index') + '/..'
-    target = target.removesuffix('/index')
+      target = removesuffix(target, '/index') + '/..'
+    target = removesuffix(target, '/index')
     return target + '#' + self._get_anchor_html_id(link.target)
 
   def render_anchor(self, anchor: Anchor) -> str | None:

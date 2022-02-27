@@ -6,13 +6,14 @@ import dataclasses
 import hashlib
 import importlib
 import typing as t
+import typing_extensions as te
 from pathlib import Path
 
 from novella.action import Action
 from novella.build import BuildContext
-from novella.novella import Novella, NovellaContext
+from novella.novella import NovellaContext
 
-_Closure: t.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
+_Closure: te.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
 
 
 @dataclasses.dataclass
@@ -27,7 +28,7 @@ class MarkdownFile:
     return hashlib.md5(self.content.encode()).hexdigest() != self._hash
 
 
-class MarkdownFiles(list[MarkdownFile]):
+class MarkdownFiles(t.List[MarkdownFile]):
 
   def __init__(self, files: t.Iterable[MarkdownFile], context: NovellaContext, build: BuildContext) -> None:
     super().__init__(files)

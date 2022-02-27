@@ -13,11 +13,12 @@ packages = [{ include="novella", from="src" }]
 
   [tool.poetry.dependencies]
   python = "^3.10"
-  craftr-dsl = "^0.7.6"
+  craftr-dsl = "^0.7.7"
   markdown = "^3.0.0"
   "nr.util" = ">=0.7.1"
   PyYAML = ">=4.0"
   tomli = "^2.0.0"
+  typing-extensions = "*"
   watchdog = "^2.0.0"
 
   [tool.poetry.dev-dependencies]

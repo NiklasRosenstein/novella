@@ -23,14 +23,17 @@ deindentation is found.
 ```
 """
 
+from __future__ import annotations
+
 import itertools
 import re
 import typing as t
+import typing_extensions as te
 
 
 #: Function signature for replacing tags found in Markdown files. If an iterable of strings is returned,
 #: the strings will be concatenated by newlines.
-ReplacementFunc: t.TypeAlias = 't.Callable[[Tag], str | t.Iterable[str]]'
+ReplacementFunc: te.TypeAlias = 't.Callable[[Tag], str | t.Iterable[str]]'
 
 
 class Tag(t.NamedTuple):

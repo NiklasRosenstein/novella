@@ -1,7 +1,11 @@
 
+from __future__ import annotations
+
 import enum
 import typing as t
 from pathlib import Path
+
+from novella.compat import removesuffix
 
 
 class RepositoryType(enum.Enum):
@@ -34,6 +38,6 @@ def detect_repository(path: Path) -> RepositoryDetails | None:
   url = remote.fetch
   if url.startswith('git@'):
     url = 'https://' + url[4:].replace(':', '/')
-  url = url.removesuffix('.git')
+  url = removesuffix(url, '.git')
 
   return RepositoryDetails(RepositoryType.GIT, Path(toplevel), url, git.get_current_branch_name())
