@@ -7,11 +7,9 @@ import textwrap
 import typing as t
 import subprocess as sp
 from pathlib import Path
-from novella.build import BuildContext
 
 from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
 from novella.markdown.tagparser import parse_inline_tags
-from novella.novella import Novella
 
 if t.TYPE_CHECKING:
   from novella.markdown.tagparser import Tag

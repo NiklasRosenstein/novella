@@ -44,7 +44,7 @@ class AnchorTagProcessor(MarkdownPreprocessor):
 
   #: When this is enabled, HTML elements will always be rendered for `@anchor` tags. Otherwise, anchors
   #: that precede a Markdown header element will link to the slugified ID of that header instead.
-  always_render_anchor_elements: bool = False
+  always_render_anchor_elements: bool = True
 
   def __post_init__(self) -> None:
     from novella.markdown.flavor import MkDocsFlavor
