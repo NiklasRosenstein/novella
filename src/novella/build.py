@@ -57,11 +57,12 @@ class BuildContext(abc.ABC):
 class _FsEventHandler(watchdog.events.FileSystemEventHandler):
   """ Re-executes the pipeline on a filesystem event. """
 
-  def __init__(self, builder: NovellaBuilder, min_interval: float = 1) -> None:
+  def __init__(self, builder: NovellaBuilder, min_interval: float = 3) -> None:
     super().__init__()
     self.builder = builder
     self.min_interval = min_interval
     self._last_reload: float | None = None
+    self._lock = threading.Lock()
 
   def on_any_event(self, event: watchdog.events.FileSystemEvent) -> None:
     # Enforce the minimum interval between updates.
@@ -103,7 +104,7 @@ class NovellaBuilder(BuildContext):
     self._stop_before_action = stop_before_action
     self._is_inner = is_inner
 
-    self._actions = context.get_actions_ordered()
+    self._actions = list(context.graph.execution_order())
     self._current_action: Action | None = None
     self._current_action_abort: t.Callable[[], t.Any] | None = None
     self._aborted = False
@@ -111,6 +112,7 @@ class NovellaBuilder(BuildContext):
     self._cond = threading.Condition(threading.RLock())
     self._observer = watchdog.observers.Observer()
     self._event_handler = _FsEventHandler(self)
+    self._watched_paths: set[Path] = set()
 
   def _is_finished(self) -> bool:
     with self._cond:
@@ -210,7 +212,10 @@ class NovellaBuilder(BuildContext):
     """ Watch the path for changes to file contents. If any file contents change, the Novella pipeline is
     executed again (but the build script will not be reloaded). After a restart, the observer is reset. """
 
-    self._observer.schedule(self._event_handler, path, recursive=True)
+    path = path.resolve()
+    if path not in self._watched_paths:
+      self._observer.schedule(self._event_handler, path, recursive=True)
+      self._watched_paths.add(path)
 
   def is_aborted(self) -> bool:
     with self._cond:

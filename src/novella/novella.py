@@ -10,8 +10,8 @@ from pathlib import Path
 from novella.action import Action
 
 if t.TYPE_CHECKING:
-  from nr.util.digraph import DiGraph
   from nr.util.inspect import Callsite
+  from novella.graph import Graph
   from novella.template import Template
 
 logger = logging.getLogger(__name__)
@@ -48,17 +48,21 @@ class NovellaContext:
   """ The Novella context contains the action pipeline and all the data collected during the build script execution. """
 
   def __init__(self, novella: Novella) -> None:
+    from novella.graph import Graph
+
     self._novella = novella
     self._init_sequence: bool = True
 
-    self._actions: dict[str, Action] = {}
-    self._last_action_added: Action | None = None
-    self._fallback_dependencies: dict[Action, Action] = {}
+    self._actions = Graph[Action]()
     self._action_configurators: list[tuple[Action, t.Callable]] = []
 
     self._options: dict[str, str | bool | None] = {}
     self._option_spec: list[Option] = []
     self._option_names: list[str] = []
+
+  @property
+  def graph(self) -> Graph[Action]:
+    return self._actions
 
   @property
   def novella(self) -> Novella:
@@ -104,25 +108,20 @@ class NovellaContext:
     if name is None:
       name = action_type_name
 
-    if name in self._actions:
-      raise ValueError(f'action name {name!r} already used')
-
     action_cls = load_entrypoint(Action, action_type_name)  # type: ignore
     action = action_cls(self, name, get_callsite())
-    self._actions[name] = action
+    self._actions.add_node(action, [self._actions.last_node_added] if self._actions.last_node_added else None)
+
     if closure is not None:
       if self._init_sequence:
         self._action_configurators.append((action, closure))
       else:
         closure(action)
-    if self._last_action_added:
-      self._fallback_dependencies[action] = self._last_action_added
-    self._last_action_added = action
 
   def action(self, action_name: str, closure: t.Callable | None = None) -> Action:
     """ Access an action by its given name, and optionally apply the *closure*. """
 
-    action = self._actions[action_name]
+    action = self._actions.nodes[action_name]
     if self._init_sequence and closure:
       self._action_configurators.append((action, closure))
     elif closure:
@@ -174,25 +173,6 @@ class NovellaContext:
     for action, closure in self._action_configurators:
       closure(action)
     self._action_configurators.clear()
-
-  def get_actions_graph(self) -> DiGraph[str, Action, None]:
-    from nr.util.digraph import DiGraph
-    graph = DiGraph[str, Action, None]()
-    for action_name, action in self._actions.items():
-      assert action.name == action_name, (action, action_name)
-      graph.add_node(action.name, action)
-    for action in self._actions.values():
-      if action.dependencies is None:
-        if action in self._fallback_dependencies:
-          action.dependencies = [self._fallback_dependencies[action]]
-      for dep in action.dependencies or []:
-        graph.add_edge(dep.name, action.name, None)
-    return graph
-
-  def get_actions_ordered(self) -> list[Action]:
-    from nr.util.digraph.algorithm.topological_sort import topological_sort
-    graph = self.get_actions_graph()
-    return [self._actions[k] for k in topological_sort(graph)]
 
 
 class PipelineError(Exception):

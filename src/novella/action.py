@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import abc
-import enum
 import logging
 import shlex
 import shutil
 import subprocess as sp
 import typing as t
-from functools import reduce
 from pathlib import Path
+
+from novella.graph import Node
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
@@ -26,7 +26,7 @@ class ActionAborted(Exception):
     self.action = action
 
 
-class Action(abc.ABC):
+class Action(Node['Action']):
   """ Base class for actions that can be embedded in a Novella pipeline. """
 
   ENTRYPOINT = 'novella.actions'
@@ -35,14 +35,8 @@ class Action(abc.ABC):
   #: This is set when the action is added to the pipeline and is always available {@meth execute()} is called.
   context: NovellaContext
 
-  #: The name of the action.
-  name: str
-
   #: The callsite at which the action was created.
   callsite: Callsite
-
-  #: A list of dependencies; actions that must have been executed before this one.
-  dependencies: list[Action] | None = None
 
   #: Set to True to indicate that the action supports content reloading while it is running. This is
   #: relevant for actions that trigger static site generators serving content that already have automatic reloading
@@ -65,19 +59,6 @@ class Action(abc.ABC):
     user of what is currently happening. """
 
     return None
-
-  def depends_on(self, *actions: Action | str) -> None:
-    """ Call this to indicate that this action depends on another action. Note that if the action does not indicate
-    any dependencies explicitly (i.e. #dependencies stays `None`), Novella will assign a default dependency to the
-    action (usually the action that was created before this one to make linear execution the default). """
-
-    if self.dependencies is None:
-      self.dependencies = []
-    for action in actions:
-      if isinstance(action, str):
-        action = self.context.action(action)
-      assert isinstance(action, Action), action
-      self.dependencies.append(action)
 
   @abc.abstractmethod
   def execute(self, build: BuildContext) -> None:

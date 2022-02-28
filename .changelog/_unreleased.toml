@@ -1,0 +1,5 @@
+[[entries]]
+id = "ff383d15-2f92-43c0-bf78-9f8be3e2939d"
+type = "improvement"
+description = "add `novella.graph` module, `Action` is no a subclass of `novella.graph.Node`"
+author = "@NiklasRosenstein"

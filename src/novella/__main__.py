@@ -121,7 +121,7 @@ def main() -> None:
   context.configure(unknown_args)
 
   if args.dot:
-    print_dotviz(context.get_actions_graph())
+    print_dotviz(context.graph)
     return
 
   builder = CustomBuilder(
