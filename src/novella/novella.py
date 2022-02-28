@@ -56,7 +56,7 @@ class NovellaContext:
     self._actions = Graph[Action]()
     self._action_configurators: list[tuple[Action, t.Callable]] = []
 
-    self._options: dict[str, str | bool | None] = {}
+    self._options: dict[str, str | bool | None] | None = None
     self._option_spec: list[Option] = []
     self._option_names: list[str] = []
 
@@ -70,6 +70,7 @@ class NovellaContext:
 
   @property
   def options(self) -> dict[str, str | bool | None]:
+    assert self._options is not None, 'NovellaContext.configure() must be called before .options can be used'
     return self._options
 
   @property
@@ -167,6 +168,7 @@ class NovellaContext:
     parser = argparse.ArgumentParser()
     self.update_argument_parser(parser)
     parsed_args = parser.parse_args(args)
+    self._options = {}
     for option_name in self._option_names:
       self.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 

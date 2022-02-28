@@ -3,3 +3,9 @@ id = "ff383d15-2f92-43c0-bf78-9f8be3e2939d"
 type = "improvement"
 description = "add `novella.graph` module, `Action` is no a subclass of `novella.graph.Node`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "45386b42-4a46-4f06-b991-d02b04e5c083"
+type = "improvement"
+description = "`NovellaContext.options` now throws an `AssertionError` if accessed before `NovellaContext.configure()` is called"
+author = "@NiklasRosenstein"
