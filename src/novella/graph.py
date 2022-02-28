@@ -1,12 +1,13 @@
 
 from __future__ import annotations
 
+import abc
 import typing as t
 
 T_Node = t.TypeVar('T_Node', bound='Node')
 
 
-class Node(t.Generic[T_Node]):
+class Node(t.Generic[T_Node], abc.ABC):
   """ Base class for nodes. """
 
   #: The name of the node. This must be unique within a graph.
@@ -15,6 +16,9 @@ class Node(t.Generic[T_Node]):
   #: A list of dependencies of the node. If set to `None`, it means the node has no explicit dependencies but a
   #: default set of dependencies may be used instead to enforce a default order.
   dependencies: list[T_Node] | None = None
+
+  #: A list of nodes that must occur *after* the current node in the execution order.
+  predecessors: list[T_Node] | None = None
 
   #: The graph that this node is assigned to.
   graph: Graph | None = None
@@ -38,6 +42,23 @@ class Node(t.Generic[T_Node]):
         raise RuntimeError('Nodes added as dependencies must be part of the same graph')
       self.dependencies.append(node)
 
+  def precedes(self, *nodes: T_Node | str) -> None:
+    """ Like #depends_on(), but instead fillse in #predecessors. """
+
+    if self.graph is None:
+      raise RuntimeError('Node.graph is not set')
+
+    if self.predecessors is None:
+      self.predecessors = []
+
+    for node in nodes:
+      if isinstance(node, str):
+        node = self.graph.nodes[node]
+      assert isinstance(node, Node), node
+      if node.graph is not self.graph:
+        raise RuntimeError('Nodes added as predecessors must be part of the same graph')
+      self.predecessors.append(node)
+
 
 class Graph(t.Generic[T_Node]):
   """ Wrapper for storing #Node#s and evaluating them as a graph. """
@@ -60,12 +81,16 @@ class Graph(t.Generic[T_Node]):
   def last_node_added(self) -> T_Node | None:
     return self._last_node_added
 
-  def add_node(self, node: T_Node, fallback_dependencies: list[T_Node] | None) -> None:
+  def add_node(self, node: T_Node, fallback_dependencies: t.Sequence[T_Node] | T_Node | None) -> None:
     """ Adds a node to the graph, and registers the fallback dependencies to use if #Node.dependencies is `None`
     when #build_edges() is called. """
 
     if node.name in self._digraph.nodes:
       raise ValueError(f'node name {node.name!r} is already in use')
+
+    if fallback_dependencies is not None and not isinstance(fallback_dependencies, t.Sequence):
+      fallback_dependencies = [fallback_dependencies]
+
     node.graph = self
     self._digraph.add_node(node.name, node)
     self._fallback_dependencies[node.name] = fallback_dependencies or []
@@ -77,6 +102,8 @@ class Graph(t.Generic[T_Node]):
     for node in self._digraph.nodes.values():
       for dependency in (node.dependencies or self._fallback_dependencies[node.name]):
         self._digraph.add_edge(dependency.name, node.name, None)
+      for successor in (node.predecessors or []):
+        self._digraph.add_edge(node.name, successor.name)
     self._edges_built = True
 
   def execution_order(self) -> t.Iterator[T_Node]:
