@@ -100,10 +100,14 @@ class Graph(t.Generic[T_Node]):
     """ Builds the edges of the graph by inspecting the #Node.dependencies. """
 
     for node in self._digraph.nodes.values():
-      for dependency in (node.dependencies or self._fallback_dependencies[node.name]):
+      if node.dependencies is None and node.predecessors is None:
+        dependencies = self._fallback_dependencies[node.name]
+      else:
+        dependencies = node.dependencies or []
+      for dependency in dependencies:
         self._digraph.add_edge(dependency.name, node.name, None)
       for successor in (node.predecessors or []):
-        self._digraph.add_edge(node.name, successor.name)
+        self._digraph.add_edge(node.name, successor.name, None)
     self._edges_built = True
 
   def execution_order(self) -> t.Iterator[T_Node]:

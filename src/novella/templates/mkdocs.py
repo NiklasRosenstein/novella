@@ -10,80 +10,77 @@ import typing as t
 
 from nr.util.singleton import NotSet
 
-from markdown.extensions.toc import slugify
 from novella.action import Action
 from novella.build import BuildContext
-from novella.compat import removesuffix
+from novella.markdown.flavor import MkDocsFlavor
 from novella.novella import NovellaContext
 from novella.template import Template
-from novella.markdown.tags.anchor import AnchorAndLinkRenderer
 from novella.repository import detect_repository
 
 if t.TYPE_CHECKING:
-  from nr.util.functional import Supplier
   from novella.action import CopyFilesAction, RunAction
+  from novella.markdown.tags.anchor import AnchorTagProcessor
   from novella.markdown.preprocessor import MarkdownPreprocessorAction
-  from novella.markdown.tags.anchor import Anchor, AnchorTagProcessor, Link
 
 logger = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass
-class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
+# @dataclasses.dataclass
+# class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
 
-  #: The content directory, specified as a supplier because it should always reference the content directory
-  #: that is configured in the #MkdocsTemplate settings.
-  content_directory: Supplier[str]
+#   #: The content directory, specified as a supplier because it should always reference the content directory
+#   #: that is configured in the #MkdocsTemplate settings.
+#   content_directory: Supplier[str]
 
-  #: Whether links should be rendered relatively to other pages. Disabled by default.
-  relative_links: bool = False
+#   #: Whether links should be rendered relatively to other pages. Disabled by default.
+#   relative_links: bool = False
 
-  #: If #relative_links is disabled, this is prepended to generated absolute link URLs. If your site is
-  #: not hosted at the root of your web server, you may need to set this value. The string should end in
-  #: a slash.
-  path_prefix: str = ''
+#   #: If #relative_links is disabled, this is prepended to generated absolute link URLs. If your site is
+#   #: not hosted at the root of your web server, you may need to set this value. The string should end in
+#   #: a slash.
+#   path_prefix: str = ''
 
-  def _get_anchor_html_id(self, anchor: Anchor) -> str:
-    if anchor.header_text:
-      return slugify(anchor.header_text.lower(), '-')
-    return anchor.id
+#   def _get_anchor_html_id(self, anchor: Anchor) -> str:
+#     if anchor.header_text:
+#       return slugify(anchor.header_text.lower(), '-')
+#     return anchor.id
 
-  def _get_absolute_href(self, link: Link) -> str:
-    assert link.target
-    path = link.target.file
-    if path.name == 'index.md':
-      path = path.parent
-    else:
-      path = path.with_suffix('')
-    url_path = str(path.relative_to(self.content_directory())).replace(os.sep, '/')
-    if url_path == os.curdir:
-      url_path = ''
-    return f'/{self.path_prefix}{url_path}#{self._get_anchor_html_id(link.target)}'
+#   def _get_absolute_href(self, link: Link) -> str:
+#     assert link.target
+#     path = link.target.file
+#     if path.name == 'index.md':
+#       path = path.parent
+#     else:
+#       path = path.with_suffix('')
+#     url_path = str(path.relative_to(self.content_directory())).replace(os.sep, '/')
+#     if url_path == os.curdir:
+#       url_path = ''
+#     return f'/{self.path_prefix}{url_path}#{self._get_anchor_html_id(link.target)}'
 
-  def _get_relative_href(self, link: Link) -> str:
-    assert link.target
-    # TODO (@NiklasRosenstein): Sanitize how we find the correct relative HREF to other pages.
-    target = os.path.relpath(link.target.file.with_suffix(''), link.file.parent).replace(os.sep, '/')
-    if target == 'index':
-      target = '..'
-    elif target.startswith('../') and target.endswith('/index'):
-      target = removesuffix(target, '/index') + '/..'
-    target = removesuffix(target, '/index')
-    return target + '#' + self._get_anchor_html_id(link.target)
+#   def _get_relative_href(self, link: Link) -> str:
+#     assert link.target
+#     # TODO (@NiklasRosenstein): Sanitize how we find the correct relative HREF to other pages.
+#     target = os.path.relpath(link.target.file.with_suffix(''), link.file.parent).replace(os.sep, '/')
+#     if target == 'index':
+#       target = '..'
+#     elif target.startswith('../') and target.endswith('/index'):
+#       target = removesuffix(target, '/index') + '/..'
+#     target = removesuffix(target, '/index')
+#     return target + '#' + self._get_anchor_html_id(link.target)
 
-  def render_anchor(self, anchor: Anchor) -> str | None:
-    if not anchor.header_text:
-      return f'<a id="{anchor.id}"></a>'
-    return ''
+#   def render_anchor(self, anchor: Anchor) -> str | None:
+#     if not anchor.header_text:
+#       return f'<a id="{anchor.id}"></a>'
+#     return ''
 
-  def render_link(self, link: Link) -> str:
-    if not link.target:
-      return f'{{@link {link.anchor_id}}}'
-    if link.target.file == link.file:
-      href = '#' + self._get_anchor_html_id(link.target)
-    else:
-      href = self._get_relative_href(link) if self.relative_links else self._get_absolute_href(link)
-    return f'<a href="{href}">{link.text or link.target.text or link.target.header_text}</a>'
+#   def render_link(self, link: Link) -> str:
+#     if not link.target:
+#       return f'{{@link {link.anchor_id}}}'
+#     if link.target.file == link.file:
+#       href = '#' + self._get_anchor_html_id(link.target)
+#     else:
+#       href = self._get_relative_href(link) if self.relative_links else self._get_absolute_href(link)
+#     return f'<a href="{href}">{link.text or link.target.text or link.target.header_text}</a>'
 
 
 class MkdocsTemplate(Template):
@@ -106,8 +103,8 @@ class MkdocsTemplate(Template):
      or apply defaults from the template delivered with Novella. Check out the #MkdocsApplyDefaultAction for more
      details.
   3. `mkdocs-preprocess-markdown` &ndash; An instance of the `preprocess-markdown` action, setup with builtin
-     preprocessors such as `cat` and `anchor`. The anchor plugin is preconfigured with a
-     #MkdocsMkdocsAnchorAndLinkRenderer instance which renders the correct links for MkDocs compatible markdown files.
+     preprocessors such as `cat` and `anchor`. Ensures that the `@anchor` preprocessor plugin is unsing the
+     #MkDocsFlavor.
   4. `mkdocs-run` &ndash; A `run` action that invokes `mkdocs build`, or `mkdocs serve` if the `--serve` option is
      provided.
 
@@ -160,11 +157,10 @@ class MkdocsTemplate(Template):
     context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction) -> None:
-      preprocessor.use('shell')
-      preprocessor.use('cat')
+      preprocessor.path = self.content_directory
       def configure_anchor(anchor: AnchorTagProcessor) -> None:
-        anchor.renderer = MkdocsMkdocsAnchorAndLinkRenderer(lambda: self.content_directory)
-      preprocessor.use('anchor', configure_anchor)
+        anchor.flavor = MkDocsFlavor()
+      preprocessor.preprocessor('anchor', configure_anchor)
     context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')
 
     def configure_run(run: RunAction) -> None:

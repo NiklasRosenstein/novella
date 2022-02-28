@@ -5,7 +5,7 @@ import logging
 import typing as t
 from pathlib import Path
 
-from novella.markdown.preprocessor import MarkdownFiles, MarkdownPreprocessor
+from novella.markdown.preprocessor import MarkdownFile, MarkdownFiles, MarkdownPreprocessor
 
 if t.TYPE_CHECKING:
   from novella.build import BuildContext
@@ -37,17 +37,16 @@ class CatTagProcessor(MarkdownPreprocessor):
       tags = parse_block_tags(file.content)
       file.content = replace_tags(
         file.content, tags,
-        lambda t: self._replace_tag(files.context.novella.project_directory, file.source_path or file.path, files.build, t),
+        lambda t: self._replace_tag(files.context.novella.project_directory, file, files.build, t),
       )
 
-  def _replace_tag(self, project_directory: Path, file_path: Path, build: BuildContext, tag: Tag) -> str | None:
+  def _replace_tag(self, project_directory: Path, file: MarkdownFile, build: BuildContext, tag: Tag) -> str | None:
     if tag.name != 'cat': return None
     args = tag.args.strip()
     if args.startswith('/'):
       source_path = Path(project_directory / args[1:])
     else:
-      source_path = file_path.parent / args
-      source_path = (project_directory / source_path)
+      source_path = (file.source_path or file.path).parent / args
 
     source_path = source_path.resolve()
     build.watch(source_path)
@@ -55,7 +54,7 @@ class CatTagProcessor(MarkdownPreprocessor):
     try:
       text = source_path.resolve().read_text()
     except FileNotFoundError:
-      logger.warning('@cat unable to resolve <fg=cyan>%s</fg> in file <fg=yellow>%s</fg>', args, file_path)
+      logger.warning('@cat unable to resolve <fg=cyan>%s</fg> in file <fg=yellow>%s</fg>', args, file.output_path)
       return None
 
     if 'slice_lines' in tag.options:
@@ -65,6 +64,6 @@ class CatTagProcessor(MarkdownPreprocessor):
       text = '\n'.join(lines)
 
     # Preprocess the content before returning it.
-    text = self.action.repeat(file_path, text, source_path, self)
+    text = self.action.repeat(file.path, file.output_path, text, source_path, self)
 
     return text

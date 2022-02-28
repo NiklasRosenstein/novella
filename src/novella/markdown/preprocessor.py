@@ -21,7 +21,13 @@ _Closure: te.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
 class MarkdownFile:
   """ Represents a Markdown file and its contents, to be processed by #MarkdownPreprocessor#s. """
 
+  #: The path to the file. This will point to the file in the project directory, _not_ in the build directory.
   path: Path
+
+  #: The path where the file will be written to. Basically the same as #path but points inside the buil directory.
+  output_path: Path
+
+  #: The content to be preprocessed.
   content: str
 
   #: An alternative filename that serves as the "source path" where the content is loaded from. This may be
@@ -53,13 +59,16 @@ class MarkdownPreprocessorAction(Action):
 
   #: The path to the folder in which markdown files should be preprocessed. If this is not set,
   #: all Markdown files in the build directory will be preprocessed.
-  path: Path | None = None
+  path: str | None = None
 
   #: The encoding to read and write files as.
   encoding: str | None = None
 
   def __post_init__(self) -> None:
     self._processors = Graph[MarkdownPreprocessor]()
+    self.use('shell')
+    self.use('cat')
+    self.use('anchor')
 
   def use(
     self,
@@ -100,13 +109,13 @@ class MarkdownPreprocessorAction(Action):
       closure(processor)
     return processor
 
-  def repeat(self, path: Path, content: str, source_path: Path | None = None, last_processor: MarkdownPreprocessor | None = None) -> None:
+  def repeat(self, path: Path, output_path: Path, content: str, source_path: Path | None = None, last_processor: MarkdownPreprocessor | None = None) -> None:
     """ Repeat all processors that have been processed so far on the given files. This is used by the `@cat`
     preprocessor to apply all preprocessors previously run on the newly included content. This does not include
     the processor that this method is called from, but only the preprocessors that preceded it. The caller may
     pass itself to the *last_processor* argument to include themselves. """
 
-    files = MarkdownFiles([MarkdownFile(path, content, source_path)], self.context, self._build)
+    files = MarkdownFiles([MarkdownFile(path, output_path, content, source_path)], self.context, self._build)
     for processor in self._past_processors:
       processor.process_files(files)
     if last_processor:
@@ -121,17 +130,25 @@ class MarkdownPreprocessorAction(Action):
 
     from nr.util.fs import recurse_directory
 
-    root = self.path or build.directory
+    root = build.directory / self.path if self.path else build.directory
     files = MarkdownFiles([], self.context, build)
 
     for path in recurse_directory(root):
+      assert path.is_absolute(), path
       if path.suffix == '.md':
-        files.append(MarkdownFile(path.relative_to(root), path.read_text(self.encoding)))
+        files.append(MarkdownFile(
+          path=self.context.project_directory / path.relative_to(build.directory),
+          output_path=path,
+          content=path.read_text(self.encoding),
+        ))
 
     def _commit_files() -> None:
       for file in files:
         if file.changed():
-          (root / file.path).write_text(file.content, self.encoding)
+          file.output_path.write_text(file.content, self.encoding)
+
+    for preprocessor in self._processors.nodes.values():
+      preprocessor.setup()
 
     self._build = build
     self._past_processors: list[MarkdownPreprocessor] = []
@@ -165,5 +182,10 @@ class MarkdownPreprocessor(Node['MarkdownPreprocessor']):
   def __post_init__(self) -> None:
     pass
 
+  def setup(self) -> None:
+    """ Called before the execution order of processors is determined. """
+
   @abc.abstractmethod
-  def process_files(self, files: MarkdownFiles) -> None: ...
+  def process_files(self, files: MarkdownFiles) -> None:
+    """ Process the file contents in *files*. """
+
