@@ -111,7 +111,7 @@ class NovellaContext:
 
     action_cls = load_entrypoint(Action, action_type_name)  # type: ignore
     action = action_cls(self, name, get_callsite())
-    self._actions.add_node(action, [self._actions.last_node_added] if self._actions.last_node_added else None)
+    self._actions.add_node(action, self._actions.last_node_added)
 
     if closure is not None:
       if self._init_sequence:

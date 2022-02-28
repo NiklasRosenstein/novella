@@ -11,6 +11,7 @@ from pathlib import Path
 
 from novella.action import Action
 from novella.build import BuildContext
+from novella.graph import Graph, Node
 from novella.novella import NovellaContext
 
 _Closure: te.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
@@ -18,8 +19,14 @@ _Closure: te.TypeAlias = 't.Callable[[MarkdownPreprocessor], t.Any]'
 
 @dataclasses.dataclass
 class MarkdownFile:
+  """ Represents a Markdown file and its contents, to be processed by #MarkdownPreprocessor#s. """
+
   path: Path
   content: str
+
+  #: An alternative filename that serves as the "source path" where the content is loaded from. This may be
+  #: different for example in case of the `@cat` tag when it preprocesses the contents of a file to be included.
+  source_path: Path | None = None
 
   def __post_init__(self) -> None:
     self._hash = hashlib.md5(self.content.encode()).hexdigest()
@@ -37,7 +44,12 @@ class MarkdownFiles(t.List[MarkdownFile]):
 
 
 class MarkdownPreprocessorAction(Action):
-  """ Pre-processor for Markdown files. """
+  """ An action to preprocess Markdown files. All functionality of the processor is implemented by plugins that
+  implement the #MarkdownPreprocessor interface. The order of execution of the processors is based on their
+  dependencies, much like when #Action#s are executed.
+
+  As a final step, the processor will process escaped inline tags (i.e. replacing `\{@` with `@{`).
+  """
 
   #: The path to the folder in which markdown files should be preprocessed. If this is not set,
   #: all Markdown files in the build directory will be preprocessed.
@@ -47,11 +59,68 @@ class MarkdownPreprocessorAction(Action):
   encoding: str | None = None
 
   def __post_init__(self) -> None:
-    self._pipeline: list[MarkdownPreprocessor] = []
-    self._processors: dict[str, MarkdownPreprocessor] = {}
+    self._processors = Graph[MarkdownPreprocessor]()
+
+  def use(
+    self,
+    processor: str | MarkdownPreprocessor,
+    closure: _Closure | None = None,
+    name: str | None = None,
+  ) -> None:
+    """ Register a processor for use in the plugin. """
+
+    from nr.util.plugins import load_entrypoint, NoSuchEntrypointError
+
+    if isinstance(processor, str):
+      name = name or processor
+      try:
+        processor_cls = load_entrypoint(MarkdownPreprocessor, processor)  # type: ignore
+        name = name or processor
+      except NoSuchEntrypointError:
+        module_name, class_name = processor.rpartition('.')[::2]
+        module = importlib.import_module(module_name)
+        processor_cls = getattr(module, class_name)
+      processor = processor_cls(self, name)
+    else:
+      if not isinstance(processor, MarkdownPreprocessor):
+        raise TypeError(f'expected MarkdownProcessor, got {type(processor).__name__}')
+      if name is not None and name != processor.name:
+        raise RuntimeError('mismatching "name": {name!r} != {processor.name!r}')
+
+    self._processors.add_node(processor, self._processors.last_node_added)
+
+    if closure:
+      closure(processor)
+
+  def preprocessor(self, processor_name: str, closure: _Closure | None = None) -> MarkdownPreprocessor:
+    """ Access or reconfigure a markdown processor that is already registered. """
+
+    processor = self._processors.nodes[processor_name]
+    if closure is not None:
+      closure(processor)
+    return processor
+
+  def repeat(self, path: Path, content: str, source_path: Path | None = None, last_processor: MarkdownPreprocessor | None = None) -> None:
+    """ Repeat all processors that have been processed so far on the given files. This is used by the `@cat`
+    preprocessor to apply all preprocessors previously run on the newly included content. This does not include
+    the processor that this method is called from, but only the preprocessors that preceded it. The caller may
+    pass itself to the *last_processor* argument to include themselves. """
+
+    files = MarkdownFiles([MarkdownFile(path, content, source_path)], self.context, self._build)
+    for processor in self._past_processors:
+      processor.process_files(files)
+    if last_processor:
+      last_processor.process_files(files)
+
+    return files[0].content
+
+  # Action
 
   def execute(self, build: BuildContext) -> None:
+    """ Execute the preprocessor on all Markdown files specified in #path. """
+
     from nr.util.fs import recurse_directory
+
     root = self.path or build.directory
     files = MarkdownFiles([], self.context, build)
 
@@ -64,11 +133,14 @@ class MarkdownPreprocessorAction(Action):
         if file.changed():
           (root / file.path).write_text(file.content, self.encoding)
 
-    for preprocessor in self._pipeline:
-      name = next((k for k, v in self._processors.items() if v is preprocessor), None)
-      if name:
-        build.notify(self, f'preprocess ({name})', _commit_files)
+    self._build = build
+    self._past_processors: list[MarkdownPreprocessor] = []
+    for preprocessor in self._processors.execution_order():
+      build.notify(self, f'preprocess ({preprocessor.name})', _commit_files)
       preprocessor.process_files(files)
+      self._past_processors.append(preprocessor)
+    del self._build
+    del self._past_processors
 
     for file in files:
       # Correct escaped inline tags.
@@ -77,62 +149,21 @@ class MarkdownPreprocessorAction(Action):
 
     _commit_files()
 
-  def use(
-    self,
-    processor: str | MarkdownPreprocessor,
-    closure: _Closure | None = None,
-    name: str | None = None,
-    before: str | None = None,
-    head: bool = False,
-  ) -> None:
-    """ Register a processor for use in the plugin. """
 
-    from nr.util.plugins import load_entrypoint, NoSuchEntrypointError
-
-    if head and before is not None:
-      raise ValueError('arguments "head" and "before" cannot be used at the same time')
-
-    if isinstance(processor, str):
-      try:
-        processor_cls = load_entrypoint(MarkdownPreprocessor, processor)  # type: ignore
-        name = name or processor
-      except NoSuchEntrypointError:
-        module_name, class_name = processor.rpartition('.')[::2]
-        module = importlib.import_module(module_name)
-        processor_cls = getattr(module, class_name)
-        name = name or class_name
-      processor = processor_cls()
-
-    if not isinstance(processor, MarkdownPreprocessor):
-      raise TypeError(f'expected MarkdownProcessor, got {type(processor).__name__}')
-
-    if head:
-      insert_index = 0
-    elif before is not None:
-      insert_index = self._pipeline.index(self._processors[before])
-    else:
-      insert_index = len(self._pipeline)
-
-    if closure:
-      closure(processor)
-
-    self._pipeline.insert(insert_index, processor)
-    if name is not None:
-      self._processors[name] = processor
-
-  def preprocessor(self, processor_name: str, closure: _Closure | None = None) -> MarkdownPreprocessor:
-    """ Access or reconfigure a markdown processor that is already registered. """
-
-    processor = self._processors[processor_name]
-    if closure is not None:
-      closure(processor)
-    return processor
-
-
-class MarkdownPreprocessor(abc.ABC):
+class MarkdownPreprocessor(Node['MarkdownPreprocessor']):
   """ Interface for plugins to process markdown files. """
 
+  #: The entrypoint under which preprocessor plugins must be registered.
   ENTRYPOINT = 'novella.markdown.preprocessors'
+
+  def __init__(self, action: MarkdownPreprocessorAction, name: str) -> None:
+    self.action = action
+    self.name = name
+    self.graph = action._processors
+    self.__post_init__()
+
+  def __post_init__(self) -> None:
+    pass
 
   @abc.abstractmethod
   def process_files(self, files: MarkdownFiles) -> None: ...
