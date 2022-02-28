@@ -27,3 +27,9 @@ id = "2c461f36-7aab-4de5-9f81-6f2f776d66f0"
 type = "breaking change"
 description = "remove `AnchorAndLinkRenderer` interface and use `MarkdownFlavor` instead, remove `Link` class and add `always_render_anchor_elements` option to `AnchorTagPreprocessor`. `MarkdownPreprocessorAction` now sets up `@shell`, `@cat` and `@anchor` by default. Add `MarkdownPreprocessor.setup()`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "32073888-654f-4e3b-b0aa-18c42bc250b0"
+type = "breaking change"
+description = "`MkdocsTemplate` now keeps the created actions as attributes so they can be configured indivudally"
+author = "@NiklasRosenstein"

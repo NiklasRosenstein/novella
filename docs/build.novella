@@ -1,10 +1,12 @@
 # type: ignore
 
 template "mkdocs" {
-  site_name = "Novella"
-}
-
-action "mkdocs-update-config" {
-  update '$.theme.features' add: ['navigation.sections', 'navigation.tabs', 'navigation.tabs.sticky']
-  update '$.theme.palette' set: {'scheme': 'slate', 'primary': 'red', 'accent': 'deep orange'}
+  configure update_config {
+    site_name = "Novella"
+    update '$.theme.features' add: ['navigation.sections', 'navigation.tabs', 'navigation.tabs.sticky']
+    update '$.theme.palette' set: {'scheme': 'slate', 'primary': 'red', 'accent': 'deep orange'}
+  }
+  configure preprocessor {
+    use "pydoc"
+  }
 }

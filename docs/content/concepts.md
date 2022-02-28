@@ -41,7 +41,7 @@ allowing a user after the template was applied to inject actions into the sequen
 ```py
 template "mkdocs"
 
-action "mkdocs-preprocess" {
+action "preprocess-markdown" {
   # ...
 }
 ```
@@ -61,7 +61,9 @@ itself delivers an `mkdocs` template out of the box.
 
 ```py
 template "mkdocs" {
-  apply_default_config = False
+  configure update_config {
+    apply_defaults = False
+  }
 }
 ```
 

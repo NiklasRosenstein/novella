@@ -14,5 +14,12 @@ class Template(abc.ABC):
 
   ENTRYPOINT = 'novella.templates'
 
-  @abc.abstractmethod
-  def define_pipeline(self, context: NovellaContext) -> None: ...
+  def setup(self, context: NovellaContext) -> None:
+    """ Called before the `pre` closure in #NovellaContext.template(). """
+
+    pass
+
+  def define_pipeline(self, context: NovellaContext) -> None:
+    """ Called between the `pre` and `post` closure in #NovellaContext.template(). """
+
+    pass

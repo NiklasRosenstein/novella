@@ -85,8 +85,8 @@ logger = logging.getLogger(__name__)
 
 class MkdocsTemplate(Template):
   """ A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
-  {@attr content_directory} and the `mkdocs.yml` config relative to the Novella configuration file (if the
-  configuration file exists). Then, unless {@attr apply_default_config} is disabled, it will apply a default
+  #content_directory and the `mkdocs.yml` config relative to the Novella configuration file (if the
+  configuration file exists). Then, unless #apply_default_config is disabled, it will apply a default
   configuration that is delivered alongside the template (using the MkDocs-material theme and enabling a
   bunch of Markdown extensions), and then run MkDocs to either serve or build the documentation.
 
@@ -116,12 +116,11 @@ class MkdocsTemplate(Template):
 
   ```py
   template "mkdocs" {
-    site_name = "Novella"
-  }
-
-  action "mkdocs-preprocess-markdown" {
-    preprocessor "anchor" {
-      renderer.relative_links = True
+    configure update_config {
+      site_name = "My documentation"
+    }
+    configure preprocessor {
+      use "pydoc"
     }
   }
   ```
@@ -130,19 +129,26 @@ class MkdocsTemplate(Template):
   #: The directory that contains the MkDocs context.
   content_directory: str = 'content'
 
-  #: Apply the default MkDocs configuration provided by this template. This action is performed by the
-  #: #MkdocsUpdateConfigAction. Enabled by default.
-  apply_default: bool = True
+  #: The `copy-files` action created by this template.
+  copy_files: CopyFilesAction
 
-  #: The site name to put into the `mkdocs.yml`. Overrides the site name if it is configured in your MkDocs
-  #: configuration file. This action is performed by the #MkdocsUpdateConfigAction.
-  site_name: str | None = None
+  #: The `mkdocs-update-config` (see #MkdocsUpdateConfigAction) action created by this template.
+  update_config: MkdocsUpdateConfigAction
 
-  #: Whether the Git repository URL should be automatically detected in #MkdocsUpdateConfigAction. Only if
-  #: the `repo_url` setting in the MkDocs config is not already set, and if #repository is not set.
-  autodetect_repo_url: bool = True
+  #: The `preprocess-markdown` action created by this template.
+  preprocessor: MarkdownPreprocessorAction
 
-  def define_pipeline(self, context: NovellaContext) -> None:
+  #: The `run` action created by thsi template.
+  run: RunAction
+
+  def configure(self, obj: t.Any, closure: t.Callable) -> None:
+    """ A helper method that applies the closure to *obj*. Enables the `configure preprocessor { ... }` syntax. """
+
+    closure(obj)
+
+  # Template
+
+  def setup(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
     context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
 
@@ -150,18 +156,18 @@ class MkdocsTemplate(Template):
       copy_files.paths = [ self.content_directory ]
       if (context.project_directory / 'mkdocs.yml').exists():
         copy_files.paths.append('mkdocs.yml')
-    context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
+    self.copy_files = context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
 
     def configure_update_config(update_config: MkdocsUpdateConfigAction) -> None:
-      update_config.template = self
-    context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
+      update_config.content_directory = self.content_directory
+    self.update_config = context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction) -> None:
       preprocessor.path = self.content_directory
       def configure_anchor(anchor: AnchorTagProcessor) -> None:
         anchor.flavor = MkDocsFlavor()
       preprocessor.preprocessor('anchor', configure_anchor)
-    context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')
+    self.preprocessor = context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
@@ -170,19 +176,17 @@ class MkdocsTemplate(Template):
         run.args += [ "serve" ]
       else:
         run.args += [ "build", "-d", context.project_directory / str(context.options["site-dir"]) ]
-    context.do('run', configure_run, name='mkdocs-run')
+    self.run = context.do('run', configure_run, name='mkdocs-run')
 
 
 class MkdocsUpdateConfigAction(Action):
-  r""" An action to update the MkDocs configuration file, or create one if the user did not provide it.
-
-  __Configuration defaults__
+  """ An action to update the MkDocs configuration file, or create one if the user did not provide it.
 
   The following configuration serves as the default configuration if the user did not provide an MkDocs
   configuration of their own. If a configuration file is already present, it will be updated such that top-level
   keys that don't exist in the provided configuration are set to the one present in the default below.
 
-  To disable this behaviour, set #MkdocsTemplate.apply_default to `False`.
+  To disable this behaviour, set #apply_defaults to `False`.
 
   ```
   docs_dir: content
@@ -215,27 +219,23 @@ class MkdocsUpdateConfigAction(Action):
 
   Check out the the [Material for MkDocs // Setup](https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/)
   documentation for more information. Other common theme features to enable are `toc.integrate` and `navigation.tabs`.
-
-  __Site name__
-
-  The site name can be updated from the Novella configuration, usually through #MkdocsTemplate.site_name.
-
-  __Autodetect Git repository__
-
-  Automatically detect the Git repository URL and inject it into the MkDocs `repo_url` and `edit_url`
-  options unless already configure and only if the #MkdocsTemplate.autodetect_repo_url is enabled. This is enabled
-  by default.
-
-  __Update instructions__
-
-  Using the #update() method, a string similar to JSONpath and an operation can be provided that will be applied to
-  the MkDocs configuration. A function to update the MkDocs configuration can be specified with the #update_func()
-  method.
   """
 
   _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
-  template: MkdocsTemplate
+  #: Whether to apply the template to the MkDocs configuration (shown above).
+  apply_defaults: bool = True
+
+  #: The MkDocs `site_name` to inject. Will override an existing site name if not present in the MkDocs configuration.
+  site_name: str | None = None
+
+  #: Whether to autodetect the Git repository URL and inject it into the MkDocs configuration. Enabled by
+  #: default. If the repository URL is already configured, it will do nothing.
+  autodetect_repo_url: bool = True
+
+  #: The content directory that contains the MkDocs source files. This is used only to construct the edit URI if
+  #: #autodetect_repo_url is enabled. This passed through by the #MkdocsTemplate automatically.
+  content_directory: str
 
   def update(self, json_path: str, *, add: t.Any = NotSet.Value, set: t.Any = NotSet.Value, do: t.Callable[[t.Any], t.Any] | None = None) -> None:
     """ A helper function to update a value in the MkDocs configuration by either setting it to the
@@ -251,9 +251,12 @@ class MkdocsUpdateConfigAction(Action):
 
 
     ```py
-    action "mkdocs-update-config" {
-      update '$.theme.features' add: ['toc.integrate', 'navigation.tabs']
-      update '$.theme.palette' set: {'primary': 'black', 'accent': 'amber'}
+    template "mkdocs" {
+      configure update_config {
+        site_name = "My documentation"
+        update '$.theme.features' add: ['toc.integrate', 'navigation.tabs']
+        update '$.theme.palette' set: {'primary': 'black', 'accent': 'amber'}
+      }
     }
     ```
     """
@@ -308,16 +311,16 @@ class MkdocsUpdateConfigAction(Action):
       mkdocs_config = {}
     original_config = copy.deepcopy(mkdocs_config)
 
-    if self.template.apply_default:
+    if self.apply_defaults:
       default_config = yaml.safe_load(self._DEFAULT_CONFIG)
       for key in default_config:
         if key not in mkdocs_config:
           mkdocs_config[key] = default_config[key]
 
-    if self.template.site_name:
-      mkdocs_config['site_name'] = self.template.site_name
+    if self.site_name:
+      mkdocs_config['site_name'] = self.site_name
 
-    if self.template.autodetect_repo_url:
+    if self.autodetect_repo_url:
       repo_info = detect_repository(self.context.project_directory)
       if 'repo_url' not in mkdocs_config and repo_info:
           mkdocs_config['repo_url'] = repo_info.url
@@ -325,7 +328,7 @@ class MkdocsUpdateConfigAction(Action):
       else:
         logger.warning('Could not detect Git repository URL')
       if 'edit_uri' not in mkdocs_config and repo_info:
-        content_dir = (self.context.project_directory / self.template.content_directory)
+        content_dir = (self.context.project_directory / self.content_directory)
         edit_uri = f'blob/{repo_info.branch}/' + str(content_dir.relative_to(repo_info.root))
         mkdocs_config['edit_uri'] = edit_uri
         logger.info('Detected edit URI: <fg=cyan>%s</fg>', edit_uri)

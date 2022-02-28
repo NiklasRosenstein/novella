@@ -99,7 +99,7 @@ class NovellaContext:
     action_type_name: str,
     closure: t.Callable | None = None,
     name: str | None = None,
-  ) -> None:
+  ) -> Action:
     """ Add an action to the Novella pipeline identified by the specified *action_type_name*. The action will be
     configured once it is created using the *closure*. """
 
@@ -119,6 +119,8 @@ class NovellaContext:
       else:
         closure(action)
 
+    return action
+
   def action(self, action_name: str, closure: t.Callable | None = None) -> Action:
     """ Access an action by its given name, and optionally apply the *closure*. """
 
@@ -137,6 +139,7 @@ class NovellaContext:
 
     template_cls: type[Template] = load_entrypoint(Template, template_name)  # type: ignore
     template = template_cls()
+    template.setup(self)
     if init:
       init(template)
     template.define_pipeline(self)

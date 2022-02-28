@@ -1,3 +1,3 @@
 # Run
 
-@pydoc novella.actions.run.RunAction
+@pydoc novella.action.RunAction
