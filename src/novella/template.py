@@ -14,6 +14,11 @@ class Template(abc.ABC):
 
   ENTRYPOINT = 'novella.templates'
 
+  context: NovellaContext
+
+  def __init__(self, context: NovellaContext) -> None:
+    self.context = context
+
   def setup(self, context: NovellaContext) -> None:
     """ Called before the `pre` closure in #NovellaContext.template(). """
 

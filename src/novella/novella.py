@@ -143,7 +143,7 @@ class NovellaContext:
     from novella.template import Template
 
     template_cls: type[Template] = load_entrypoint(Template, template_name)  # type: ignore
-    template = template_cls()
+    template = template_cls(self)
     template.setup(self)
     if init:
       init(template)

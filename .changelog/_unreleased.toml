@@ -39,3 +39,9 @@ id = "8867a685-be14-4515-a89a-9a95fe8bc1d6"
 type = "feature"
 description = "add `NovellaContext.delay()`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "c2b18117-ec66-4a93-8fa5-3a28b5c7efae"
+type = "breaking change"
+description = "add `Template.__init__()`"
+author = "@NiklasRosenstein"
