@@ -16,14 +16,14 @@ from novella.build import BuildContext
 from novella.compat import removesuffix
 from novella.novella import NovellaContext
 from novella.template import Template
-from novella.tags.anchor import AnchorAndLinkRenderer
+from novella.markdown.tags.anchor import AnchorAndLinkRenderer
 from novella.repository import detect_repository
 
 if t.TYPE_CHECKING:
   from nr.util.functional import Supplier
   from novella.action import CopyFilesAction, RunAction
   from novella.markdown.preprocessor import MarkdownPreprocessorAction
-  from novella.tags.anchor import Anchor, AnchorTagProcessor, Link
+  from novella.markdown.tags.anchor import Anchor, AnchorTagProcessor, Link
 
 logger = logging.getLogger(__name__)
 

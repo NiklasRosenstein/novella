@@ -37,23 +37,23 @@ class CatTagProcessor(MarkdownPreprocessor):
       tags = parse_block_tags(file.content)
       file.content = replace_tags(
         file.content, tags,
-        lambda t: self._replace_tag(files.context.novella.project_directory, file.path, files.build, t),
+        lambda t: self._replace_tag(files.context.novella.project_directory, file.source_path or file.path, files.build, t),
       )
 
   def _replace_tag(self, project_directory: Path, file_path: Path, build: BuildContext, tag: Tag) -> str | None:
     if tag.name != 'cat': return None
     args = tag.args.strip()
     if args.startswith('/'):
-      path = Path(project_directory / args[1:])
+      source_path = Path(project_directory / args[1:])
     else:
-      assert not file_path.is_absolute(), file_path
-      path = file_path.parent / args
-      path = (project_directory / path)
+      source_path = file_path.parent / args
+      source_path = (project_directory / source_path)
 
-    path = path.resolve()
-    build.watch(path)
+    source_path = source_path.resolve()
+    build.watch(source_path)
+
     try:
-      text = path.resolve().read_text()
+      text = source_path.resolve().read_text()
     except FileNotFoundError:
       logger.warning('@cat unable to resolve <fg=cyan>%s</fg> in file <fg=yellow>%s</fg>', args, file_path)
       return None
@@ -63,5 +63,8 @@ class CatTagProcessor(MarkdownPreprocessor):
       lines = text.splitlines()
       lines = eval(f'lines[{tag.options["slice_lines"]}]')
       text = '\n'.join(lines)
+
+    # Preprocess the content before returning it.
+    text = self.action.repeat(file_path, text, source_path, self)
 
     return text

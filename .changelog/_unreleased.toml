@@ -15,3 +15,9 @@ id = "eb854aaa-f48a-49ec-a72a-588d124d5d09"
 type = "improvement"
 description = "`MarkdownProcessorAction` now stores processors internally in a graph as well, and `MarkdownProcessor` is now a subclass of `novella.graph.Node`. This allows processors to express dependencies on other processors."
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "a56474c4-4c17-4fd2-8edb-9e89f0daf6b7"
+type = "improvement"
+description = "`@cat` preprocessor now repeats preprocessing on the included content before injecting it"
+author = "@NiklasRosenstein"
