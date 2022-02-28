@@ -54,7 +54,7 @@ class NovellaContext:
     self._init_sequence: bool = True
 
     self._actions = Graph[Action]()
-    self._action_configurators: list[tuple[Action, t.Callable]] = []
+    self._delayed: list[t.Callable] = []
 
     self._options: dict[str, str | bool | None] | None = None
     self._option_spec: list[Option] = []
@@ -76,6 +76,11 @@ class NovellaContext:
   @property
   def project_directory(self) -> Path:
     return self.novella.project_directory
+
+  def delay(self, callable: t.Callable) -> None:
+    """ Call the closure when options are available. """
+
+    self._delayed.append(callable)
 
   def option(
     self,
@@ -115,7 +120,7 @@ class NovellaContext:
 
     if closure is not None:
       if self._init_sequence:
-        self._action_configurators.append((action, closure))
+        self.delay(lambda: closure(action))
       else:
         closure(action)
 
@@ -126,7 +131,7 @@ class NovellaContext:
 
     action = self._actions.nodes[action_name]
     if self._init_sequence and closure:
-      self._action_configurators.append((action, closure))
+      self.delay(lambda: closure(action))
     elif closure:
       closure(action)
     return action
@@ -175,9 +180,9 @@ class NovellaContext:
     for option_name in self._option_names:
       self.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
 
-    for action, closure in self._action_configurators:
-      closure(action)
-    self._action_configurators.clear()
+    for closure in self._delayed:
+      closure()
+    self._delayed.clear()
 
 
 class PipelineError(Exception):

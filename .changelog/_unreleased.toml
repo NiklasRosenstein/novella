@@ -33,3 +33,9 @@ id = "32073888-654f-4e3b-b0aa-18c42bc250b0"
 type = "breaking change"
 description = "`MkdocsTemplate` now keeps the created actions as attributes so they can be configured indivudally"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "8867a685-be14-4515-a89a-9a95fe8bc1d6"
+type = "feature"
+description = "add `NovellaContext.delay()`"
+author = "@NiklasRosenstein"
