@@ -144,7 +144,7 @@ class MkdocsTemplate(Template):
   def configure(self, obj: t.Any, closure: t.Callable) -> None:
     """ A helper method that applies the closure to *obj*. Enables the `configure preprocessor { ... }` syntax. """
 
-    closure(obj)
+    self.context.delay(lambda: closure(obj))
 
   # Template
 
