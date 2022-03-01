@@ -26,8 +26,9 @@ packages = [{ include="novella", from="src" }]
   mkdocs = "*"
   mkdocs-material = "*"
   mypy = "*"
-  types-PyYAML = "^5.4.0"
+  types-PyYAML = "*"
   types-markdown = "*"
+  types-requests = "*"
 
   [tool.poetry.scripts]
   novella = "novella.__main__:main"

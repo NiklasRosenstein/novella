@@ -32,7 +32,7 @@ class Action(Node['Action']):
   ENTRYPOINT = 'novella.actions'
 
   #: The instance of the Novella application object that controls the pipeline and lifecycle of the build process.
-  #: This is set when the action is added to the pipeline and is always available {@meth execute()} is called.
+  #: This is set when the action is added to the pipeline and is always available when #execute() is called.
   context: NovellaContext
 
   #: The callsite at which the action was created.
