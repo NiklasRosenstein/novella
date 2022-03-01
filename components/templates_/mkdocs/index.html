@@ -877,18 +877,18 @@
 </code></pre></div>
 <p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L28">[view_source]</a></p>
 <p>A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
-<a href="/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> config relative to the Novella configuration file (if the
+<a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> config relative to the Novella configuration file (if the
 configuration file exists).</p>
 <p>This template registers the following options:</p>
 <p>--serve         Use mkdocs serve
 --site-dir, -d  Build directory for MkDocs (defaults to "_site")</p>
 <p>This template produces the following actions:</p>
 <ol>
-<li><code>copy-files</code> &ndash; A <a href="/components/actions/copy_files#pydoc:novella.action.CopyFilesAction">CopyFilesAction</a> that copies the <a href="/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> (if it exists)
+<li><code>copy-files</code> &ndash; A <a href="/novella/components/actions/copy_files#pydoc:novella.action.CopyFilesAction">CopyFilesAction</a> that copies the <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> (if it exists)
 to the build directory.</li>
 <li><code>mkdocs-update-config</code> &ndash; A <code>MkdocsApplyDefaultAction</code> to create or update the MkDocs configuraton file.</li>
 <li><code>preprocess-markdown</code> &ndash; An instance of the {@link pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction}.</li>
-<li><code>mkdocs-run</code> &ndash; A <a href="/components/actions/run#pydoc:novella.action.RunAction">RunAction</a> that invokes MkDocs.</li>
+<li><code>mkdocs-run</code> &ndash; A <a href="/novella/components/actions/run#pydoc:novella.action.RunAction">RunAction</a> that invokes MkDocs.</li>
 </ol>
 <p>If the <code>--serve</code> option is provided, the template enables file watching for everything copied by the
 <code>copy-files</code> action and marks the <code>mkdocs-run</code> as reload-capable, allowing for a seemless live editing experience
@@ -919,7 +919,7 @@ while using Novella as a preprocessor.</p>
 <p>The following configuration serves as the default configuration if the user did not provide an MkDocs
 configuration of their own. If a configuration file is already present, it will be updated such that top-level
 keys that don't exist in the provided configuration are set to the one present in the default below.</p>
-<p>To disable this behaviour, set <a href="/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.apply_defaults">apply_defaults</a> to <code>False</code>.</p>
+<p>To disable this behaviour, set <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.apply_defaults">apply_defaults</a> to <code>False</code>.</p>
 <div class="highlight"><pre><span></span><code>docs_dir: content
 site_name: My documentation
 theme:
@@ -966,7 +966,7 @@ default. If the repository URL is already configured, it will do nothing.</p>
 <p><a id="pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.content_directory"></a></p>
 <h4 id="content_directory_1">content_directory</h4>
 <p>The content directory that contains the MkDocs source files. This is used only to construct the edit URI if
-<a href="/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.autodetect_repo_url">autodetect_repo_url</a> is enabled. This passed through by the <a href="/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate">MkdocsTemplate</a> automatically.</p>
+<a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.autodetect_repo_url">autodetect_repo_url</a> is enabled. This passed through by the <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate">MkdocsTemplate</a> automatically.</p>
 <p><a id="novella.templates.mkdocs.MkdocsUpdateConfigAction.update"></a></p>
 <p><a id="pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.update"></a></p>
 <h4 id="update">update</h4>
