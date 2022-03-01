@@ -1,0 +1,5 @@
+[[entries]]
+id = "8ba4ee02-cef7-4bcd-9c27-898db5db4b99"
+type = "improvement"
+description = "improve replacing escaped Novella tags in `MarkdownPreprocessorAction`"
+author = "@NiklasRosenstein"
