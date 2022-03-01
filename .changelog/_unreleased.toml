@@ -21,3 +21,9 @@ id = "442a035b-88fc-4900-9681-b728e23db655"
 type = "feature"
 description = "`NovellaContext.action()` now accepts an `Action` instance as well"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "61d3a98b-588f-4e69-b3e8-7133f337ab72"
+type = "improvement"
+description = "`copy-files` action now always ignores files or directories named `.git`"
+author = "@NiklasRosenstein"

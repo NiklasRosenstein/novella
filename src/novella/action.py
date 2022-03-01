@@ -94,7 +94,7 @@ class CopyFilesAction(Action):
       if source.is_file():
         shutil.copyfile(source, dest)
       else:
-        shutil.copytree(source, dest, dirs_exist_ok=True)
+        shutil.copytree(source, dest, dirs_exist_ok=True, ignore=lambda a, b: ['.git'])
 
 
 class RunAction(Action):
