@@ -21,7 +21,7 @@ class Node(t.Generic[T_Node], abc.ABC):
   predecessors: list[T_Node] | None = None
 
   #: The graph that this node is assigned to.
-  graph: Graph | None = None
+  graph: Graph[T_Node] | None = None
 
   def depends_on(self, *nodes: T_Node | str) -> None:
     """ Add dependencies to this node, either by supplying the nodes directly or by passing the node name which
@@ -67,7 +67,7 @@ class Graph(t.Generic[T_Node]):
     from nr.util.digraph import DiGraph
     self._digraph = DiGraph[str, T_Node, None]()
     self._last_node_added: T_Node | None = None
-    self._fallback_dependencies: dict[str, t.List[T_Node]] = {}
+    self._fallback_dependencies: dict[str, t.Sequence[T_Node]] = {}
     self._edges_built = False
 
   def __repr__(self) -> str:

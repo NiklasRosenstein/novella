@@ -103,5 +103,6 @@ class AnchorTagProcessor(MarkdownPreprocessor):
       assert anchor.header_level
       href += '#' + self.flavor.get_header_id(anchor.header_level, anchor.header_text)
 
-    text = tag.options.get('text', None)
-    return self.flavor.render_link(text or anchor.text or anchor.header_text, href)
+    text = tag.options.get('text', None) or anchor.text or anchor.header_text
+    assert text is not None, anchor
+    return self.flavor.render_link(text, href)

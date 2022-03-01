@@ -120,7 +120,7 @@ class NovellaContext:
 
     if closure is not None:
       if self._init_sequence:
-        self.delay(lambda: closure(action))
+        self.delay(lambda: closure(action))  # type: ignore
       else:
         closure(action)
 
@@ -131,7 +131,7 @@ class NovellaContext:
 
     action = self._actions.nodes[action_name]
     if self._init_sequence and closure:
-      self.delay(lambda: closure(action))
+      self.delay(lambda: closure(action))  # type: ignore
     elif closure:
       closure(action)
     return action

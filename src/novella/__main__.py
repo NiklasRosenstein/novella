@@ -48,7 +48,7 @@ def setup_logging() -> None:
   logging.root.filters.append(SimpleFilter('root', not_contains='Generating grammar tables from'))
 
 
-def print_dotviz(graph: DiGraph[str, Action, None]) -> None:
+def print_dotviz(graph: DiGraph[str, t.Any, t.Any]) -> None:
   print('digraph G {')
   for node in graph.nodes:
     print(f'  "{node}"')
@@ -121,7 +121,7 @@ def main() -> None:
   context.configure(unknown_args)
 
   if args.dot:
-    print_dotviz(context.graph)
+    print_dotviz(context.graph._digraph)
     return
 
   builder = CustomBuilder(

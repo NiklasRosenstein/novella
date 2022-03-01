@@ -110,7 +110,7 @@ class MarkdownPreprocessorAction(Action):
       closure(processor)
     return processor
 
-  def repeat(self, path: Path, output_path: Path, content: str, source_path: Path | None = None, last_processor: MarkdownPreprocessor | None = None) -> None:
+  def repeat(self, path: Path, output_path: Path, content: str, source_path: Path | None = None, last_processor: MarkdownPreprocessor | None = None) -> str:
     """ Repeat all processors that have been processed so far on the given files. This is used by the `@cat`
     preprocessor to apply all preprocessors previously run on the newly included content. This does not include
     the processor that this method is called from, but only the preprocessors that preceded it. The caller may
