@@ -13,7 +13,7 @@
     
     
       
-        <title>Builtin tags - Novella</title>
+        <title>Preprocess markdown - Novella</title>
       
     
     
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#builtin-tags" class="md-skip">
+        <a href="#class-markdownpreprocessoraction" class="md-skip">
           Skip to content
         </a>
       
@@ -74,9 +74,7 @@
     
       
 
-  
-
-<header class="md-header md-header--lifted" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../../.." title="Novella" class="md-header__button md-logo" aria-label="Novella" data-md-component="logo">
       
@@ -97,7 +95,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Builtin tags
+              Preprocess markdown
             
           </span>
         </div>
@@ -154,99 +152,13 @@
     
   </nav>
   
-    
-      
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-tabs__inner md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../.." class="md-tabs__link">
-      Home
-    </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../../changelog/" class="md-tabs__link">
-      Changelog
-    </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../../concepts/" class="md-tabs__link">
-      Concepts
-    </a>
-  </li>
-
-      
-        
-  
-  
-    
-  
-
-
-  
-  
-  
-    
-
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../actions/" class="md-tabs__link md-tabs__link--active">
-        Components
-      </a>
-    </li>
-  
-
-  
-
-      
-        
-  
-  
-
-
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../../guides/github/" class="md-tabs__link">
-        Guides
-      </a>
-    </li>
-  
-
-      
-    </ul>
-  </div>
-</nav>
-    
-  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -259,10 +171,8 @@
                   <div class="md-sidebar__inner">
                     
 
-  
 
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../../.." title="Novella" class="md-nav__button md-logo" aria-label="Novella" data-md-component="logo">
       
@@ -342,7 +252,9 @@
   
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
@@ -376,9 +288,7 @@
   
   
     
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" >
@@ -387,34 +297,22 @@
       
         
           
-            
-          
-        
-          
         
           
         
       
       
-        
-        
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="../../actions/">Actions</a>
-          
-            <label for="__nav_4_1">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
+        <label class="md-nav__link" for="__nav_4_1">
+          Preprocessors
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
-      <nav class="md-nav" aria-label="Actions" data-md-level="2">
+      <nav class="md-nav" aria-label="Preprocessors" data-md-level="2">
         <label class="md-nav__title" for="__nav_4_1">
           <span class="md-nav__icon md-icon"></span>
-          Actions
+          Preprocessors
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
-          
-            
           
             
               
@@ -422,8 +320,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../actions/copy_files/" class="md-nav__link">
-        Copy files
+      <a href="../../Preprocessors/anchor/" class="md-nav__link">
+        @anchor and {@link}
       </a>
     </li>
   
@@ -436,8 +334,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../actions/run/" class="md-nav__link">
-        Run
+      <a href="../../Preprocessors/cat/" class="md-nav__link">
+        @cat
       </a>
     </li>
   
@@ -459,9 +357,7 @@
   
   
     
-      
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
@@ -475,12 +371,16 @@
         
           
         
+          
+        
+          
+        
       
       
         
         
         <div class="md-nav__link md-nav__link--index ">
-          <a href="../">Preprocessing</a>
+          <a href="../">Actions</a>
           
             <label for="__nav_4_2">
               <span class="md-nav__icon md-icon"></span>
@@ -488,13 +388,27 @@
           
         </div>
       
-      <nav class="md-nav" aria-label="Preprocessing" data-md-level="2">
+      <nav class="md-nav" aria-label="Actions" data-md-level="2">
         <label class="md-nav__title" for="__nav_4_2">
           <span class="md-nav__icon md-icon"></span>
-          Preprocessing
+          Actions
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../copy_files/" class="md-nav__link">
+        Copy files
+      </a>
+    </li>
+  
+
             
           
             
@@ -509,16 +423,14 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
-        
-      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Builtin tags
+          Preprocess markdown
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Builtin tags
+        Preprocess markdown
       </a>
       
         
@@ -526,8 +438,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -537,23 +447,51 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#block-tags" class="md-nav__link">
-    Block tags
+  <a href="#class-markdownpreprocessoraction" class="md-nav__link">
+    Class MarkdownPreprocessorAction
   </a>
   
-    <nav class="md-nav" aria-label="Block tags">
+    <nav class="md-nav" aria-label="Class MarkdownPreprocessorAction">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#anchor" class="md-nav__link">
-    @anchor
+  <a href="#path" class="md-nav__link">
+    path
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cat" class="md-nav__link">
-    @cat
+  <a href="#encoding" class="md-nav__link">
+    encoding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use" class="md-nav__link">
+    use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preprocessor" class="md-nav__link">
+    preprocessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repeat" class="md-nav__link">
+    repeat
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute" class="md-nav__link">
+    execute
   </a>
   
 </li>
@@ -564,16 +502,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inline-tags" class="md-nav__link">
-    Inline tags
+  <a href="#class-markdownpreprocessor" class="md-nav__link">
+    Class MarkdownPreprocessor
   </a>
   
-    <nav class="md-nav" aria-label="Inline tags">
+    <nav class="md-nav" aria-label="Class MarkdownPreprocessor">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#link" class="md-nav__link">
-    @link
+  <a href="#entrypoint" class="md-nav__link">
+    ENTRYPOINT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_files" class="md-nav__link">
+    process_files
   </a>
   
 </li>
@@ -592,6 +544,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run/" class="md-nav__link">
+        Run
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -605,9 +571,7 @@
   
   
     
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
@@ -694,7 +658,9 @@
   
   
     
-    <li class="md-nav__item md-nav__item--nested">
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
@@ -755,8 +721,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -765,23 +729,51 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#block-tags" class="md-nav__link">
-    Block tags
+  <a href="#class-markdownpreprocessoraction" class="md-nav__link">
+    Class MarkdownPreprocessorAction
   </a>
   
-    <nav class="md-nav" aria-label="Block tags">
+    <nav class="md-nav" aria-label="Class MarkdownPreprocessorAction">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#anchor" class="md-nav__link">
-    @anchor
+  <a href="#path" class="md-nav__link">
+    path
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#cat" class="md-nav__link">
-    @cat
+  <a href="#encoding" class="md-nav__link">
+    encoding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use" class="md-nav__link">
+    use
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preprocessor" class="md-nav__link">
+    preprocessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repeat" class="md-nav__link">
+    repeat
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute" class="md-nav__link">
+    execute
   </a>
   
 </li>
@@ -792,16 +784,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inline-tags" class="md-nav__link">
-    Inline tags
+  <a href="#class-markdownpreprocessor" class="md-nav__link">
+    Class MarkdownPreprocessor
   </a>
   
-    <nav class="md-nav" aria-label="Inline tags">
+    <nav class="md-nav" aria-label="Class MarkdownPreprocessor">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#link" class="md-nav__link">
-    @link
+  <a href="#entrypoint" class="md-nav__link">
+    ENTRYPOINT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_files" class="md-nav__link">
+    process_files
   </a>
   
 </li>
@@ -823,56 +829,108 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/content/components/preprocessing/builtin.md" title="Edit this page" class="md-content__button md-icon">
+<a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/content/components/actions/preprocess_markdown.md" title="Edit this page" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
 
-<h1 id="builtin-tags">Builtin tags</h1>
-<h2 id="block-tags">Block tags</h2>
-<h3 id="anchor"><code>@anchor</code></h3>
-<p>This tag can be used to mark a location in a Markdown file with a global identifier that can be linked
-to using the <code>\{@link}</code> inline tag. Depending on the Markdown parser that is targeted, the tag may not be
-replaced by any content at all but the <code>\{@link}</code> tag may instead resolve it from the Markdown header that
-the tag is placed in front of.</p>
-<p>Note that the tag does not need to be placed in front of a Markdown header, but if it is not, the anchor
-name must be set explicitly, otherwise <code>\{@link}</code>s to the anchor will render a placeholder name.</p>
-<p><strong>Arguments</strong></p>
-<div class="highlight"><pre><span></span><code>@anchor &lt;anchor_id&gt; [&lt;name&gt;]
-</code></pre></div>
-<p><strong>Example</strong></p>
-<div class="highlight"><pre><span></span><code>@anchor examples
-# Examples
+  <h1>Preprocess markdown</h1>
+
+<p>Novella provides built-in Markdown preprocessing functionality to replace tags with automatically generated content.
+Tags are either specified as their own block written as <code>@tag &lt;args&gt;</code> or inline as <code>{@link &lt;args&gt;}</code>. Block tags can
+span multiple lines if the following lines are indented. Tags may have a TOML configuration following the keyword
+<code>:with</code>.</p>
+<div class="highlight"><span class="filename">build.novella</span><pre><span></span><code><span class="n">do</span> <span class="s2">&quot;preprocess-markdown&quot;</span> <span class="p">{</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;content/&quot;</span>
+  <span class="n">use</span> <span class="s2">&quot;pydoc&quot;</span>  <span class="c1"># Requires Pydoc-Markdown (see https://github.com/NiklasRosenstein/pydoc-markdown)</span>
+<span class="p">}</span>
 </code></pre></div>
 <hr />
-<h3 id="cat"><code>@cat</code></h3>
-<p>This tag can be used to reference the content of another file relative to the current file in the
-project directory or relative to the project root (i.e. where the <code>build.novella</code> file is located)
-using an absolute path.</p>
-<p><strong>Arguments</strong></p>
-<div class="highlight"><pre><span></span><code>@cat &lt;file&gt; [:with &lt;toml&gt;]
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction"></a></p>
+<h2 id="class-markdownpreprocessoraction">Class MarkdownPreprocessorAction</h2>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MarkdownPreprocessorAction</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Example</strong></p>
-<div class="highlight"><pre><span></span><code>@cat ../../../readme.md
-@cat /../readme.md :with slice_lines = &quot;3:&quot;
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L53">[view_source]</a></p>
+<p>An action to preprocess Markdown files. All functionality of the processor is implemented by plugins that
+implement the <a href="#pydoc:novella.markdown.preprocessor.MarkdownPreprocessor">MarkdownPreprocessor</a> interface. The order of execution of the processors is based on their
+dependencies, much like when <a href="/novella/components/actions#pydoc:novella.action.Action">Actions</a> are executed.</p>
+<p>As a final step, the processor will process escaped inline tags (i.e. replacing <code>{@</code> with <code>@{</code>).</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.path"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.path"></a></p>
+<h4 id="path">path</h4>
+<p>The path to the folder in which markdown files should be preprocessed. If this is not set,
+all Markdown files in the build directory will be preprocessed.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.encoding"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.encoding"></a></p>
+<h4 id="encoding">encoding</h4>
+<p>The encoding to read and write files as.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.use"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.use"></a></p>
+<h4 id="use">use</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">use</span><span class="p">(</span><span class="n">processor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MarkdownPreprocessor</span><span class="p">,</span>
+        <span class="n">closure</span><span class="p">:</span> <span class="n">_Closure</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><strong>Settings</strong></p>
-<ul>
-<li><code>slice_lines</code> (str) &ndash; A slice indicator that is applied to lines in the referenced file.</li>
-</ul>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L74">[view_source]</a></p>
+<p>Register a processor for use in the plugin.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.preprocessor"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.preprocessor"></a></p>
+<h4 id="preprocessor">preprocessor</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">preprocessor</span><span class="p">(</span><span class="n">processor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">closure</span><span class="p">:</span> <span class="n">_Closure</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkdownPreprocessor</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L105">[view_source]</a></p>
+<p>Access or reconfigure a markdown processor that is already registered.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.repeat"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.repeat"></a></p>
+<h4 id="repeat">repeat</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+           <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+           <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+           <span class="n">source_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">last_processor</span><span class="p">:</span> <span class="n">MarkdownPreprocessor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L113">[view_source]</a></p>
+<p>Repeat all processors that have been processed so far on the given files. This is used by the <code>@cat</code>
+preprocessor to apply all preprocessors previously run on the newly included content. This does not include
+the processor that this method is called from, but only the preprocessors that preceded it. The caller may
+pass itself to the <em>last_processor</em> argument to include themselves.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.execute"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.execute"></a></p>
+<h4 id="execute">execute</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L129">[view_source]</a></p>
+<p>Execute the preprocessor on all Markdown files specified in <a href="#pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.path">path</a>.</p>
 <hr />
-<h2 id="inline-tags">Inline tags</h2>
-<h3 id="link"><code>@link</code></h3>
-<p>The <code>\{@link}</code> inline tag is used to link to an anchor, potentially from another page. The anchor
-name is placed as the name of the link, unless overwritten via the settings or the second link
-argument.</p>
-<p><strong>Arguments</strong></p>
-<div class="highlight"><pre><span></span><code>\{@link &lt;anchor_id&gt; [&lt;text&gt;]}
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessor"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor"></a></p>
+<h2 id="class-markdownpreprocessor">Class MarkdownPreprocessor</h2>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MarkdownPreprocessor</span><span class="p">(</span><span class="n">Node</span><span class="p">[</span><span class="s1">&#39;MarkdownPreprocessor&#39;</span><span class="p">])</span>
 </code></pre></div>
-<p><strong>Example</strong></p>
-<div class="highlight"><pre><span></span><code>Check out the \{@link examples}. Also check out the \{@link faq FAQ}.
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L172">[view_source]</a></p>
+<p>Interface for plugins to process markdown files.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessor.ENTRYPOINT"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor.ENTRYPOINT"></a></p>
+<h4 id="entrypoint">ENTRYPOINT</h4>
+<p>The entrypoint under which preprocessor plugins must be registered.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessor.setup"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor.setup"></a></p>
+<h4 id="setup">setup</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">setup</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L187">[view_source]</a></p>
+<p>Called before the execution order of processors is determined.</p>
+<p><a id="novella.markdown.preprocessor.MarkdownPreprocessor.process_files"></a></p>
+<p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor.process_files"></a></p>
+<h4 id="process_files">process_files</h4>
+<div class="highlight"><pre><span></span><code><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<span class="k">def</span> <span class="nf">process_files</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="n">MarkdownFiles</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L191">[view_source]</a></p>
+<p>Process the file contents in <em>files</em>.</p>
 
               
             </article>
@@ -891,7 +949,7 @@ argument.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Markdown Preprocessing" rel="prev">
+        <a href="../copy_files/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Copy files" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -900,20 +958,20 @@ argument.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Markdown Preprocessing
+              Copy files
             </div>
           </div>
         </a>
       
       
         
-        <a href="../../templates_/" class="md-footer__link md-footer__link--next" aria-label="Next: Template" rel="next">
+        <a href="../run/" class="md-footer__link md-footer__link--next" aria-label="Next: Run" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Template
+              Run
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -943,7 +1001,7 @@ argument.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "navigation.sections"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
       <script src="../../../assets/javascripts/bundle.b88e97c5.min.js"></script>
