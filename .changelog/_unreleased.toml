@@ -9,3 +9,15 @@ id = "6ac417b2-48d6-4877-b3a7-9cb6edef7493"
 type = "improvement"
 description = "options are now added to their own argument group if registered by a template"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "9211b86f-ff8d-478d-b4b2-cd8272169cc9"
+type = "feature"
+description = "add `Action.setup()` which gives it access to the build context"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "442a035b-88fc-4900-9681-b728e23db655"
+type = "feature"
+description = "`NovellaContext.action()` now accepts an `Action` instance as well"
+author = "@NiklasRosenstein"

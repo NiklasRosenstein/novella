@@ -60,6 +60,9 @@ class Action(Node['Action']):
 
     return None
 
+  def setup(self, build: BuildContext) -> None:
+    """ Called before configuration closures when the build context is ready. """
+
   @abc.abstractmethod
   def execute(self, build: BuildContext) -> None:
     """ Execute the action. """
@@ -112,7 +115,7 @@ class RunAction(Action):
 
   def execute(self, build: BuildContext) -> None:
     assert self.args, 'no RunAction.args specified'
-    logger.info('Run <fg=cyan>$%s</fg>', ' '.join(map(lambda s: shlex.quote(str(s)),  self.args)))
+    logger.info('Run <fg=cyan>$ %s</fg>', ' '.join(map(lambda s: shlex.quote(str(s)),  self.args)))
 
     try:
       self._proc = sp.Popen(self.args, cwd=build.directory)

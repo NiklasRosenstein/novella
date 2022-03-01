@@ -8,6 +8,7 @@ import typing as t
 from pathlib import Path
 
 from novella.action import Action
+from novella.build import BuildContext
 
 if t.TYPE_CHECKING:
   from nr.util.inspect import Callsite
@@ -53,6 +54,7 @@ class NovellaContext:
 
     self._novella = novella
     self._init_sequence: bool = True
+    self._build: BuildContext | None = None
 
     self._actions = Graph[Action]()
     self._delayed: list[t.Callable] = []
@@ -103,7 +105,7 @@ class NovellaContext:
 
   def do(
     self,
-    action_type_name: str,
+    action: str | Action,
     closure: t.Callable | None = None,
     name: str | None = None,
   ) -> Action:
@@ -113,11 +115,15 @@ class NovellaContext:
     from nr.util.inspect import get_callsite
     from nr.util.plugins import load_entrypoint
 
-    if name is None:
-      name = action_type_name
+    if isinstance(action, str):
+      if name is None:
+        name = action
+      action_cls = load_entrypoint(Action, action)  # type: ignore
+      action = action_cls(self, name, get_callsite())
+    else:
+      assert isinstance(action, Action)
+      assert name is None or name == action.name
 
-    action_cls = load_entrypoint(Action, action_type_name)  # type: ignore
-    action = action_cls(self, name, get_callsite())
     self._actions.add_node(action, self._actions.last_node_added)
 
     if closure is not None:
@@ -178,12 +184,13 @@ class NovellaContext:
         default=option.default
       )
 
-  def configure(self, args: list[str]) -> None:
+  def configure(self, build: BuildContext, args: list[str]) -> None:
     """ Parse the argument list and run the configuration for all registered actions. """
 
     if not self._init_sequence:
       raise RuntimeError('already configured')
     self._init_sequence = False
+    self._build = build
 
     parser = argparse.ArgumentParser()
     self.update_argument_parser(parser)
@@ -191,6 +198,9 @@ class NovellaContext:
     self._options = {}
     for option_name in self._option_names:
       self.options[option_name] = getattr(parsed_args, option_name.replace('-', '_'))
+
+    for action in self._actions.nodes.values():
+      action.setup(build)
 
     for closure in self._delayed:
       closure()

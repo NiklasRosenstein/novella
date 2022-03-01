@@ -75,6 +75,7 @@ class _FsEventHandler(watchdog.events.FileSystemEventHandler):
       current = self.builder._current_action
       if current and current.supports_reloading:
         # Execute the pipeline in a new builder up until the given action.
+        logger.info('<fg=red>Re-execute pipeline to rely on %s reloading capabilities</fg>', current.name)
         sub_builder = NovellaBuilder(
           context=self.builder._context,
           build_directory=self.builder.directory,
@@ -84,6 +85,7 @@ class _FsEventHandler(watchdog.events.FileSystemEventHandler):
         sub_builder.build()
         return
       else:
+        logger.info('<fg=red>Abort current execution and restart</fg>')
         self.builder._abort()
 
 
@@ -113,6 +115,9 @@ class NovellaBuilder(BuildContext):
     self._observer = watchdog.observers.Observer()
     self._event_handler = _FsEventHandler(self)
     self._watched_paths: set[Path] = set()
+
+    import contextlib
+    self._exit_stack = contextlib.ExitStack()
 
   def _is_finished(self) -> bool:
     with self._cond:
@@ -200,6 +205,14 @@ class NovellaBuilder(BuildContext):
 
     if callback:
       callback()
+
+  def __enter__(self):
+    self._exit_stack.__enter__()
+    if not self._build_directory:
+      self._create_temporary_directory(self._exit_stack)
+
+  def __exit__(self, *args):
+    self._exit_stack.__exit__(*args)
 
   # BuildContext
 

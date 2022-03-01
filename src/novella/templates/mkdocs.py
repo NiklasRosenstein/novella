@@ -69,7 +69,7 @@ class MkdocsTemplate(Template):
 
   def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
-    context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
+    context.option("site-dir", description='Build directory for MkDocs (defaults to "_site")', default="_site")
 
     def configure_copy_files(copy_files: CopyFilesAction) -> None:
       copy_files.paths = [ self.content_directory ]
@@ -90,7 +90,7 @@ class MkdocsTemplate(Template):
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
-      if context.options.get("serve"):
+      if context.options["serve"]:
         run.supports_reloading = True
         run.args += [ "serve" ]
       else:

@@ -117,9 +117,6 @@ def main() -> None:
   if exception:
     raise exception
 
-  assert context
-  context.configure(unknown_args)
-
   if args.dot:
     print_dotviz(context.graph._digraph)
     return
@@ -131,15 +128,19 @@ def main() -> None:
   )
   builder.intercept_action = args.intercept
 
-  try:
-    builder.build()
-  except PipelineError as exc:
-    logger.error(
-      f'<fg=red>Uncaught exception in action "{exc.action_name}" defined at '
-      f'{exc.callsite.filename}:{exc.callsite.lineno}</fg>',
-      exc_info=exc.__cause__,
-    )
-    sys.exit(1)
+  with builder:
+    assert context
+    context.configure(builder, unknown_args)
+
+    try:
+      builder.build()
+    except PipelineError as exc:
+      logger.error(
+        f'<fg=red>Uncaught exception in action "{exc.action_name}" defined at '
+        f'{exc.callsite.filename}:{exc.callsite.lineno}</fg>',
+        exc_info=exc.__cause__,
+      )
+      sys.exit(1)
 
 
 if __name__ == '__main__':
