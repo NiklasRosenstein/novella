@@ -1,0 +1,5 @@
+[[entries]]
+id = "fa61e257-0f69-4803-ba96-fe796390b025"
+type = "fix"
+description = "`@anchor` now only specifies the URL fragment if the link target is in the same page"
+author = "@NiklasRosenstein"

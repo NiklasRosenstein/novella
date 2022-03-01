@@ -96,7 +96,10 @@ class AnchorTagProcessor(MarkdownPreprocessor):
     source_page = file.output_path.relative_to(build.directory / (self.action.path or ''))
     target_page = anchor.file.relative_to(self.action.context.project_directory / (self.action.path or ''))
 
-    href = self.flavor.get_link_to_page(source_page, target_page)
+    if source_page != target_page:
+      href = self.flavor.get_link_to_page(source_page, target_page)
+    else:
+      href = ''
     if self.always_render_anchor_elements or not anchor.header_text:
       href += '#' + anchor.id
     else:
