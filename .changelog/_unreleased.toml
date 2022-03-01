@@ -33,3 +33,9 @@ id = "fc7176a8-6ca6-4674-b9f9-11f4d64ba908"
 type = "feature"
 description = "add a basic implementation for a Hugo template (https://gohugo.io/)"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "a3ecf435-ddc2-4662-a082-78ffd5e3c65e"
+type = "fix"
+description = "fix replacing escaped tags"
+author = "@NiklasRosenstein"

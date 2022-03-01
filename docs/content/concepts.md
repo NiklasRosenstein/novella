@@ -60,10 +60,10 @@ configured using "init" and "post" closures (before the template is executed and
 itself delivers an `mkdocs` template out of the box.
 
 ```py
-template "mkdocs" {
-  configure update_config {
-    apply_defaults = False
-  }
+template "mkdocs"
+
+action "mkdocs-update-config" {
+  apply_defaults = False
 }
 ```
 

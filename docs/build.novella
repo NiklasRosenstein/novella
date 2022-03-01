@@ -5,7 +5,7 @@ template "mkdocs"
 
 action "mkdocs-update-config" {
   site_name = "Novella"
-  update '$.theme.features' add: ['navigation.sections', 'navigation.tabs', 'navigation.tabs.sticky']
+  update '$.theme.features' add: ['navigation.sections']
   update '$.theme.palette' set: {'scheme': 'slate', 'primary': 'red', 'accent': 'deep orange'}
 }
 

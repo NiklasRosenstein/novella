@@ -163,7 +163,7 @@ class MarkdownPreprocessorAction(Action):
     for file in files:
       # Correct escaped inline tags.
       # NOTE (@NiklasRosenstein): This is a bit hacky.. maybe we can find a better place in the code to do this.
-      file.content = re.sub(r'(?!\\)\\\{@', '{@', file.content)
+      file.content = re.sub(r'(?<!\\)\\\{@', '{@', file.content)
       file.content = re.sub(r'^\\@', '@', file.content, flags=re.M)
 
     _commit_files()
