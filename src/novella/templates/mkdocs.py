@@ -86,65 +86,42 @@ logger = logging.getLogger(__name__)
 class MkdocsTemplate(Template):
   """ A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
   #content_directory and the `mkdocs.yml` config relative to the Novella configuration file (if the
-  configuration file exists). Then, unless #apply_default_config is disabled, it will apply a default
-  configuration that is delivered alongside the template (using the MkDocs-material theme and enabling a
-  bunch of Markdown extensions), and then run MkDocs to either serve or build the documentation.
+  configuration file exists).
 
-  The template registers the following options:
+  This template registers the following options:
 
       --serve         Use mkdocs serve
       --site-dir, -d  Build directory for MkDocs (defaults to "_site")
 
-  The template produces the following actions:
+  This template produces the following actions:
 
-  1. `mkdocs-copy-files` &ndash; a `copy-files` action to copy the #content_directory and the `mkdocs.yml` (if it
-     exists) to the build directory.
-  2. `mkdocs-update-config` &ndash; An internal action provided by the MkDocs template to either create an `mkdocs.yml`
-     or apply defaults from the template delivered with Novella. Check out the #MkdocsApplyDefaultAction for more
-     details.
-  3. `mkdocs-preprocess-markdown` &ndash; An instance of the `preprocess-markdown` action, setup with builtin
-     preprocessors such as `cat` and `anchor`. Ensures that the `@anchor` preprocessor plugin is unsing the
-     #MkDocsFlavor.
-  4. `mkdocs-run` &ndash; A `run` action that invokes `mkdocs build`, or `mkdocs serve` if the `--serve` option is
-     provided.
+  1. `copy-files` &ndash; A #CopyFilesAction that copies the #content_directory and the `mkdocs.yml` (if it exists)
+     to the build directory.
+  2. `mkdocs-update-config` &ndash; A #MkdocsApplyDefaultAction to create or update the MkDocs configuraton file.
+  3. `preprocess-markdown` &ndash; An instance of the #MarkdownPreprocessorAction.
+  4. `mkdocs-run` &ndash; A #RunAction that invokes MkDocs.
 
   If the `--serve` option is provided, the template enables file watching for everything copied by the
-  `mkdocs-copy-files` action and marks the `mkdocs-run` as reload-capable, allowing for a seemless live
-  editing experience while using Novella as a preprocessor.
+  `copy-files` action and marks the `mkdocs-run` as reload-capable, allowing for a seemless live editing experience
+  while using Novella as a preprocessor.
 
-  __Example__
+  Example:
 
   ```py
-  template "mkdocs" {
-    configure update_config {
-      site_name = "My documentation"
-    }
-    configure preprocessor {
-      use "pydoc"
-    }
+  template "mkdocs"
+
+  action "mkdocs-update-config" {
+    site_name = "My documentation"
+  }
+
+  action "preprocess-markdown" {
+    use "pydoc"
   }
   ```
   """
 
-  #: The directory that contains the MkDocs context.
-  content_directory: str = 'content'
-
-  #: The `copy-files` action created by this template.
-  copy_files: CopyFilesAction
-
-  #: The `mkdocs-update-config` (see #MkdocsUpdateConfigAction) action created by this template.
-  update_config: MkdocsUpdateConfigAction
-
-  #: The `preprocess-markdown` action created by this template.
-  preprocessor: MarkdownPreprocessorAction
-
-  #: The `run` action created by thsi template.
-  run: RunAction
-
-  def configure(self, obj: t.Any, closure: t.Callable) -> None:
-    """ A helper method that applies the closure to *obj*. Enables the `configure preprocessor { ... }` syntax. """
-
-    self.context.delay(lambda: closure(obj))
+  #: The directory that contains the MkDocs context. Defaults to `content/`.
+  content_directory: str = 'content/'
 
   # Template
 
@@ -156,18 +133,18 @@ class MkdocsTemplate(Template):
       copy_files.paths = [ self.content_directory ]
       if (context.project_directory / 'mkdocs.yml').exists():
         copy_files.paths.append('mkdocs.yml')
-    self.copy_files = context.do('copy-files', configure_copy_files, name='mkdocs-copy-files')
+    context.do('copy-files', configure_copy_files, name='copy-files')
 
     def configure_update_config(update_config: MkdocsUpdateConfigAction) -> None:
       update_config.content_directory = self.content_directory
-    self.update_config = context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
+    context.do('mkdocs-update-config', configure_update_config, name='mkdocs-update-config')
 
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction) -> None:
       preprocessor.path = self.content_directory
       def configure_anchor(anchor: AnchorTagProcessor) -> None:
         anchor.flavor = MkDocsFlavor()
       preprocessor.preprocessor('anchor', configure_anchor)
-    self.preprocessor = context.do('preprocess-markdown', configure_preprocess_markdown, name='mkdocs-preprocess-markdown')
+    context.do('preprocess-markdown', configure_preprocess_markdown, name='preprocess-markdown')
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
@@ -176,7 +153,7 @@ class MkdocsTemplate(Template):
         run.args += [ "serve" ]
       else:
         run.args += [ "build", "-d", context.project_directory / str(context.options["site-dir"]) ]
-    self.run = context.do('run', configure_run, name='mkdocs-run')
+    context.do('run', configure_run, name='mkdocs-run')
 
 
 class MkdocsUpdateConfigAction(Action):
