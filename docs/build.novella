@@ -1,4 +1,5 @@
-# type: ignore
+
+import os
 
 template "mkdocs"
 
@@ -10,4 +11,8 @@ action "mkdocs-update-config" {
 
 action "preprocess-markdown" {
   use "pydoc"
+  if os.getenv('GITHUB_JOB'):
+    preprocessor "anchor" {
+      flavor.prefix = "novella/"
+    }
 }
