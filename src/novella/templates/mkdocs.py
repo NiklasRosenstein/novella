@@ -25,64 +25,6 @@ if t.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# @dataclasses.dataclass
-# class MkdocsMkdocsAnchorAndLinkRenderer(AnchorAndLinkRenderer):
-
-#   #: The content directory, specified as a supplier because it should always reference the content directory
-#   #: that is configured in the #MkdocsTemplate settings.
-#   content_directory: Supplier[str]
-
-#   #: Whether links should be rendered relatively to other pages. Disabled by default.
-#   relative_links: bool = False
-
-#   #: If #relative_links is disabled, this is prepended to generated absolute link URLs. If your site is
-#   #: not hosted at the root of your web server, you may need to set this value. The string should end in
-#   #: a slash.
-#   path_prefix: str = ''
-
-#   def _get_anchor_html_id(self, anchor: Anchor) -> str:
-#     if anchor.header_text:
-#       return slugify(anchor.header_text.lower(), '-')
-#     return anchor.id
-
-#   def _get_absolute_href(self, link: Link) -> str:
-#     assert link.target
-#     path = link.target.file
-#     if path.name == 'index.md':
-#       path = path.parent
-#     else:
-#       path = path.with_suffix('')
-#     url_path = str(path.relative_to(self.content_directory())).replace(os.sep, '/')
-#     if url_path == os.curdir:
-#       url_path = ''
-#     return f'/{self.path_prefix}{url_path}#{self._get_anchor_html_id(link.target)}'
-
-#   def _get_relative_href(self, link: Link) -> str:
-#     assert link.target
-#     # TODO (@NiklasRosenstein): Sanitize how we find the correct relative HREF to other pages.
-#     target = os.path.relpath(link.target.file.with_suffix(''), link.file.parent).replace(os.sep, '/')
-#     if target == 'index':
-#       target = '..'
-#     elif target.startswith('../') and target.endswith('/index'):
-#       target = removesuffix(target, '/index') + '/..'
-#     target = removesuffix(target, '/index')
-#     return target + '#' + self._get_anchor_html_id(link.target)
-
-#   def render_anchor(self, anchor: Anchor) -> str | None:
-#     if not anchor.header_text:
-#       return f'<a id="{anchor.id}"></a>'
-#     return ''
-
-#   def render_link(self, link: Link) -> str:
-#     if not link.target:
-#       return f'{{@link {link.anchor_id}}}'
-#     if link.target.file == link.file:
-#       href = '#' + self._get_anchor_html_id(link.target)
-#     else:
-#       href = self._get_relative_href(link) if self.relative_links else self._get_absolute_href(link)
-#     return f'<a href="{href}">{link.text or link.target.text or link.target.header_text}</a>'
-
-
 class MkdocsTemplate(Template):
   """ A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
   #content_directory and the `mkdocs.yml` config relative to the Novella configuration file (if the
@@ -125,7 +67,7 @@ class MkdocsTemplate(Template):
 
   # Template
 
-  def setup(self, context: NovellaContext) -> None:
+  def define_pipeline(self, context: NovellaContext) -> None:
     context.option("serve", description="Use mkdocs serve", flag=True)
     context.option("site-dir", "d", description='Build directory for MkDocs (defaults to "_site")', default="_site")
 
@@ -228,12 +170,12 @@ class MkdocsUpdateConfigAction(Action):
 
 
     ```py
-    template "mkdocs" {
-      configure update_config {
-        site_name = "My documentation"
-        update '$.theme.features' add: ['toc.integrate', 'navigation.tabs']
-        update '$.theme.palette' set: {'primary': 'black', 'accent': 'amber'}
-      }
+    template "mkdocs"
+
+    action "mkdocs-update-config" {
+      site_name = "My documentation"
+      update '$.theme.features' add: ['toc.integrate', 'navigation.tabs']
+      update '$.theme.palette' set: {'primary': 'black', 'accent': 'amber'}
     }
     ```
     """
