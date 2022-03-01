@@ -117,6 +117,7 @@ def main() -> None:
   if exception:
     raise exception
 
+  assert context
   if args.dot:
     print_dotviz(context.graph._digraph)
     return
@@ -129,7 +130,6 @@ def main() -> None:
   builder.intercept_action = args.intercept
 
   with builder:
-    assert context
     context.configure(builder, unknown_args)
 
     try:

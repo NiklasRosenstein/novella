@@ -206,12 +206,12 @@ class NovellaBuilder(BuildContext):
     if callback:
       callback()
 
-  def __enter__(self):
+  def __enter__(self) -> None:
     self._exit_stack.__enter__()
     if not self._build_directory:
       self._create_temporary_directory(self._exit_stack)
 
-  def __exit__(self, *args):
+  def __exit__(self, *args) -> None:  # type: ignore
     self._exit_stack.__exit__(*args)
 
   # BuildContext
