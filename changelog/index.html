@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.2">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.3">
     
     
       
@@ -24,7 +24,7 @@
         
           
           
-          <meta name="theme-color" content="#000000">
+          <meta name="theme-color" content="#ef5552">
         
       
     
@@ -52,7 +52,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="teal">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
   
     
     
@@ -342,6 +342,20 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0110-2022-03-01" class="md-nav__link">
+    0.1.10 (2022-03-01)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#019-2022-02-28" class="md-nav__link">
+    0.1.9 (2022-02-28)
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#018-2022-02-27" class="md-nav__link">
@@ -754,6 +768,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#0110-2022-03-01" class="md-nav__link">
+    0.1.10 (2022-03-01)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#019-2022-02-28" class="md-nav__link">
+    0.1.9 (2022-02-28)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#018-2022-02-27" class="md-nav__link">
     0.1.8 (2022-02-27)
   </a>
@@ -828,6 +856,44 @@
 
 
 <h1 id="changelog">Changelog</h1>
+<h2 id="0110-2022-03-01">0.1.10 (2022-03-01)</h2>
+<table><tr><th>Type</th><th>Description</th><th>PR</th><th>Issues</th><th>Author</th></tr>
+  <tr><td>Improvement</td><td>
+
+improve replacing escaped Novella tags in `MarkdownPreprocessorAction`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Hygiene</td><td>
+
+`MkdocsTemplate` no longer stores actions it creates a members, you should access them using `NovellaContext.action()`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+</table>
+
+<h2 id="019-2022-02-28">0.1.9 (2022-02-28)</h2>
+<table><tr><th>Type</th><th>Description</th><th>PR</th><th>Issues</th><th>Author</th></tr>
+  <tr><td>Improvement</td><td>
+
+add `novella.graph` module, `Action` is no a subclass of `novella.graph.Node`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Improvement</td><td>
+
+`NovellaContext.options` now throws an `AssertionError` if accessed before `NovellaContext.configure()` is called</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Improvement</td><td>
+
+`MarkdownProcessorAction` now stores processors internally in a graph as well, and `MarkdownProcessor` is now a subclass of `novella.graph.Node`. This allows processors to express dependencies on other processors.</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Improvement</td><td>
+
+`@cat` preprocessor now repeats preprocessing on the included content before injecting it</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Breaking change</td><td>
+
+remove `AnchorAndLinkRenderer` interface and use `MarkdownFlavor` instead, remove `Link` class and add `always_render_anchor_elements` option to `AnchorTagPreprocessor`. `MarkdownPreprocessorAction` now sets up `@shell`, `@cat` and `@anchor` by default. Add `MarkdownPreprocessor.setup()`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Breaking change</td><td>
+
+`MkdocsTemplate` now keeps the created actions as attributes so they can be configured indivudally</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Feature</td><td>
+
+add `NovellaContext.delay()`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Breaking change</td><td>
+
+add `Template.__init__()`</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+</table>
+
 <h2 id="018-2022-02-27">0.1.8 (2022-02-27)</h2>
 <table><tr><th>Type</th><th>Description</th><th>PR</th><th>Issues</th><th>Author</th></tr>
   <tr><td>Improvement</td><td>
@@ -998,7 +1064,7 @@ implement `@shell` tag preprocessor</td><td></td><td></td><td>@NiklasRosenstein<
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
-      <script src="../assets/javascripts/bundle.9f3ca3d1.min.js"></script>
+      <script src="../assets/javascripts/bundle.b88e97c5.min.js"></script>
       
     
   </body>

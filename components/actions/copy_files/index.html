@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.2">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.3">
     
     
       
@@ -24,7 +24,7 @@
         
           
           
-          <meta name="theme-color" content="#000000">
+          <meta name="theme-color" content="#ef5552">
         
       
     
@@ -52,7 +52,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="teal">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
   
     
     
@@ -433,9 +433,53 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Copy files
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Copy files
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#class-copyfilesaction" class="md-nav__link">
+    Class CopyFilesAction
+  </a>
+  
+    <nav class="md-nav" aria-label="Class CopyFilesAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paths" class="md-nav__link">
+    paths
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -671,6 +715,34 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#class-copyfilesaction" class="md-nav__link">
+    Class CopyFilesAction
+  </a>
+  
+    <nav class="md-nav" aria-label="Class CopyFilesAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paths" class="md-nav__link">
+    paths
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -688,7 +760,20 @@
 
 
 <h1 id="copy-files">Copy files</h1>
-<p>@pydoc novella.actions.copy_files.CopyFilesAction</p>
+<p><a id="novella.action.CopyFilesAction"></a></p>
+<p><a id="pydoc:novella.action.CopyFilesAction"></a></p>
+<h2 id="class-copyfilesaction">Class CopyFilesAction</h2>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">CopyFilesAction</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L68">[view_source]</a></p>
+<p>An action to copy files from the project root to the build directory. This is usually the first step in a
+pipeline as further steps can then freely modify files in the build directory without affecting the original
+project directory.</p>
+<p>This action is registered as an action plugin under the name <code>copy-files</code>.</p>
+<p><a id="novella.action.CopyFilesAction.paths"></a></p>
+<p><a id="pydoc:novella.action.CopyFilesAction.paths"></a></p>
+<h4 id="paths">paths</h4>
+<p>The list of paths, relative to the project directory, to copy to the temporary build directory.</p>
 
               
             </article>
@@ -762,7 +847,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.9f3ca3d1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.b88e97c5.min.js"></script>
       
     
   </body>

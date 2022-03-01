@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.2">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.3">
     
     
       
@@ -24,7 +24,7 @@
         
           
           
-          <meta name="theme-color" content="#000000">
+          <meta name="theme-color" content="#ef5552">
         
       
     
@@ -52,7 +52,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="teal">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
   
     
     
@@ -729,19 +729,24 @@
 
 
 
+<p><a id="docs:novella:home"></a></p>
 <h1 id="welcome-to-the-novella-documentation">Welcome to the Novella documentation!</h1>
 <p>Novella is a build system for processing files in a temporary directory isolated from the project source code. It is
 designed for the preprocessing of documentation source code such as Markdown files before they are passed into a
 static site generator such as <a href="https://www.mkdocs.org/">Mkdocs</a> or <a href="https://gohugo.io/">Hugo</a>. Novella was designed as the backbone for <a href="https://github.com/NiklasRosenstein/pydoc-markdown">Pydoc-Markdown</a>,
 but can be used independently.</p>
+<p>Check out the <a href="https://niklasrosenstein.github.io/novella">Novella Documentation</a> for more information.</p>
+<blockquote>
+<p>Note: Novella is currently a work in progress project and is considered unstable.</p>
+</blockquote>
 <h2 id="introduction">Introduction</h2>
 <p>The build process is described using a <code>build.novella</code> file using the <a href="https://github.com/craftr-build/craftr-dsl/">Craftr-Dsl</a> configuration language,
-which is (almost) a superset of Python. The <code>novella</code> program executes the script, exposes the <a href="/concepts#options">options</a> declared within to the command-line interface and
+which is (almost) a superset of Python. The <code>novella</code> program executes the script, exposes the <a href="/concepts#docs:novella:concepts:options">options</a> declared within to the command-line interface and
 executes the pipeline.</p>
 <div class="highlight"><pre><span></span><code>usage: novella [-h] [-c PATH] [-b PATH] [-r] [--dot] [--intercept ACTION]
                [--serve] [--site-dir SITE_DIR]
 
-optional arguments:
+options:
   -h, --help            Show this help output.
   -c PATH, --config-file PATH
                         The configuration file to load. (default:
@@ -829,7 +834,7 @@ script:
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.indexes", "navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
     
     
-      <script src="assets/javascripts/bundle.9f3ca3d1.min.js"></script>
+      <script src="assets/javascripts/bundle.b88e97c5.min.js"></script>
       
     
   </body>
