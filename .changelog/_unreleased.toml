@@ -27,3 +27,9 @@ id = "61d3a98b-588f-4e69-b3e8-7133f337ab72"
 type = "improvement"
 description = "`copy-files` action now always ignores files or directories named `.git`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "fc7176a8-6ca6-4674-b9f9-11f4d64ba908"
+type = "feature"
+description = "add a basic implementation for a Hugo template (https://gohugo.io/)"
+author = "@NiklasRosenstein"

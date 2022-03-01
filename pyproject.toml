@@ -45,6 +45,7 @@ packages = [{ include="novella", from="src" }]
 
   [tool.poetry.plugins."novella.templates"]
   mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
+  hugo = "novella.templates.hugo:HugoTemplate"
 
 [tool.slam]
 typed = true
