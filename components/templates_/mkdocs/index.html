@@ -540,6 +540,8 @@
         
           
         
+          
+        
       
       
         
@@ -560,6 +562,20 @@
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hugo/" class="md-nav__link">
+        Hugo
+      </a>
+    </li>
+  
+
             
           
             
@@ -877,14 +893,14 @@
 </code></pre></div>
 <p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L28">[view_source]</a></p>
 <p>A template to bootstrap an MkDocs build using Novella. It will set up actions to copy files from the
-<a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> config relative to the Novella configuration file (if the
+<a href="#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> config relative to the Novella configuration file (if the
 configuration file exists).</p>
 <p>This template registers the following options:</p>
 <p>--serve         Use mkdocs serve
 --site-dir, -d  Build directory for MkDocs (defaults to "_site")</p>
 <p>This template produces the following actions:</p>
 <ol>
-<li><code>copy-files</code> &ndash; A <a href="/novella/components/actions/copy_files#pydoc:novella.action.CopyFilesAction">CopyFilesAction</a> that copies the <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> (if it exists)
+<li><code>copy-files</code> &ndash; A <a href="/novella/components/actions/copy_files#pydoc:novella.action.CopyFilesAction">CopyFilesAction</a> that copies the <a href="#pydoc:novella.templates.mkdocs.MkdocsTemplate.content_directory">content_directory</a> and the <code>mkdocs.yml</code> (if it exists)
 to the build directory.</li>
 <li><code>mkdocs-update-config</code> &ndash; A <code>MkdocsApplyDefaultAction</code> to create or update the MkDocs configuraton file.</li>
 <li><code>preprocess-markdown</code> &ndash; An instance of the {@link pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction}.</li>
@@ -919,7 +935,7 @@ while using Novella as a preprocessor.</p>
 <p>The following configuration serves as the default configuration if the user did not provide an MkDocs
 configuration of their own. If a configuration file is already present, it will be updated such that top-level
 keys that don't exist in the provided configuration are set to the one present in the default below.</p>
-<p>To disable this behaviour, set <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.apply_defaults">apply_defaults</a> to <code>False</code>.</p>
+<p>To disable this behaviour, set <a href="#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.apply_defaults">apply_defaults</a> to <code>False</code>.</p>
 <div class="highlight"><pre><span></span><code>docs_dir: content
 site_name: My documentation
 theme:
@@ -966,7 +982,7 @@ default. If the repository URL is already configured, it will do nothing.</p>
 <p><a id="pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.content_directory"></a></p>
 <h4 id="content_directory_1">content_directory</h4>
 <p>The content directory that contains the MkDocs source files. This is used only to construct the edit URI if
-<a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.autodetect_repo_url">autodetect_repo_url</a> is enabled. This passed through by the <a href="/novella/components/templates_/mkdocs#pydoc:novella.templates.mkdocs.MkdocsTemplate">MkdocsTemplate</a> automatically.</p>
+<a href="#pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.autodetect_repo_url">autodetect_repo_url</a> is enabled. This passed through by the <a href="#pydoc:novella.templates.mkdocs.MkdocsTemplate">MkdocsTemplate</a> automatically.</p>
 <p><a id="novella.templates.mkdocs.MkdocsUpdateConfigAction.update"></a></p>
 <p><a id="pydoc:novella.templates.mkdocs.MkdocsUpdateConfigAction.update"></a></p>
 <h4 id="update">update</h4>
@@ -1018,7 +1034,7 @@ indexing. The string must begin with <code>$</code>. Quotes in keys are not supp
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Template" rel="prev">
+        <a href="../hugo/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Hugo" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -1027,7 +1043,7 @@ indexing. The string must begin with <code>$</code>. Quotes in keys are not supp
               <span class="md-footer__direction">
                 Previous
               </span>
-              Template
+              Hugo
             </div>
           </div>
         </a>

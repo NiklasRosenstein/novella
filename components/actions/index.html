@@ -540,6 +540,8 @@
         
           
         
+          
+        
       
       
         
@@ -560,6 +562,20 @@
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates_/hugo/" class="md-nav__link">
+        Hugo
+      </a>
+    </li>
+  
+
             
           
             
@@ -704,6 +720,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    setup
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#execute" class="md-nav__link">
     execute
   </a>
@@ -745,7 +768,7 @@
 <p><a id="pydoc:novella.action.Action.context"></a></p>
 <h4 id="context">context</h4>
 <p>The instance of the Novella application object that controls the pipeline and lifecycle of the build process.
-This is set when the action is added to the pipeline and is always available {@meth execute()} is called.</p>
+This is set when the action is added to the pipeline and is always available when <a href="#pydoc:novella.action.Action.execute">execute()</a> is called.</p>
 <p><a id="novella.action.Action.callsite"></a></p>
 <p><a id="pydoc:novella.action.Action.callsite"></a></p>
 <h4 id="callsite">callsite</h4>
@@ -765,13 +788,20 @@ came before it.</p>
 <p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L57">[view_source]</a></p>
 <p>Return a short text description of the action. It may be shown while the action is running to information the
 user of what is currently happening.</p>
+<p><a id="novella.action.Action.setup"></a></p>
+<p><a id="pydoc:novella.action.Action.setup"></a></p>
+<h4 id="setup">setup</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L63">[view_source]</a></p>
+<p>Called before configuration closures when the build context is ready.</p>
 <p><a id="novella.action.Action.execute"></a></p>
 <p><a id="pydoc:novella.action.Action.execute"></a></p>
 <h4 id="execute">execute</h4>
 <div class="highlight"><pre><span></span><code><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L64">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L67">[view_source]</a></p>
 <p>Execute the action.</p>
 
               

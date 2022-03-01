@@ -577,6 +577,8 @@
         
           
         
+          
+        
       
       
         
@@ -597,6 +599,20 @@
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="components/templates_/hugo/" class="md-nav__link">
+        Hugo
+      </a>
+    </li>
+  
+
             
           
             
@@ -746,7 +762,7 @@ executes the pipeline.</p>
 <div class="highlight"><pre><span></span><code>usage: novella [-h] [-c PATH] [-b PATH] [-r] [--dot] [--intercept ACTION]
                [--serve] [--site-dir SITE_DIR]
 
-optional arguments:
+options:
   -h, --help            Show this help output.
   -c PATH, --config-file PATH
                         The configuration file to load. (default:
@@ -765,10 +781,9 @@ optional arguments:
                         If this option is provided, all possible intercept
                         points are logged to the console.
 
-script:
+template (mkdocs):
   --serve               Use mkdocs serve
-  --site-dir SITE_DIR, -d SITE_DIR
-                        Build directory for MkDocs (defaults to &quot;_site&quot;)
+  --site-dir SITE_DIR   Build directory for MkDocs (defaults to &quot;_site&quot;)
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
