@@ -24,6 +24,7 @@ class Option:
   description: str | None
   flag: bool
   default: str | bool | None
+  group: str | None
 
 
 class Novella:
@@ -59,6 +60,7 @@ class NovellaContext:
     self._options: dict[str, str | bool | None] | None = None
     self._option_spec: list[Option] = []
     self._option_names: list[str] = []
+    self._current_option_group: str | None = None
 
   @property
   def graph(self) -> Graph[Action]:
@@ -97,7 +99,7 @@ class NovellaContext:
       long_name, short_name = '', long_name
 
     self._option_names.append(long_name)
-    self._option_spec.append(Option(long_name, short_name, description, flag, default))
+    self._option_spec.append(Option(long_name, short_name, description, flag, default, self._current_option_group))
 
   def do(
     self,
@@ -142,18 +144,28 @@ class NovellaContext:
     from nr.util.plugins import load_entrypoint
     from novella.template import Template
 
-    template_cls: type[Template] = load_entrypoint(Template, template_name)  # type: ignore
-    template = template_cls(self)
-    template.setup(self)
-    if init:
-      init(template)
-    template.define_pipeline(self)
-    if post:
-      post(template)
+    try:
+      self._current_option_group = f'template ({template_name})'
+      template_cls: type[Template] = load_entrypoint(Template, template_name)  # type: ignore
+      template = template_cls(self)
+      template.setup(self)
+      if init:
+        init(template)
+      template.define_pipeline(self)
+      if post:
+        post(template)
+    finally:
+      self._current_option_group = None
 
   def update_argument_parser(self, parser: argparse.ArgumentParser) -> None:
-    group = parser.add_argument_group('script')
+    groups: dict[str, argparse._ArgumentGroup] = {}
+
     for option in self._option_spec:
+      group_name = option.group or 'script'
+      if group_name not in groups:
+        groups[group_name] = parser.add_argument_group(group_name)
+      group = groups[group_name]
+
       option_names = []
       if option.long_name:
         option_names += [f"--{option.long_name}"]
