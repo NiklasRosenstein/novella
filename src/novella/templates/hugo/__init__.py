@@ -55,6 +55,7 @@ class HugoTemplate(Template):
 
 
 class InstallHugoAction(Action):
+  """ Action to install Hugo into the build directory if it is not available on the system. """
 
   def setup(self, build: BuildContext) -> None:
     self.path = build.directory / '.tmp' / 'hugo'
