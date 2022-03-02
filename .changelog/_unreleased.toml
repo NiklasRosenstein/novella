@@ -45,3 +45,12 @@ id = "fc6d96f9-cd7a-47c0-a92a-ad70dd0ade47"
 type = "feature"
 description = "add `metavar` argument to `NovellaContext.option()`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "537c18cd-5ca3-476e-ab8d-53e8c3271ee6"
+type = "feature"
+description = "add `--build-dir` option to MkDocs template"
+author = "@NiklasRosenstein"
+issues = [
+    "https://github.com/NiklasRosenstein/novella/issues/4",
+]
