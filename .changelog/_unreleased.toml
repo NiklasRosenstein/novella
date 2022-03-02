@@ -1,0 +1,5 @@
+[[entries]]
+id = "c367bc3b-605f-4227-a8ac-9ca43d67eb47"
+type = "fix"
+description = "catch potential `nr.util.git.NoCurrentBranchError` in `novella.repository.detect_repository()`"
+author = "@NiklasRosenstein"

@@ -25,7 +25,7 @@ def detect_repository(path: Path) -> RepositoryDetails | None:
   Currently supports only Git repositories. Does a simplistic attempt to convert SSH URLs to HTTPS.
   """
 
-  from nr.util.git import Git
+  from nr.util.git import Git, NoCurrentBranchError
 
   git = Git(path)
   if not (toplevel := git.get_toplevel()):
@@ -40,4 +40,9 @@ def detect_repository(path: Path) -> RepositoryDetails | None:
     url = 'https://' + url[4:].replace(':', '/')
   url = removesuffix(url, '.git')
 
-  return RepositoryDetails(RepositoryType.GIT, Path(toplevel), url, git.get_current_branch_name())
+  try:
+    branch = git.get_current_branch_name()
+  except NoCurrentBranchError:
+    branch = None
+
+  return RepositoryDetails(RepositoryType.GIT, Path(toplevel), url, branch)
