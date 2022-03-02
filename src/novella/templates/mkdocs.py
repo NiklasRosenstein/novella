@@ -91,7 +91,7 @@ class MkdocsTemplate(Template):
     def configure_preprocess_markdown(preprocessor: MarkdownPreprocessorAction) -> None:
       preprocessor.path = self.content_directory
       def configure_anchor(anchor: AnchorTagProcessor) -> None:
-        anchor.flavor = MkDocsFlavor(context.options['base-url'] or self.base_url or '')
+        anchor.flavor = MkDocsFlavor(t.cast('str | None', context.options['base-url']) or self.base_url or '')
       preprocessor.preprocessor('anchor', configure_anchor)
     context.do('preprocess-markdown', configure_preprocess_markdown, name='preprocess-markdown')
 

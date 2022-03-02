@@ -194,7 +194,7 @@ class NovellaContext:
         action="store_true" if option.flag else None,  # type: ignore
         help=option.description,
         default=option.default,
-        **kwargs,
+        **kwargs,  # type: ignore
       )
 
   def configure(self, build: BuildContext, args: list[str]) -> None:
