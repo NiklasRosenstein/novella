@@ -878,7 +878,7 @@ while using Novella as a preprocessor.</p>
 <h2 id="class-mkdocsupdateconfigaction">Class MkdocsUpdateConfigAction</h2>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MkdocsUpdateConfigAction</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L108">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L105">[view_source]</a></p>
 <p>An action to update the MkDocs configuration file, or create one if the user did not provide it.</p>
 <p>The following configuration serves as the default configuration if the user did not provide an MkDocs
 configuration of their own. If a configuration file is already present, it will be updated such that top-level
@@ -940,7 +940,7 @@ default. If the repository URL is already configured, it will do nothing.</p>
            <span class="nb">set</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">NotSet</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span>
            <span class="n">do</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L166">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L163">[view_source]</a></p>
 <p>A helper function to update a value in the MkDocs configuration by either setting it to the
 value specified to the <em>set</em> argument or by adding to it (e.g. updating it if it is a dictionary
 or summing them in case of other values like strings or lists) the value of <em>add</em>. The <em>do</em> operation
@@ -962,7 +962,7 @@ indexing. The string must begin with <code>$</code>. Quotes in keys are not supp
 <h4 id="update_with">update_with</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">update_with</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L218">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/templates/mkdocs.py#L215">[view_source]</a></p>
 <p>Adds a callback that can modify the MkDocs config before it is updated.</p>
 
               
