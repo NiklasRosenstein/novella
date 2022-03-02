@@ -118,6 +118,8 @@ def main() -> None:
     raise exception
 
   assert context
+  context.graph.build_edges()
+
   if args.dot:
     print_dotviz(context.graph._digraph)
     return
