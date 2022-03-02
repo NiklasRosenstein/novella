@@ -10,6 +10,7 @@ from pathlib import Path
 from nr.util.logging.filters.simple_filter import SimpleFilter
 from nr.util.logging.formatters.terminal_colors import TerminalColorFormatter
 
+from novella import __version__
 from novella.action import Action
 from novella.novella import Novella, PipelineError
 from novella.build import NovellaBuilder
@@ -61,6 +62,11 @@ def main() -> None:
   setup_logging()
 
   parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument(
+    '--version',
+    action='version',
+    version=__version__,
+  )
   parser.add_argument(
     '-h', '--help',
     action='store_true',

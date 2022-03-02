@@ -3,3 +3,9 @@ id = "c367bc3b-605f-4227-a8ac-9ca43d67eb47"
 type = "fix"
 description = "catch potential `nr.util.git.NoCurrentBranchError` in `novella.repository.detect_repository()`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "40c38cfe-8b7d-4afd-b9b4-c44c891eca84"
+type = "improvement"
+description = "add `novella --version` flag"
+author = "@NiklasRosenstein"
