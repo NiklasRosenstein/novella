@@ -26,6 +26,7 @@ class Option:
   flag: bool
   default: str | bool | None
   group: str | None
+  metavar: str | None
 
 
 class Novella:
@@ -93,6 +94,7 @@ class NovellaContext:
     description: str | None = None,
     flag: bool = False,
     default: str | bool | None = None,
+    metavar: str | None = None,
   ) -> None:
     """ Add an option to the Novella pipeline that can be specified on the CLI. Actions can pick up the parsed
     option values from the #options mapping. """
@@ -101,7 +103,15 @@ class NovellaContext:
       long_name, short_name = '', long_name
 
     self._option_names.append(long_name)
-    self._option_spec.append(Option(long_name, short_name, description, flag, default, self._current_option_group))
+    self._option_spec.append(Option(
+      long_name=long_name,
+      short_name=short_name,
+      description=description,
+      flag=flag,
+      default=default,
+      group=self._current_option_group,
+      metavar=metavar,
+    ))
 
   def do(
     self,
@@ -177,11 +187,14 @@ class NovellaContext:
         option_names += [f"--{option.long_name}"]
       if option.short_name:
         option_names += [f"-{option.short_name}"]
+
+      kwargs = {} if option.flag else {'metavar': option.metavar}
       group.add_argument(
         *option_names,
         action="store_true" if option.flag else None,  # type: ignore
         help=option.description,
-        default=option.default
+        default=option.default,
+        **kwargs,
       )
 
   def configure(self, build: BuildContext, args: list[str]) -> None:

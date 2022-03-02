@@ -39,3 +39,9 @@ id = "a3ecf435-ddc2-4662-a082-78ffd5e3c65e"
 type = "fix"
 description = "fix replacing escaped tags"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "fc6d96f9-cd7a-47c0-a92a-ad70dd0ade47"
+type = "feature"
+description = "add `metavar` argument to `NovellaContext.option()`"
+author = "@NiklasRosenstein"

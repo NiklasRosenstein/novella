@@ -1,5 +1,6 @@
 
 import abc
+import dataclasses
 import os
 from pathlib import Path
 
@@ -28,6 +29,7 @@ class MarkdownFlavor(abc.ABC):
     return f'[{text}]({href})'
 
 
+@dataclasses.dataclass
 class MkDocsFlavor(MarkdownFlavor):
   """ Flavor for MkDocs. Requires the #markdown module to be available. """
 
