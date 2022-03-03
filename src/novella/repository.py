@@ -16,7 +16,7 @@ class RepositoryDetails(t.NamedTuple):
   type: RepositoryType
   root: Path
   url: str
-  branch: str
+  branch: str | None
 
 
 def detect_repository(path: Path) -> RepositoryDetails | None:
