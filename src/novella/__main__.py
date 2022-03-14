@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import textwrap
 import typing as t
 from pathlib import Path
 
@@ -20,6 +21,29 @@ if t.TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+TEMPLATES = {
+  'mkdocs': '''
+    template "mkdocs"
+
+    action "mkdocs-update-config" {
+      site_name = "My Site"
+      update '$.theme.features' add: []
+      update '$.theme.palette' set: {'scheme': 'slate', 'primary': 'blue', 'accent': 'amber'}
+    }
+
+    action "preprocess-markdown" {
+      pass
+    }
+  ''',
+  'hugo': '''
+    template "hugo"
+
+    action "preprocess-markdown" {
+      pass
+    }
+  ''',
+}
 
 
 class CustomBuilder(NovellaBuilder):
@@ -73,6 +97,11 @@ def main() -> None:
     help='Show this help output.',
   )
   parser.add_argument(
+    '-i', '--init',
+    help='Create a `build.novella` file initialized from a template. Available templates are: "mkdocs", "hugo"',
+    metavar='TEMPLATE',
+  )
+  parser.add_argument(
     '-c', '--config-file',
     type=Path,
     default=Novella.BUILD_FILE,
@@ -104,6 +133,15 @@ def main() -> None:
     metavar='ACTION',
   )
   args, unknown_args = parser.parse_known_args()
+
+  if args.init:
+    if unknown_args:
+      parser.error('unexpected argument: ' + unknown_args[0])
+    if args.init not in TEMPLATES:
+      parser.error('template does not exist: ' + args.init)
+    with open('build.novella', 'w') as fp:
+      fp.write(textwrap.dedent(TEMPLATES[args.init]))
+    return
 
   novella = Novella(Path.cwd())
 
