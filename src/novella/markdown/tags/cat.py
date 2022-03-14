@@ -34,14 +34,13 @@ class CatTagProcessor(MarkdownPreprocessor):
   def process_files(self, files: MarkdownFiles) -> None:
     from novella.markdown.tagparser import parse_block_tags, replace_tags
     for file in files:
-      tags = parse_block_tags(file.content)
+      tags = [t for t in parse_block_tags(file.content) if t.name == 'cat']
       file.content = replace_tags(
         file.content, tags,
         lambda t: self._replace_tag(files.context.novella.project_directory, file, files.build, t),
       )
 
   def _replace_tag(self, project_directory: Path, file: MarkdownFile, build: BuildContext, tag: Tag) -> str | None:
-    if tag.name != 'cat': return None
     args = tag.args.strip()
     if args.startswith('/'):
       source_path = Path(project_directory / args[1:])

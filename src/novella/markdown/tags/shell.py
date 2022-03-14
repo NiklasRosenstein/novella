@@ -37,21 +37,18 @@ class ShellTagProcessor(MarkdownPreprocessor):
   def process_files(self, files: MarkdownFiles) -> None:
     from novella.markdown.tagparser import parse_block_tags, replace_tags
     for file in files:
-      block_tags = parse_block_tags(file.content)
+      block_tags = [t for t in parse_block_tags(file.content) if t.name == 'shell']
       file.content = replace_tags(
         file.content, block_tags,
         lambda t: self._replace_tag(files.context.novella.project_directory, files.build.directory, t),
       )
-      inline_tags = parse_inline_tags(file.content)
+      inline_tags = [t for t in parse_inline_tags(file.content) if t.name == 'shell']
       file.content = replace_tags(
         file.content, inline_tags,
         lambda t: self._replace_tag(files.context.novella.project_directory, files.build.directory, t, True),
       )
 
-  def _replace_tag(self, project_directory: Path, build_directory: Path, tag: Tag, strip: bool = False) -> str | None:
-    if tag.name != 'shell':
-      return None
-
+  def _replace_tag(self, project_directory: Path, build_directory: Path, tag: Tag, strip: bool = False) -> str:
     command = tag.args.strip()
     env = os.environ.copy()
     env['BUILD_DIR'] = str(build_directory)

@@ -90,7 +90,7 @@ class MkdocsTemplate(Template):
     preprocessor.path = self.content_directory
     def configure_anchor(anchor: AnchorTagProcessor) -> None:
       anchor.flavor = MkDocsFlavor(t.cast('str | None', context.options['base-url']) or self.base_url or '')
-    context.delay(lambda: preprocessor.preprocessor('anchor', configure_anchor))
+    context.delay(lambda: preprocessor.preprocessor('anchor', t.cast(t.Any, configure_anchor)))
 
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]

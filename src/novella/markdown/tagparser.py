@@ -33,7 +33,7 @@ import typing_extensions as te
 
 #: Function signature for replacing tags found in Markdown files. If an iterable of strings is returned,
 #: the strings will be concatenated by newlines.
-ReplacementFunc: te.TypeAlias = 't.Callable[[Tag], str | t.Iterable[str]]'
+ReplacementFunc: te.TypeAlias = 't.Callable[[Tag], str | t.Iterable[str] | None]'
 
 
 class Tag(t.NamedTuple):
