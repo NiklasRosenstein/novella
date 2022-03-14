@@ -111,7 +111,7 @@ class MkdocsUpdateConfigAction(Action):
 
   To disable this behaviour, set #apply_defaults to `False`.
 
-  ```
+  ```yaml
   docs_dir: content
   site_name: My documentation
   theme:
@@ -119,6 +119,7 @@ class MkdocsUpdateConfigAction(Action):
     features:
     - navigation.indexes
     - navigation.instant
+    - navigation.sections
     - navigation.tracking
     - navigation.top
     - toc.follow
@@ -144,7 +145,7 @@ class MkdocsUpdateConfigAction(Action):
   documentation for more information. Other common theme features to enable are `toc.integrate` and `navigation.tabs`.
   """
 
-  _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```(.*?)```', __doc__, re.S).group(1))  # type: ignore
+  _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```\w+(.*?)```', __doc__, re.S).group(1))  # type: ignore
 
   #: Whether to apply the template to the MkDocs configuration (shown above).
   apply_defaults: bool = True

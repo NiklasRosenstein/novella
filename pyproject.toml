@@ -57,6 +57,10 @@ typed = true
   mypy = "mypy src/ --namespace-packages --disallow-untyped-defs"
   check = "slam check"
 
+  [tool.slam.run]
+  "docs:build" = "cd docs && novella --base-url novella/"
+  "docs:dev" = "cd docs && novella --serve"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

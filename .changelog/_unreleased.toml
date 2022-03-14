@@ -3,3 +3,9 @@ id = "1ef5ec4c-9f80-47c0-be1d-a5cc60ebf226"
 type = "feature"
 description = "add `-i,--init TEMPLATE` option to the `novella` CLI"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "cbc73e83-7533-45a4-9cc6-c97873a07bfc"
+type = "improvement"
+description = "enable `navigation.sections` by default when using the MkDocs template"
+author = "@NiklasRosenstein"
