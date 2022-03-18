@@ -15,7 +15,7 @@ packages = [{ include="novella", from="src" }]
   python = "^3.8"
   craftr-dsl = "^0.7.7"
   markdown = "^3.0.0"
-  "nr.util" = ">=0.7.1"
+  "nr.util" = ">=0.8.7,<1.0.0"
   PyYAML = ">=4.0"
   tomli = "^2.0.0"
   typing-extensions = "*"
