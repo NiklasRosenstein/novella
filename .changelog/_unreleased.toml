@@ -1,0 +1,17 @@
+[[entries]]
+id = "7ff275a3-54aa-4401-9470-7269dcc3c77e"
+type = "breaking change"
+description = "Changed `Graph.build_edges()` into `Graph.build()` and it now returns a `nr.util.digraph.DiGraph` object instead of modifying its internal graph state"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "f3e64ef2-5fdf-4062-87dd-0699a0eb775c"
+type = "improvement"
+description = "`Graph.execution_order()` now calls `Graph.build()` everytime, this is to ensure everytime it is called it is up to date"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "bad25df3-cb8a-461e-bc0e-3b95ab63d839"
+type = "improvement"
+description = "Action configuration closures are now invoked before the `--dot` argument is handled, allowing modifications to the action dependencies performed in such closures to appear in the DotViz output"
+author = "@NiklasRosenstein"

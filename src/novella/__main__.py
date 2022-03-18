@@ -161,12 +161,7 @@ def main() -> None:
   if exception:
     raise exception
 
-  assert context
-  context.graph.build_edges()
-
-  if args.dot:
-    print_dotviz(context.graph._digraph)
-    return
+  assert context is not None
 
   builder = CustomBuilder(
     context=context,
@@ -175,9 +170,13 @@ def main() -> None:
   )
   builder.intercept_action = args.intercept
 
-  with builder:
-    context.configure(builder, unknown_args)
+  context.configure(builder, unknown_args)
 
+  if args.dot:
+    print_dotviz(context.graph.build())
+    return
+
+  with builder:
     try:
       builder.build()
     except PipelineError as exc:

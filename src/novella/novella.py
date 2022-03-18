@@ -66,6 +66,10 @@ class NovellaContext:
     self._current_option_group: str | None = None
 
   @property
+  def actions(self) -> t.Collection[Action]:
+    return self._actions.nodes.values()
+
+  @property
   def graph(self) -> Graph[Action]:
     return self._actions
 

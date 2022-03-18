@@ -12,11 +12,12 @@ from pathlib import Path
 import watchdog.events  # type: ignore[import]
 import watchdog.observers  # type: ignore[import]
 
-from novella.action import ActionAborted  # type: ignore[import]
+from novella.action import ActionAborted
 
 if t.TYPE_CHECKING:
   import contextlib
   from novella.action import Action
+  from novella.graph import Graph
   from novella.novella import NovellaContext
 
 logger = logging.getLogger(__name__)
@@ -106,7 +107,6 @@ class NovellaBuilder(BuildContext):
     self._stop_before_action = stop_before_action
     self._is_inner = is_inner
 
-    self._actions = list(context.graph.execution_order())
     self._current_action: Action | None = None
     self._current_action_abort: t.Callable[[], t.Any] | None = None
     self._aborted = False
@@ -134,7 +134,8 @@ class NovellaBuilder(BuildContext):
   def _run_actions(self) -> None:
     from novella.novella import PipelineError
 
-    for action in self._actions:
+    actions = self._context.graph.execution_order()
+    for action in actions:
 
       if self._stop_before_action and action.name == self._stop_before_action:
         break
@@ -180,7 +181,7 @@ class NovellaBuilder(BuildContext):
     with contextlib.ExitStack() as exit_stack:
 
       # Check if any action supports reloading and enable file watching.
-      if not self._is_inner and (self._enable_reloading or any(action.supports_reloading for action in self._actions)):
+      if not self._is_inner and (self._enable_reloading or any(action.supports_reloading for action in self._context.actions)):
         logger.debug('Watching for changes in file system ...')
         self._observer.start()
         exit_stack.callback(self._observer.join)

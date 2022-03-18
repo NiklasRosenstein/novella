@@ -2,7 +2,11 @@
 from __future__ import annotations
 
 import abc
+import copy
 import typing as t
+
+if t.TYPE_CHECKING:
+  from nr.util.digraph import DiGraph
 
 T_Node = t.TypeVar('T_Node', bound='Node')
 
@@ -96,26 +100,25 @@ class Graph(t.Generic[T_Node]):
     self._fallback_dependencies[node.name] = fallback_dependencies or []
     self._last_node_added = node
 
-  def build_edges(self) -> None:
-    """ Builds the edges of the graph by inspecting the #Node.dependencies. """
+  def build(self) -> DiGraph[str, T_Node, None]:
+    """ Builds the edges of the graph by inspecting the #Node.dependencies and #Node.predecessors. """
 
-    for node in self._digraph.nodes.values():
+    graph = self._digraph.copy()
+    for node in graph.nodes.values():
       if node.dependencies is None and node.predecessors is None:
         dependencies = self._fallback_dependencies[node.name]
       else:
         dependencies = node.dependencies or []
       for dependency in dependencies:
-        self._digraph.add_edge(dependency.name, node.name, None)
+        graph.add_edge(dependency.name, node.name, None)
       for successor in (node.predecessors or []):
-        self._digraph.add_edge(node.name, successor.name, None)
-    self._edges_built = True
+        graph.add_edge(node.name, successor.name, None)
+
+    return graph
 
   def execution_order(self) -> t.Iterator[T_Node]:
     """ Returns the nodes in the graph in execution order. Will call #build_edges() if it hasn't been called yet. """
 
     from nr.util.digraph.algorithm.topological_sort import topological_sort
-
-    if not self._edges_built:
-      self.build_edges()
-
-    return (self._digraph.nodes[k] for k in topological_sort(self._digraph))
+    graph = self.build()
+    return (graph.nodes[k] for k in topological_sort(graph))
