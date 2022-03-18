@@ -74,7 +74,7 @@ do
     for title, package in api_pages.items():
       def filename = directory / 'content' / 'api' / (package + '.md')
       filename.parent.mkdir(parents=True, exist_ok=True)
-      filename.write_text('@pydoc {}\n'.format(package))
+      filename.write_text('---\ntitle: {}\n---\n@pydoc {}\n'.format(title, package))
   }
 ```
 
