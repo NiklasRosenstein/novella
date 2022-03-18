@@ -255,6 +255,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    Unreleased
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0113-2022-03-14" class="md-nav__link">
     0.1.13 (2022-03-14)
   </a>
@@ -734,6 +741,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    Unreleased
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0113-2022-03-14" class="md-nav__link">
     0.1.13 (2022-03-14)
   </a>
@@ -843,6 +857,22 @@
 
 
 <h1 id="changelog">Changelog</h1>
+<h2 id="unreleased">Unreleased</h2>
+<table><tr><th>Type</th><th>Description</th><th>PR</th><th>Issues</th><th>Author</th></tr>
+  <tr><td>Breaking change</td><td>
+
+Changed `Graph.build_edges()` into `Graph.build()` and it now returns a `nr.util.digraph.DiGraph` object instead of modifying its internal graph state</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Improvement</td><td>
+
+`Graph.execution_order()` now calls `Graph.build()` everytime, this is to ensure everytime it is called it is up to date</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Improvement</td><td>
+
+Action configuration closures are now invoked before the `--dot` argument is handled, allowing modifications to the action dependencies performed in such closures to appear in the DotViz output</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+  <tr><td>Feature</td><td>
+
+`NovellaContext.do()` now accepts a function for the `action` parameter which allows users to implement actions on-the-fly without requiring plugins</td><td></td><td></td><td>@NiklasRosenstein</td></tr>
+</table>
+
 <h2 id="0113-2022-03-14">0.1.13 (2022-03-14)</h2>
 <table><tr><th>Type</th><th>Description</th><th>PR</th><th>Issues</th><th>Author</th></tr>
   <tr><td>Feature</td><td>
