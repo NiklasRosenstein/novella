@@ -68,6 +68,19 @@ class Action(Node['Action']):
     """ Execute the action. """
 
 
+class LambdaAction(Action):
+  """ And action that accepts a callable to run on #execute(). Usually created through #NovellaContext.do()
+  when passing a function instead of an action type name or action object. """
+
+  #: The function to call on #execute(). If not set, a #RuntimeError will be raised in #execute().
+  delegate: t.Callable[[BuildContext], t.Any] | None = None
+
+  def execute(self, build: BuildContext) -> None:
+    if self.delegate is None:
+      raise RuntimeError(f'`LambdaAction.delegate` is not set ({self!r})')
+    self.delegate(build)
+
+
 class CopyFilesAction(Action):
   """ An action to copy files from the project root to the build directory. This is usually the first step in a
   pipeline as further steps can then freely modify files in the build directory without affecting the original

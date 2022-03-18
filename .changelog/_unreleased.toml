@@ -15,3 +15,9 @@ id = "bad25df3-cb8a-461e-bc0e-3b95ab63d839"
 type = "improvement"
 description = "Action configuration closures are now invoked before the `--dot` argument is handled, allowing modifications to the action dependencies performed in such closures to appear in the DotViz output"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "e5e34ed0-d486-408a-9434-b23e112ee768"
+type = "feature"
+description = "`NovellaContext.do()` now accepts a function for the `action` parameter which allows users to implement actions on-the-fly without requiring plugins"
+author = "@NiklasRosenstein"

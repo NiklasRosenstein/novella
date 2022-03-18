@@ -4,10 +4,11 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import logging
+import types
 import typing as t
 from pathlib import Path
 
-from novella.action import Action
+from novella.action import Action, LambdaAction
 from novella.build import BuildContext
 
 if t.TYPE_CHECKING:
@@ -119,12 +120,13 @@ class NovellaContext:
 
   def do(
     self,
-    action: str | Action,
+    action: str | Action | t.Callable[[BuildContext], t.Any],
     closure: t.Callable | None = None,
     name: str | None = None,
   ) -> Action:
     """ Add an action to the Novella pipeline identified by the specified *action_type_name*. The action will be
-    configured once it is created using the *closure*. """
+    configured once it is created using the *closure*. If the *action* argument is a function, it will wrapped in
+    a #LambdaAction (in this case, the *name* must be present). """
 
     from nr.util.inspect import get_callsite
     from nr.util.plugins import load_entrypoint
@@ -134,6 +136,11 @@ class NovellaContext:
         name = action
       action_cls = load_entrypoint(Action, action)  # type: ignore
       action = action_cls(self, name, get_callsite())
+    elif isinstance(action, types.FunctionType):
+      assert name is not None
+      delegate = action
+      action = LambdaAction(self, name, get_callsite())
+      action.delegate = delegate
     else:
       assert isinstance(action, Action)
       assert name is None or name == action.name
