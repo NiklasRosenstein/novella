@@ -1,0 +1,5 @@
+[[entries]]
+id = "b0b3dfd0-e484-439e-af74-38c8944b89c0"
+type = "improvement"
+description = "Novella markdown tags can now be ended with a trailing `@` (at) to prevent following indented lines to be consumed"
+author = "@NiklasRosenstein"

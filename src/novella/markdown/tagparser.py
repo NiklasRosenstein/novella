@@ -183,7 +183,7 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[Tag]:
     start_lineno = end_lineno = lines.index
 
     indent = None
-    while lines.has_next() and (line := lines.next()):
+    while lines.has_next() and not line.endswith('@') and (line := lines.next()):
       if not line.strip():
         break
       match = re.match(r'^(\s+)', line)
@@ -195,6 +195,10 @@ def parse_block_tags(content: str | t.Sequence[str]) -> t.Iterator[Tag]:
       end_lineno += 1
     else:
       lines.advance()
+
+    if line.endswith('@'):
+      assert args.endswith('@')
+      args = args[:-1]
 
     # Parse TOML options after encountering the `:with` keyword.
     args, _, options_string = args.partition(':with')
