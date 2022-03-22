@@ -3,3 +3,9 @@ id = "b0b3dfd0-e484-439e-af74-38c8944b89c0"
 type = "improvement"
 description = "Novella markdown tags can now be ended with a trailing `@` (at) to prevent following indented lines to be consumed"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "8aa5a1c3-55e4-4b69-8a28-5445b7768fdd"
+type = "improvement"
+description = "`@shell` tag now supports a `prefix` option"
+author = "@NiklasRosenstein"

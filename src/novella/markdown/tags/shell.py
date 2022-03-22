@@ -59,5 +59,9 @@ class ShellTagProcessor(MarkdownPreprocessor):
       logger.exception('@shell command <fg=cyan>%s</fg> exited with return code <fg=red>%s</fg>', command, exc.returncode)
       output = textwrap.indent((exc.stdout or b'').decode() + '' + (exc.stderr or b'').decode(), '    ')
       output = f'    $ {command}  # exited with return code {exc.returncode}\n{output}'
+    else:
+      prefix = tag.options.get('prefix')
+      if prefix:
+        output = textwrap.indent(output, str(prefix))
 
     return output.strip() if strip else output
