@@ -1,0 +1,5 @@
+[[entries]]
+id = "1de26a7b-2571-48c2-b2fe-f70020ac07b7"
+type = "feature"
+description = "add `MkdocsConfigUpdateAction.profile` option and the `readthedocs` profile in addition to the default `material` profile"
+author = "@NiklasRosenstein"

@@ -111,44 +111,73 @@ class MkdocsUpdateConfigAction(Action):
 
   To disable this behaviour, set #apply_defaults to `False`.
 
-  ```yaml
-  docs_dir: content
-  site_name: My documentation
-  theme:
-    name: material
-    features:
-    - navigation.indexes
-    - navigation.instant
-    - navigation.sections
-    - navigation.tracking
-    - navigation.top
-    - toc.follow
-  markdown_extensions:
-  - admonition
-  - markdown.extensions.extra
-  - meta
-  - pymdownx.betterem
-  - pymdownx.caret
-  - pymdownx.details
-  - pymdownx.highlight
-  - pymdownx.inlinehilite
-  - pymdownx.keys
-  - pymdownx.mark
-  - pymdownx.smartsymbols
-  - pymdownx.superfences
-  - pymdownx.tabbed: { alternate_style: true }
-  - pymdownx.tasklist: { custom_checkbox: true }
-  - pymdownx.tilde
-  ```
+  Available default profiles:
+
+  === "Material"
+
+      ```yaml
+      docs_dir: content
+      site_name: My documentation
+      theme:
+        name: material
+        features:
+        - navigation.indexes
+        - navigation.instant
+        - navigation.sections
+        - navigation.tracking
+        - navigation.top
+        - toc.follow
+      markdown_extensions:
+      - admonition
+      - markdown.extensions.extra
+      - meta
+      - pymdownx.betterem
+      - pymdownx.caret
+      - pymdownx.details
+      - pymdownx.highlight
+      - pymdownx.inlinehilite
+      - pymdownx.keys
+      - pymdownx.mark
+      - pymdownx.smartsymbols
+      - pymdownx.superfences
+      - pymdownx.tabbed: { alternate_style: true }
+      - pymdownx.tasklist: { custom_checkbox: true }
+      - pymdownx.tilde
+      ```
+
+  === "Readthedocs"
+
+      ```yaml
+      docs_dir: content
+      site_name: My documentation
+      theme:
+        name: readthedocs
+        highlightjs: true
+        hljs_languages:
+          - python
+          - toml
+          - yaml
+        include_homepage_in_sidebar: true
+        sticky_navigation: true
+      markdown_extensions:
+      - admonition
+      - markdown.extensions.extra
+      - meta
+      ```
 
   Check out the the [Material for MkDocs // Setup](https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/)
   documentation for more information. Other common theme features to enable are `toc.integrate` and `navigation.tabs`.
   """
 
-  _DEFAULT_CONFIG: str = textwrap.dedent(re.search(r'```\w+(.*?)```', __doc__, re.S).group(1))  # type: ignore
+  _profiles: t.ClassVar[t.Optional[t.Dict[str, str]]] = None
 
   #: Whether to apply the template to the MkDocs configuration (shown above).
+  #:
+  #: Deprecated; use #profile instead.
   apply_defaults: bool = True
+
+  #: The configuration profile to apply. Set to #None to not update the MkDocs config.
+  profile: str | None = 'material'
 
   #: The MkDocs `site_name` to inject. Will override an existing site name if not present in the MkDocs configuration.
   site_name: str | None = None
@@ -160,6 +189,18 @@ class MkdocsUpdateConfigAction(Action):
   #: The content directory that contains the MkDocs source files. This is used only to construct the edit URI if
   #: #autodetect_repo_url is enabled. This passed through by the #MkdocsTemplate automatically.
   content_directory: str
+
+  @classmethod
+  def _get_profile(cls, name: str) -> str:
+    """ Parses the MkDocs configuration profile's from this classes' docstrings and returns the one with the *name*. """
+
+    if cls._profiles is None:
+      profiles = {}
+      for match in re.finditer(re.compile(r'===\s*"([^"]+)"\s+```\w+(.*?)```', re.M | re.S), cls.__doc__):
+        profiles[match.group(1).upper()] = textwrap.dedent(match.group(2))
+      assert profiles
+      cls._profiles = profiles
+    return cls._profiles[name.upper()]
 
   def update(self, json_path: str, *, add: t.Any = NotSet.Value, set: t.Any = NotSet.Value, do: t.Callable[[t.Any], t.Any] | None = None) -> None:
     """ A helper function to update a value in the MkDocs configuration by either setting it to the
@@ -235,8 +276,8 @@ class MkdocsUpdateConfigAction(Action):
       mkdocs_config = {}
     original_config = copy.deepcopy(mkdocs_config)
 
-    if self.apply_defaults:
-      default_config = yaml.safe_load(self._DEFAULT_CONFIG)
+    if self.apply_defaults and self.profile:
+      default_config = yaml.safe_load(self._get_profile(self.profile))
       for key in default_config:
         if key not in mkdocs_config:
           mkdocs_config[key] = default_config[key]
