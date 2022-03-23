@@ -3,3 +3,4 @@
 /poetry.lock
 *.egg-info
 /.python-version
+__pycache__/

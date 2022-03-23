@@ -26,12 +26,12 @@ class ShellTagProcessor(MarkdownPreprocessor):
 
   __Example__
 
-      @shell cd .. && slam changelog format --all --markdown
+      @shell cd .. && slap changelog format --all --markdown
       {@shell git describe --tag}
 
   !!! note The example shows how to embed a changelog generated and formatted by [Slam][].
 
-  [Slam]: https://pypi.org/project/slam-cli/
+  [Slam]: https://pypi.org/project/slap-cli/
   """
 
   def process_files(self, files: MarkdownFiles) -> None:

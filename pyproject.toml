@@ -49,15 +49,15 @@ packages = [{ include="novella", from="src" }]
   mkdocs = "novella.templates.mkdocs:MkdocsTemplate"
   hugo = "novella.templates.hugo:HugoTemplate"
 
-[tool.slam]
+[tool.slap]
 typed = true
 
-  [tool.slam.test]
+  [tool.slap.test]
   pytest = "pytest -vv tests/"
   mypy = "mypy src/ --namespace-packages --disallow-untyped-defs"
-  check = "slam check"
+  check = "slap check"
 
-  [tool.slam.run]
+  [tool.slap.run]
   "docs:build" = "cd docs && novella --base-url novella/"
   "docs:dev" = "cd docs && novella --serve"
 
