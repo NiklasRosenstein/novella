@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import logging
+import signal
 import shlex
 import shutil
 import subprocess as sp
@@ -122,6 +123,15 @@ class RunAction(Action):
 
   def __post_init__(self) -> None:
     self.args = []
+    self._proc: sp.Popen | None = None
+
+  def pause(self) -> None:
+    if self._proc and self._proc.returncode is None:
+      self._proc.send_signal(signal.SIGSTOP)
+
+  def resume(self) -> None:
+    if self._proc and self._proc.returncode is None:
+      self._proc.send_signal(signal.SIGCONT)
 
   def get_description(self) -> str | None:
     return '$ ' + ' '.join(map(shlex.quote, map(str, self.args)))

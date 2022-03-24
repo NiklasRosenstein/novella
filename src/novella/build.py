@@ -11,7 +11,7 @@ from pathlib import Path
 import watchdog.events  # type: ignore[import]
 import watchdog.observers  # type: ignore[import]
 
-from novella.action import ActionAborted
+from novella.action import ActionAborted, RunAction
 
 if t.TYPE_CHECKING:
   import contextlib
@@ -56,7 +56,7 @@ class BuildContext(abc.ABC):
 class _FsEventHandler(watchdog.events.FileSystemEventHandler):
   """ Re-executes the pipeline on a filesystem event. """
 
-  def __init__(self, builder: NovellaBuilder, min_interval: float = 3) -> None:
+  def __init__(self, builder: NovellaBuilder, min_interval: float = 1) -> None:
     super().__init__()
     self.builder = builder
     self.min_interval = min_interval
@@ -73,6 +73,8 @@ class _FsEventHandler(watchdog.events.FileSystemEventHandler):
     with self.builder._cond:
       current = self.builder._current_action
       if current and current.supports_reloading:
+        if isinstance(current, RunAction):
+          current.pause()
         # Execute the pipeline in a new builder up until the given action.
         logger.info('<fg=red>Re-execute pipeline to rely on %s reloading capabilities</fg>', current.name)
         sub_builder = NovellaBuilder(
@@ -82,6 +84,8 @@ class _FsEventHandler(watchdog.events.FileSystemEventHandler):
           is_inner=True,
         )
         sub_builder.build()
+        if isinstance(current, RunAction):
+          current.resume()
         return
       else:
         logger.info('<fg=red>Abort current execution and restart</fg>')

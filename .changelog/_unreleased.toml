@@ -9,3 +9,9 @@ id = "5e2c5bf9-263d-4a12-a4ba-37a5c87e8940"
 type = "fix"
 description = "Fix error when path that does not exist is passed to `NovellaBuilder.watch()`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "6038ef3d-46b9-4b4e-8fea-f788a99817ac"
+type = "improvement"
+description = "Pause process currently running through a `RunAction` if it supports internal reloading while the pipeline is being re-executed"
+author = "@NiklasRosenstein"
