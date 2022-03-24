@@ -18,7 +18,7 @@ docs:novella:concepts:options :with text = "options"} declared within to the com
 executes the pipeline.
 
 ```
-{@shell novella -h}
+@shell novella -h
 ```
 
 !!! note

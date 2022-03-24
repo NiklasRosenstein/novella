@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import abc
-import enum
 import logging
 import threading
 import time
@@ -17,7 +16,6 @@ from novella.action import ActionAborted
 if t.TYPE_CHECKING:
   import contextlib
   from novella.action import Action
-  from novella.graph import Graph
   from novella.novella import NovellaContext
 
 logger = logging.getLogger(__name__)

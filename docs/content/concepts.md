@@ -6,7 +6,7 @@ Novella itself:
 1. {@link docs:novella:concepts:options}
 2. {@link docs:novella:concepts:actions}
 3. {@link docs:novella:concepts:templates}
-
+4. {@link docs:novella:concepts:build_process}
 
 @anchor docs:novella:concepts:options
 ## Options
@@ -98,3 +98,21 @@ action "mkdocs-update-config" {
 
     New templates can be implemented using the `novella.template.Template` base class and registering the subclass
     under the `novella.templates` entrypoint.
+
+@anchor docs:novella:concepts:build_process
+## Build process
+
+Novella is intended as a build system for processing (i.e. updating) existing files. In order to not modify any
+original files, every build is executed in a temporary build directory that the required files are copied to using
+the `copy-files` action. This should remind you of Docker builds, where files are copied into the build container
+using the `ADD` or `COPY` commands, only that Novella obviously is not running in as an isolated environment.
+
+```py
+do "copy-files" {
+  paths = [ 'content/' ]
+}
+```
+
+The paths here will be watched for changes, allowing Novella to restart the pipeline if that feature is enabled
+(either by passing the `-r,--use-reloader` option or if any action supports reloading (like the action that runs
+MkDocs in the `mkdocs` template).
