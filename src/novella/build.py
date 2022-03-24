@@ -226,8 +226,12 @@ class NovellaBuilder(BuildContext):
 
     path = path.resolve()
     if path not in self._watched_paths:
-      self._observer.schedule(self._event_handler, path, recursive=True)
-      self._watched_paths.add(path)
+      if path.exists():
+        logger.info('Watch <fg=yellow>%s</fg>', path)
+        self._observer.schedule(self._event_handler, path, recursive=True)
+        self._watched_paths.add(path)
+      else:
+        logger.warning('Cannot watch non-existent path <fg=yellow>%s</fg>', path)
 
   def is_aborted(self) -> bool:
     with self._cond:
