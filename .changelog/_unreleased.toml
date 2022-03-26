@@ -21,3 +21,18 @@ id = "a9084d2b-7754-4de8-be11-fb4bd6965e31"
 type = "improvement"
 description = "reloads triggered by filesystem events are now handled in a separate thread to make sure that the event handling is not blocked"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "e1cb5688-63a5-4714-98d2-703cc104d6fb"
+type = "feature"
+description = "add `-d,--directory` option to cli"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "d30e4303-21ae-45e8-be54-c58aad3dfa4e"
+type = "feature"
+description = "support reading build script from `pyproject.toml` under the `tool.novella.script` option, as well as the `-d,--directory` flag from `tool.novella.directory` if the option is not given on the CLI"
+author = "@NiklasRosenstein"
+issues = [
+  "https://github.com/NiklasRosenstein/pydoc-markdown/discussions/254"
+]

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 import textwrap
 import typing as t
@@ -82,9 +83,7 @@ def print_dotviz(graph: DiGraph[str, t.Any, t.Any]) -> None:
   print('}')
 
 
-def main() -> None:
-  setup_logging()
-
+def get_argument_parser() -> argparse.ArgumentParser:
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
     '--version',
@@ -105,8 +104,14 @@ def main() -> None:
     '-c', '--config-file',
     type=Path,
     default=Novella.BUILD_FILE,
-    help='The configuration file to load. (default: %(default)s)',
+    help='The configuration file to load. Can be a pyproject.toml in which case the code is looked up under '
+      'the tool.novella.script key. (default: %(default)s)',
     metavar='PATH',
+  )
+  parser.add_argument(
+    '-d', '--directory',
+    type=Path,
+    help='Switch to the specified directory before executing the configuration file.',
   )
   parser.add_argument(
     '-b', '--build-directory',
@@ -132,6 +137,12 @@ def main() -> None:
       'points are logged to the console.',
     metavar='ACTION',
   )
+  return parser
+
+
+def main() -> None:
+  setup_logging()
+  parser = get_argument_parser()
   args, unknown_args = parser.parse_known_args()
 
   if args.init:
@@ -143,11 +154,22 @@ def main() -> None:
       fp.write(textwrap.dedent(TEMPLATES[args.init]))
     return
 
-  novella = Novella(Path.cwd())
+  if args.config_file.suffix == '.toml':
+    import tomli
+    toml_config = tomli.loads(args.config_file.read_text())['tool']['novella']
+    code = toml_config['script']
+    if not args.directory and 'directory' in toml_config:
+      args.directory = args.config_file.parent / toml_config['directory']
+  else:
+    code = args.config_file.read_text()
 
+  if args.directory:
+    os.chdir(args.directory)
+
+  novella = Novella(Path.cwd())
   exception: Exception | None = None
   try:
-    context = novella.execute_file(Path(args.config_file) if args.config_file else None)
+    context = novella.execute_file(args.config_file, code)
   except FileNotFoundError as exc:
     context = None
     exception = exc

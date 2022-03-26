@@ -38,13 +38,13 @@ class Novella:
   def __init__(self, project_directory: Path) -> None:
     self.project_directory = project_directory
 
-  def execute_file(self, file: Path | None = None) -> NovellaContext:
+  def execute_file(self, file: Path | None = None, code: str | None = None) -> NovellaContext:
     """ Execute a file, allowing it to populate the Novella pipeline. """
 
     from craftr.dsl import Closure
     context = NovellaContext(self)
     file = file or self.BUILD_FILE
-    Closure(None, None, context).run_code(file.read_text(), str(file))
+    Closure(None, None, context).run_code(code if code is not None else file.read_text(), str(file))
     return context
 
 
