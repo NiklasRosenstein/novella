@@ -53,6 +53,7 @@ class Action(Node['Action']):
     self.__post_init__()
 
   def __post_init__(self) -> None:
+    """ Called from #__init__(). Can be overwritten by subclasses to avoid having to overload the constructor. """
     pass
 
   def get_description(self) -> str | None:
