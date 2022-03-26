@@ -4,7 +4,6 @@ from __future__ import annotations
 import abc
 import logging
 import threading
-import time
 import typing as t
 from pathlib import Path
 
@@ -56,20 +55,20 @@ class BuildContext(abc.ABC):
 class _FsEventHandler(watchdog.events.FileSystemEventHandler):
   """ Re-executes the pipeline on a filesystem event. """
 
-  def __init__(self, builder: NovellaBuilder, min_interval: float = 1) -> None:
+  def __init__(self, builder: NovellaBuilder) -> None:
     super().__init__()
     self.builder = builder
-    self.min_interval = min_interval
     self._last_reload: float | None = None
     self._lock = threading.Lock()
+    self._thread: threading.Thread | None = None
 
   def on_any_event(self, event: watchdog.events.FileSystemEvent) -> None:
-    # Enforce the minimum interval between updates.
-    ctime = time.time()
-    if self._last_reload and (ctime - self._last_reload) < self.min_interval:
+    if self._thread and self._thread.is_alive():
       return
-    self._last_reload = ctime
+    self._thread = threading.Thread(target=self._restart)
+    self._thread.start()
 
+  def _restart(self) -> None:
     with self.builder._cond:
       current = self.builder._current_action
       if current and current.supports_reloading:

@@ -15,3 +15,9 @@ id = "6038ef3d-46b9-4b4e-8fea-f788a99817ac"
 type = "improvement"
 description = "Pause process currently running through a `RunAction` if it supports internal reloading while the pipeline is being re-executed"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "a9084d2b-7754-4de8-be11-fb4bd6965e31"
+type = "improvement"
+description = "reloads triggered by filesystem events are now handled in a separate thread to make sure that the event handling is not blocked"
+author = "@NiklasRosenstein"
