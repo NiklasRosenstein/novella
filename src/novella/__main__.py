@@ -103,7 +103,6 @@ def get_argument_parser() -> argparse.ArgumentParser:
   parser.add_argument(
     '-c', '--config-file',
     type=Path,
-    default=Novella.BUILD_FILE,
     help='The configuration file to load. Can be a pyproject.toml in which case the code is looked up under '
       'the tool.novella.script key. (default: %(default)s)',
     metavar='PATH',
@@ -154,13 +153,14 @@ def main() -> None:
       fp.write(textwrap.dedent(TEMPLATES[args.init]))
     return
 
-  if args.config_file.suffix == '.toml':
+  code: t.Optional[str] = None
+  if args.config_file and args.config_file.suffix == '.toml':
     import tomli
     toml_config = tomli.loads(args.config_file.read_text())['tool']['novella']
     code = toml_config['script']
     if not args.directory and 'directory' in toml_config:
       args.directory = args.config_file.parent / toml_config['directory']
-  else:
+  elif args.config_file:
     code = args.config_file.read_text()
 
   if args.directory:
