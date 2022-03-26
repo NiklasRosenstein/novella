@@ -195,8 +195,10 @@ class MkdocsUpdateConfigAction(Action):
     """ Parses the MkDocs configuration profile's from this classes' docstrings and returns the one with the *name*. """
 
     if cls._profiles is None:
+      assert cls.__doc__
       profiles = {}
-      for match in re.finditer(re.compile(r'===\s*"([^"]+)"\s+```\w+(.*?)```', re.M | re.S), cls.__doc__):
+      pattern = re.compile(r'===\s*"([^"]+)"\s+```\w+(.*?)```', re.M | re.S)
+      for match in re.finditer(pattern, cls.__doc__):
         profiles[match.group(1).upper()] = textwrap.dedent(match.group(2))
       assert profiles
       cls._profiles = profiles
