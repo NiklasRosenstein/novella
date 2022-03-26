@@ -31,8 +31,5 @@ author = "@NiklasRosenstein"
 [[entries]]
 id = "d30e4303-21ae-45e8-be54-c58aad3dfa4e"
 type = "feature"
-description = "support reading build script from `pyproject.toml` under the `tool.novella.script` option, as well as the `-d,--directory` flag from `tool.novella.directory` if the option is not given on the CLI"
+description = "support reading build script from `pyproject.toml` under the `tool.novella.script` option, as well as the `-d,--directory` flag from `tool.novella.directory` if the option is not given on the CLI (discussion at https://github.com/NiklasRosenstein/pydoc-markdown/discussions/254)"
 author = "@NiklasRosenstein"
-issues = [
-  "https://github.com/NiklasRosenstein/pydoc-markdown/discussions/254"
-]
