@@ -1,6 +1,4 @@
 
-import os
-
 template "mkdocs"
 
 action "mkdocs-update-config" {
