@@ -1,8 +1,10 @@
+release-date = "2022-03-30"
+
 [[entries]]
 id = "6ca5c7d6-ba07-4f18-8c31-5e41624adf85"
 type = "improvement"
 description = "The `@cat` tag now copies image files referenced in the source file into the `MarkdownPreprocessor.path / \"img\"` directory if needed and adjust the image reference to ensure that it points to the right file"
 author = "@NiklasRosenstein"
 issues = [
-  "https://github.com/NiklasRosenstein/novella/issues/2"
+    "https://github.com/NiklasRosenstein/novella/issues/2",
 ]
