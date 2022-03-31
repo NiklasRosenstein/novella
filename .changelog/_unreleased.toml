@@ -1,0 +1,5 @@
+[[entries]]
+id = "4e42a09d-c6c4-4eff-b820-add3dc1312aa"
+type = "feature"
+description = "Add `rename_section_to` option to `@cat` tag"
+author = "@NiklasRosenstein"
