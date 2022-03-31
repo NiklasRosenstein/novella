@@ -3,3 +3,9 @@ id = "f912e04a-e5ce-433a-a8a5-141d98f311aa"
 type = "fix"
 description = "The `@cat` tag now adds `../` to the path to an image file of which the reference was replaced if the name of the current file being preprocessed is not `index.md`"
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "7ff39481-935d-44a8-a5ec-69e6339d51d6"
+type = "feature"
+description = "Add `markdown_section` option to `@cat` tag, allowing you to inject a portion of another Markdown file"
+author = "@NiklasRosenstein"

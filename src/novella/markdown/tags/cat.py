@@ -29,6 +29,7 @@ class CatTagProcessor(MarkdownPreprocessor):
 
   * `slice_lines` (str) &ndash; A Python-style slice string that will slice the lines that are inserted into
     the file. Useful to strip parts of the referenced file.
+  * `markdown_section` (str) &ndash; The name of a Markdown section to extract from the source file.
 
   __Example__
 
@@ -85,6 +86,9 @@ class CatTagProcessor(MarkdownPreprocessor):
       lines = eval(f'lines[{tag.options["slice_lines"]}]')
       text = '\n'.join(lines)
 
+    if 'markdown_section' in tag.options:
+      text = self._extract_markdown_section(text, tag.options['markdown_section'])
+
     text = self._replace_image_references(project_directory, file.path, source_path, build, text)
 
     # Preprocess the content before returning it.
@@ -140,3 +144,21 @@ class CatTagProcessor(MarkdownPreprocessor):
     text = re.sub(r'(!\[[^\]]*?\]\()([^\)]+?)(\))', _sub, text)
     text = re.sub(r'(<img.*?src=")([^"]+?)(".*?/?>)', _sub, text)
     return text
+
+  def _extract_markdown_section(self, markdown: str, section_name: str) -> str:
+    """ Extracts the section marked by the given *section_name* from the *markdown* code. """
+
+    lines = markdown.splitlines()
+    result = []
+    level: int | None = None
+    for line in lines:
+      if line.startswith('#'):
+        current_section = line.lstrip('#')
+        current_level = len(line) - len(current_section)
+        if level is None and current_section.strip() == section_name:
+          level = current_level
+        elif level is not None and current_level <= level:
+          break
+      if level is not None:
+        result.append(line)
+    return '\n'.join(result)
