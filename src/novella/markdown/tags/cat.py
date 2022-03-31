@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 import typing as t
 from pathlib import Path
@@ -47,8 +48,21 @@ class CatTagProcessor(MarkdownPreprocessor):
         lambda t: self._replace_tag(files.context.novella.project_directory, file, files.build, t),
       )
 
-  def _replace_tag(self, project_directory: Path, file: MarkdownFile, build: BuildContext, tag: Tag) -> str | None:
-    """ Callback for #replace_tags(). """
+  def _replace_tag(
+    self,
+    project_directory: Path,
+    file: MarkdownFile,
+    build: BuildContext,
+    tag: Tag,
+  ) -> str | None:
+    """ Callback for #replace_tags().
+
+    Arguments:
+      project_directory: The project directory that contains the source files.
+      file: The file that is being preprocessed.
+      build: The Novella build context.
+      tag: The `@cat` tag we're looking to replace.
+    """
 
     args = tag.args.strip()
     if args.startswith('/'):
@@ -71,14 +85,30 @@ class CatTagProcessor(MarkdownPreprocessor):
       lines = eval(f'lines[{tag.options["slice_lines"]}]')
       text = '\n'.join(lines)
 
-    text = self._replace_image_references(project_directory, source_path, build, text)
+    text = self._replace_image_references(project_directory, file.path, source_path, build, text)
 
     # Preprocess the content before returning it.
     text = self.action.repeat(file.path, file.output_path, text, source_path, self)
 
     return text
 
-  def _replace_image_references(self, project_directory: Path, file_path: Path, build: BuildContext, text: str) -> str:
+  def _replace_image_references(
+    self,
+    project_directory: Path,
+    file_path: Path,
+    source_path: Path,
+    build: BuildContext,
+    text: str,
+  ) -> str:
+    """
+    Arguments:
+      project_directory: The project directory that contains the source files.
+      file_path: The path to the file that we're preprocessing.
+      source_path: The path to the file that we're cat-ing into the *file_path*.
+      build: The Novella build context.
+      text: The text to preprocess.
+    """
+
     import re
     from nr.util.fs import is_relative_to
 
@@ -88,18 +118,23 @@ class CatTagProcessor(MarkdownPreprocessor):
 
     def _sub(match: re.Match) -> str:
       path: str = match.group(2)
-      full_path = project_directory / file_path.parent / path
+      full_path = project_directory / source_path.parent / path
       if not full_path.exists():
-        logger.warning('Image file <fg=yellow>%s</fg> referenced in <fg=yellow>%s</fg> not found', full_path, file_path)
+        logger.warning('Image file <fg=yellow>%s</fg> referenced in <fg=yellow>%s</fg> not found', full_path, source_path)
         return match.group(0)
       build.watch(full_path)
       if not is_relative_to(full_path, content_directory):
-        relative_path = Path('img', full_path.name)
+        relative_path = str(Path('img', full_path.name))
         target_path = build.directory / rel_content_directory / relative_path
         target_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(full_path, target_path)
       else:
-        relative_path = full_path.relative_to(content_directory)
+        relative_path = str(full_path.relative_to(content_directory))
+
+      relative_path = relative_path.replace(os.sep, '/')
+      if file_path.name != 'index.md':
+        relative_path = '../' + relative_path
+
       return match.group(1) + str(relative_path) + match.group(3)
 
     text = re.sub(r'(!\[[^\]]*?\]\()([^\)]+?)(\))', _sub, text)
