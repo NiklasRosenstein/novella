@@ -71,8 +71,8 @@ class AnchorTagProcessor(MarkdownPreprocessor):
     header_level = len(match.group(1)) if match else None
     header_text = match.group(2).strip() if match else None
 
-    args = [arg.strip() for arg in tag.args.strip().split(' ')]
-    if header_text is None and len(args) == 2:
+    args = [arg.strip() for arg in tag.args.strip().split(' ', 1)]
+    if len(args) == 2:
       anchor_id, header_text = args
     else:
       anchor_id = args[0]
