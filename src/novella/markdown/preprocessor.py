@@ -66,10 +66,16 @@ class MarkdownPreprocessorAction(Action):
   encoding: str | None = None
 
   def __post_init__(self) -> None:
-    self._processors = Graph[MarkdownPreprocessor]()
+    self._updaters: list[t.Callable] = []
+    self._processors = Graph['MarkdownPreprocessor']()
     self.use('shell')
     self.use('cat')
     self.use('anchor')
+
+  def update_with(self, func: t.Callable[[MarkdownPreprocessor], None]) -> None:
+    """ Adds a callback that can modify the MarkdownPreprocessor before it executes. """
+
+    self._updaters.append(func)
 
   def use(
     self,
@@ -96,6 +102,9 @@ class MarkdownPreprocessorAction(Action):
         raise TypeError(f'expected MarkdownProcessor, got {type(processor).__name__}')
       if name is not None and name != processor.name:
         raise RuntimeError('mismatching "name": {name!r} != {processor.name!r}')
+
+    for mutator in self._updaters:
+      mutator(processor)
 
     self._processors.add_node(processor, self._processors.last_node_added)
 
