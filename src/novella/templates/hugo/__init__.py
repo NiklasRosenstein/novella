@@ -9,6 +9,7 @@ from novella.action import Action
 from novella.build import BuildContext
 from novella.novella import NovellaContext
 from novella.template import Template
+from .installer import get_installed_hugo_version
 
 if t.TYPE_CHECKING:
   from novella.action import CopyFilesAction, RunAction
@@ -40,10 +41,16 @@ class HugoTemplate(Template):
     preprocessor = t.cast('MarkdownPreprocessorAction', context.do('preprocess-markdown', name='preprocess-markdown'))
     preprocessor.path = str(Path(self.hugo_directory) / self.content_directory)
 
-    installer = t.cast(InstallHugoAction, context.do(InstallHugoAction(context, 'install-hugo')))
+    installed_hugo_version = get_installed_hugo_version()
+    if installed_hugo_version:
+      get_hugo_bin = lambda: "hugo"
+      logger.info("Using %s (already installed)", installed_hugo_version)
+    else:
+      installer = t.cast(InstallHugoAction, context.do(InstallHugoAction(context, 'install-hugo')))
+      get_hugo_bin = lambda: str(installer.path)
 
     def configure_run(run: RunAction) -> None:
-      run.args = [ installer.path ]
+      run.args = [ get_hugo_bin() ]
       if base_url := context.options.get('base-url'):
         run.args += ['-b', t.cast(str, base_url)]
       if context.options["server"]:

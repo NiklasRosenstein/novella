@@ -15,3 +15,9 @@ id = "11982134-dce7-43ec-a886-296c74ecbc80"
 type = "fix"
 description = "Fixed a bug with the mainloop that had the `BuildContext` uninitialized through action configuration and `NameError`s in the Hugo template logic."
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "7d9a08e4-088f-4478-a35c-e85e1fc2c11d"
+type = "improvement"
+description = "Use already installed Hugo version if available."
+author = "@NiklasRosenstein"

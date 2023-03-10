@@ -4,6 +4,7 @@ import os
 import platform
 import requests
 import shutil
+import subprocess as sp
 import sys
 import tarfile
 import tempfile
@@ -12,6 +13,19 @@ import typing as t
 from nr.util.fs import chmod
 
 logger = logging.getLogger(__name__)
+
+
+def get_installed_hugo_version() -> t.Optional[str]:
+  """
+  Gets the version of the installed Hugo binary.
+
+  Returns a string such as `hugo v0.111.2+extended linux/amd64 BuildDate=unknown`, `None` if Hugo
+  is not installed.
+  """
+
+  if not shutil.which("hugo"):
+    return None
+  return sp.getoutput("hugo version").strip()
 
 
 def install_hugo(to: str, version: str = None, extended: bool = True) -> None:
