@@ -9,4 +9,4 @@ This example was bootstrapped with
 
 Run Novella like this to display the page interactively, and to include drafts:
 
-    $ novella --serve --build-drafts
+    $ novella --serve --drafts
