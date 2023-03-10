@@ -28,8 +28,12 @@ packages = [{ include="novella", from="src" }]
   types-markdown = "*"
   types-requests = "*"
 
-  [tool.poetry.extras]
-  docs = ["mkdocs", "mkdocs-material", "pydoc-markdown==4.6.0"]
+  [tool.poetry.group.docs]
+  optional = true
+  [tool.poetry.group.docs.dependencies]
+  "mkdocs" = "*"
+  "mkdocs-material" = "*"
+  "pydoc-markdown" = "==4.6.0"
 
   [tool.poetry.scripts]
   novella = "novella.__main__:main"
