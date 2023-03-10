@@ -65,6 +65,13 @@ class _FsEventHandler(watchdog.events.FileSystemEventHandler):
   def on_any_event(self, event: watchdog.events.FileSystemEvent) -> None:
     if self._thread and self._thread.is_alive():
       return
+    if event.event_type not in (
+      watchdog.events.EVENT_TYPE_CREATED,
+      watchdog.events.EVENT_TYPE_MODIFIED,
+      watchdog.events.EVENT_TYPE_MOVED,
+      watchdog.events.EVENT_TYPE_DELETED
+    ):
+      return
     self._thread = threading.Thread(target=self._restart)
     self._thread.start()
 

@@ -3,3 +3,9 @@ id = "deae22f9-eb07-4fda-8576-8b5b89cdd954"
 type = "fix"
 description = "Fixed a bug where the `content_directory` set on the `mkdocs-update-config` action did not propagate into the `mkdocs.yml` file."
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "41c91bd9-2426-444c-b05e-1d162799825b"
+type = "fix"
+description = "Fixed a bug where a file-system event triggering on file-open would continuously retrigger the Novella serving pipeline."
+author = "@NiklasRosenstein"
