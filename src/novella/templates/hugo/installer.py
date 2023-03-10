@@ -28,7 +28,7 @@ def get_installed_hugo_version() -> t.Optional[str]:
   return sp.getoutput("hugo version").strip()
 
 
-def install_hugo(to: str, version: str = None, extended: bool = True) -> None:
+def install_hugo(to: str, version: t.Optional[str] = None, extended: bool = True) -> None:
   """ Downloads the latest release of *Hugo* from [Github](https://github.com/gohugoio/hugo/releases)
   and places it at the path specified by *to*. This will install the extended version if it is
   available and *extended* is set to `True`.
