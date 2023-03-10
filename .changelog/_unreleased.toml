@@ -21,3 +21,9 @@ id = "7d9a08e4-088f-4478-a35c-e85e1fc2c11d"
 type = "improvement"
 description = "Use already installed Hugo version if available."
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "0dbceb75-addd-4bb1-ae8f-e2b0e7567bf1"
+type = "feature"
+description = "add `--drafts` option to Hugo template"
+author = "@NiklasRosenstein"

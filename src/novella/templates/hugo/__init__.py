@@ -32,6 +32,7 @@ class HugoTemplate(Template):
     context.option("server", description="Use `hugo server`", flag=True)
     context.option("base-url", description='Hugo baseURL')
     context.option("site-dir", description='Build directory for Hugo (defaults to "_site")', default="_site")
+    context.option("drafts", description='Build drafts.', flag=True)
 
     # TODO (@NiklasRosenstein): Can we instead link or use Copy-on-Write for all non-Markdown files, or everything
     #   except the conten_directory?
@@ -58,6 +59,8 @@ class HugoTemplate(Template):
         run.args += [ "server" ]
       else:
         run.args += [ "-d", context.project_directory / str(context.options["site-dir"]) ]
+      if context.options.get("drafts"):
+        run.args += ["--buildDrafts"]
     context.do('run', configure_run, name='hugo-run')
 
 
