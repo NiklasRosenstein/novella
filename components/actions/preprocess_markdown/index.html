@@ -864,7 +864,7 @@ span multiple lines if the following lines are indented. Tags may have a TOML co
 <h2 id="class-markdownpreprocessoraction">Class MarkdownPreprocessorAction</h2>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MarkdownPreprocessorAction</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L53">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L53">[view_source]</a></p>
 <p>An action to preprocess Markdown files. All functionality of the processor is implemented by plugins that
 implement the <a href="#pydoc:novella.markdown.preprocessor.MarkdownPreprocessor">MarkdownPreprocessor</a> interface. The order of execution of the processors is based on their
 dependencies, much like when <a href="/novella/components/actions#pydoc:novella.action.Action">Actions</a> are executed.</p>
@@ -885,7 +885,7 @@ all Markdown files in the build directory will be preprocessed.</p>
         <span class="n">closure</span><span class="p">:</span> <span class="n">_Closure</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L74">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L74">[view_source]</a></p>
 <p>Register a processor for use in the plugin.</p>
 <p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.preprocessor"></a></p>
 <p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.preprocessor"></a></p>
@@ -893,7 +893,7 @@ all Markdown files in the build directory will be preprocessed.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">preprocessor</span><span class="p">(</span><span class="n">processor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                  <span class="n">closure</span><span class="p">:</span> <span class="n">_Closure</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MarkdownPreprocessor</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L105">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L105">[view_source]</a></p>
 <p>Access or reconfigure a markdown processor that is already registered.</p>
 <p><a id="novella.markdown.preprocessor.MarkdownPreprocessorAction.repeat"></a></p>
 <p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.repeat"></a></p>
@@ -904,7 +904,7 @@ all Markdown files in the build directory will be preprocessed.</p>
            <span class="n">source_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
            <span class="n">last_processor</span><span class="p">:</span> <span class="n">MarkdownPreprocessor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L113">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L113">[view_source]</a></p>
 <p>Repeat all processors that have been processed so far on the given files. This is used by the <code>@cat</code>
 preprocessor to apply all preprocessors previously run on the newly included content. This does not include
 the processor that this method is called from, but only the preprocessors that preceded it. The caller may
@@ -914,7 +914,7 @@ pass itself to the <em>last_processor</em> argument to include themselves.</p>
 <h4 id="execute">execute</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L129">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L129">[view_source]</a></p>
 <p>Execute the preprocessor on all Markdown files specified in <a href="#pydoc:novella.markdown.preprocessor.MarkdownPreprocessorAction.path">path</a>.</p>
 <hr />
 <p><a id="novella.markdown.preprocessor.MarkdownPreprocessor"></a></p>
@@ -922,7 +922,7 @@ pass itself to the <em>last_processor</em> argument to include themselves.</p>
 <h2 id="class-markdownpreprocessor">Class MarkdownPreprocessor</h2>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MarkdownPreprocessor</span><span class="p">(</span><span class="n">Node</span><span class="p">[</span><span class="s1">&#39;MarkdownPreprocessor&#39;</span><span class="p">])</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L172">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L172">[view_source]</a></p>
 <p>Interface for plugins to process markdown files.</p>
 <p><a id="novella.markdown.preprocessor.MarkdownPreprocessor.ENTRYPOINT"></a></p>
 <p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor.ENTRYPOINT"></a></p>
@@ -933,7 +933,7 @@ pass itself to the <em>last_processor</em> argument to include themselves.</p>
 <h4 id="setup">setup</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">setup</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L187">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L187">[view_source]</a></p>
 <p>Called before the execution order of processors is determined.</p>
 <p><a id="novella.markdown.preprocessor.MarkdownPreprocessor.process_files"></a></p>
 <p><a id="pydoc:novella.markdown.preprocessor.MarkdownPreprocessor.process_files"></a></p>
@@ -941,7 +941,7 @@ pass itself to the <em>last_processor</em> argument to include themselves.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 <span class="k">def</span> <span class="nf">process_files</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="n">MarkdownFiles</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/markdown/preprocessor.py#L191">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/markdown/preprocessor.py#L191">[view_source]</a></p>
 <p>Process the file contents in <em>files</em>.</p>
 
 

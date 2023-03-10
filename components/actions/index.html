@@ -709,7 +709,7 @@
 <h2 id="class-action">Class Action</h2>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">Node</span><span class="p">[</span><span class="s1">&#39;Action&#39;</span><span class="p">])</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L30">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/action.py#L30">[view_source]</a></p>
 <p>Base class for actions that can be embedded in a Novella pipeline.</p>
 <p><a id="novella.action.Action.context"></a></p>
 <p><a id="pydoc:novella.action.Action.context"></a></p>
@@ -732,14 +732,14 @@ came before it.</p>
 <h4 id="__post_init__">__post_init__</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">__post_init__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L55">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/action.py#L55">[view_source]</a></p>
 <p>Called from <code>__init__()</code>. Can be overwritten by subclasses to avoid having to overload the constructor.</p>
 <p><a id="novella.action.Action.get_description"></a></p>
 <p><a id="pydoc:novella.action.Action.get_description"></a></p>
 <h4 id="get_description">get_description</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_description</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L59">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/action.py#L59">[view_source]</a></p>
 <p>Return a short text description of the action. It may be shown while the action is running to information the
 user of what is currently happening.</p>
 <p><a id="novella.action.Action.setup"></a></p>
@@ -747,7 +747,7 @@ user of what is currently happening.</p>
 <h4 id="setup">setup</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L65">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/action.py#L65">[view_source]</a></p>
 <p>Called before configuration closures when the build context is ready.</p>
 <p><a id="novella.action.Action.execute"></a></p>
 <p><a id="pydoc:novella.action.Action.execute"></a></p>
@@ -755,7 +755,7 @@ user of what is currently happening.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">build</span><span class="p">:</span> <span class="n">BuildContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
-<p><a href="https://github.com/NiklasRosenstein/novella/blob/develop/docs/../src/novella/action.py#L69">[view_source]</a></p>
+<p><a href="https://github.com/NiklasRosenstein/novella/blob/068c39975d4842ed491c9846cfb52bc27434866d/docs/../src/novella/action.py#L69">[view_source]</a></p>
 <p>Execute the action.</p>
 
 
