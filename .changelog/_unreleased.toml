@@ -9,3 +9,9 @@ id = "41c91bd9-2426-444c-b05e-1d162799825b"
 type = "fix"
 description = "Fixed a bug where a file-system event triggering on file-open would continuously retrigger the Novella serving pipeline."
 author = "@NiklasRosenstein"
+
+[[entries]]
+id = "11982134-dce7-43ec-a886-296c74ecbc80"
+type = "fix"
+description = "Fixed a bug with the mainloop that had the `BuildContext` uninitialized through action configuration and `NameError`s in the Hugo template logic."
+author = "@NiklasRosenstein"

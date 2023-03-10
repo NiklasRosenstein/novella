@@ -34,10 +34,10 @@ class HugoTemplate(Template):
 
     # TODO (@NiklasRosenstein): Can we instead link or use Copy-on-Write for all non-Markdown files, or everything
     #   except the conten_directory?
-    copy_files = t.cast(CopyFilesAction, context.do('copy-files'))
+    copy_files = t.cast('CopyFilesAction', context.do('copy-files'))
     copy_files.paths = [self.hugo_directory]
 
-    preprocessor = t.cast(MarkdownPreprocessorAction, context.do('preprocess-markdown', name='preprocess-markdown'))
+    preprocessor = t.cast('MarkdownPreprocessorAction', context.do('preprocess-markdown', name='preprocess-markdown'))
     preprocessor.path = str(Path(self.hugo_directory) / self.content_directory)
 
     installer = t.cast(InstallHugoAction, context.do(InstallHugoAction(context, 'install-hugo')))
