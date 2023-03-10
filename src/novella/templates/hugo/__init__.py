@@ -57,7 +57,7 @@ class HugoTemplate(Template):
       if base_url := context.options.get('base-url'):
         run.args += ['-b', t.cast(str, base_url)]
       if context.options["server"] or context.options["serve"]:
-        port = int(context.options["port"])
+        port = int(str(context.options["port"]))
         run.supports_reloading = True
         run.args += [ "server", "--port", str(port) ]
       else:

@@ -96,7 +96,7 @@ class MkdocsTemplate(Template):
     def configure_run(run: RunAction) -> None:
       run.args = [ "mkdocs" ]
       if context.options["serve"]:
-        port = int(context.options["port"])
+        port = int(str(context.options["port"]))
         run.supports_reloading = True
         run.args += [ "serve", "--dev-addr", f"localhost:{port}" ]
       else:
