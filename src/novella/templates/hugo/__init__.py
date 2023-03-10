@@ -29,7 +29,9 @@ class HugoTemplate(Template):
   hugo_directory: str = '.'
 
   def define_pipeline(self, context: NovellaContext) -> None:
-    context.option("server", description="Use `hugo server`", flag=True)
+    context.option("server", description="Use `hugo server` (deprecated; use --serve instead)", flag=True)
+    context.option("serve", description="Use `hugo server`", flag=True)
+    context.option("port", description="The port to serve under", default="8000")
     context.option("base-url", description='Hugo baseURL')
     context.option("site-dir", description='Build directory for Hugo (defaults to "_site")', default="_site")
     context.option("drafts", description='Build drafts.', flag=True)
@@ -54,9 +56,10 @@ class HugoTemplate(Template):
       run.args = [ get_hugo_bin() ]
       if base_url := context.options.get('base-url'):
         run.args += ['-b', t.cast(str, base_url)]
-      if context.options["server"]:
+      if context.options["server"] or context.options["serve"]:
+        port = int(context.options["port"])
         run.supports_reloading = True
-        run.args += [ "server" ]
+        run.args += [ "server", "--port", str(port) ]
       else:
         run.args += [ "-d", context.project_directory / str(context.options["site-dir"]) ]
       if context.options.get("drafts"):

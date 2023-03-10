@@ -1,0 +1,11 @@
+[[entries]]
+id = "2c4f5490-a232-472c-9892-d398b6743e24"
+type = "feature"
+description = "Add `--port` option to Mkdocs and Hugo template"
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "5923a72c-25f3-4beb-8b08-ef4da122b628"
+type = "improvement"
+description = "Rename `--server` option to `--serve` in Hugo template for consistency (the `--server` option is deprecated but still usable)."
+author = "@NiklasRosenstein"
