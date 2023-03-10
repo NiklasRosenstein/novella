@@ -1,0 +1,5 @@
+[[entries]]
+id = "deae22f9-eb07-4fda-8576-8b5b89cdd954"
+type = "fix"
+description = "Fixed a bug where the `content_directory` set on the `mkdocs-update-config` action did not propagate into the `mkdocs.yml` file."
+author = "@NiklasRosenstein"

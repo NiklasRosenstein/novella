@@ -287,6 +287,9 @@ class MkdocsUpdateConfigAction(Action):
     if self.site_name:
       mkdocs_config['site_name'] = self.site_name
 
+    if self.content_directory:
+      mkdocs_config['docs_dir'] = self.content_directory
+
     if self.autodetect_repo_url:
       repo_info = detect_repository(self.context.project_directory)
       if 'repo_url' not in mkdocs_config and repo_info:
