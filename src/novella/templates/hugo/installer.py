@@ -86,7 +86,7 @@ def install_hugo(to: str, version: t.Optional[str] = None, extended: bool = True
       shutil.copyfileobj(requests.get(files[filename], stream=True).raw, fp)
     with tarfile.open(path) as archive:
       with open(to, 'wb') as fp:
-        shutil.copyfileobj(
+        shutil.copyfileobj(  # type: ignore[misc]  # See https://github.com/python/mypy/issues/15031
           t.cast(t.IO[bytes], archive.extractfile('hugo')),
           t.cast(t.IO[bytes], fp))
 
