@@ -1,0 +1,31 @@
+release-date = "2023-03-10"
+
+[[entries]]
+id = "deae22f9-eb07-4fda-8576-8b5b89cdd954"
+type = "fix"
+description = "Fixed a bug where the `content_directory` set on the `mkdocs-update-config` action did not propagate into the `mkdocs.yml` file."
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "41c91bd9-2426-444c-b05e-1d162799825b"
+type = "fix"
+description = "Fixed a bug where a file-system event triggering on file-open would continuously retrigger the Novella serving pipeline."
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "11982134-dce7-43ec-a886-296c74ecbc80"
+type = "fix"
+description = "Fixed a bug with the mainloop that had the `BuildContext` uninitialized through action configuration and `NameError`s in the Hugo template logic."
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "7d9a08e4-088f-4478-a35c-e85e1fc2c11d"
+type = "improvement"
+description = "Use already installed Hugo version if available."
+author = "@NiklasRosenstein"
+
+[[entries]]
+id = "0dbceb75-addd-4bb1-ae8f-e2b0e7567bf1"
+type = "feature"
+description = "add `--drafts` option to Hugo template"
+author = "@NiklasRosenstein"

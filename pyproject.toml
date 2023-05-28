@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "novella"
-version = "0.2.3"
+version = "0.2.5"
 description = "Linear build system for Markdown preprocessing and static site generation."
 authors = ["Niklas Rosenstein <rosensteinniklas@gmail.com>"]
 license = "MIT"
@@ -28,8 +28,12 @@ packages = [{ include="novella", from="src" }]
   types-markdown = "*"
   types-requests = "*"
 
-  [tool.poetry.extras]
-  docs = ["mkdocs", "mkdocs-material", "pydoc-markdown==4.6.0"]
+  [tool.poetry.group.docs]
+  optional = true
+  [tool.poetry.group.docs.dependencies]
+  "mkdocs" = "*"
+  "mkdocs-material" = "*"
+  "pydoc-markdown" = "==4.6.0"
 
   [tool.poetry.scripts]
   novella = "novella.__main__:main"

@@ -192,13 +192,13 @@ def main() -> None:
   )
   builder.intercept_action = args.intercept
 
-  context.configure(builder, unknown_args)
-
-  if args.dot:
-    print_dotviz(context.graph.build())
-    return
-
   with builder:
+    context.configure(builder, unknown_args)
+
+    if args.dot:
+      print_dotviz(context.graph.build())
+      return
+
     try:
       builder.build()
     except PipelineError as exc:

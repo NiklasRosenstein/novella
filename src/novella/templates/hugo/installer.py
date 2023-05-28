@@ -4,6 +4,7 @@ import os
 import platform
 import requests
 import shutil
+import subprocess as sp
 import sys
 import tarfile
 import tempfile
@@ -14,7 +15,20 @@ from nr.util.fs import chmod
 logger = logging.getLogger(__name__)
 
 
-def install_hugo(to: str, version: str = None, extended: bool = True) -> None:
+def get_installed_hugo_version() -> t.Optional[str]:
+  """
+  Gets the version of the installed Hugo binary.
+
+  Returns a string such as `hugo v0.111.2+extended linux/amd64 BuildDate=unknown`, `None` if Hugo
+  is not installed.
+  """
+
+  if not shutil.which("hugo"):
+    return None
+  return sp.getoutput("hugo version").strip()
+
+
+def install_hugo(to: str, version: t.Optional[str] = None, extended: bool = True) -> None:
   """ Downloads the latest release of *Hugo* from [Github](https://github.com/gohugoio/hugo/releases)
   and places it at the path specified by *to*. This will install the extended version if it is
   available and *extended* is set to `True`.
@@ -72,7 +86,7 @@ def install_hugo(to: str, version: str = None, extended: bool = True) -> None:
       shutil.copyfileobj(requests.get(files[filename], stream=True).raw, fp)
     with tarfile.open(path) as archive:
       with open(to, 'wb') as fp:
-        shutil.copyfileobj(
+        shutil.copyfileobj(  # type: ignore[misc]  # See https://github.com/python/mypy/issues/15031
           t.cast(t.IO[bytes], archive.extractfile('hugo')),
           t.cast(t.IO[bytes], fp))
 
