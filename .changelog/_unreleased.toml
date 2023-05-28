@@ -1,0 +1,11 @@
+[[entries]]
+id = "d90ddf7c-fef9-4e71-88ba-8dc3c64e5d34"
+type = "fix"
+description = "Add an `update_with` function to the `MarkdownPreprocessor` action"
+author = "@mgor"
+
+[[entries]]
+id = "d895daec-f21b-43d0-ab41-3867c34282d8"
+type = "fix"
+description = "Fix that Novella now also checks for `mkdocs.yaml`, not only `mkdocs.yml`"
+author = "@mgor"
