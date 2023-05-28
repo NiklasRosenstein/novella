@@ -81,8 +81,11 @@ class MkdocsTemplate(Template):
 
     copy_files = t.cast('CopyFilesAction', context.do('copy-files', name='copy-files'))
     copy_files.paths = [ self.content_directory ]
-    if (context.project_directory / 'mkdocs.yml').exists():
-      copy_files.paths.append('mkdocs.yml')
+
+    for extension in ['yml', 'yaml']:
+      if (context.project_directory / f'mkdocs.{extension}').exists():
+        copy_files.paths.append(f'mkdocs.{extension}')
+        break
 
     update_config = t.cast('MkdocsUpdateConfigAction', context.do('mkdocs-update-config', name='mkdocs-update-config'))
     update_config.content_directory = self.content_directory
@@ -272,12 +275,15 @@ class MkdocsUpdateConfigAction(Action):
     import copy
     import yaml
 
-    mkdocs_yml = build.directory / 'mkdocs.yml'
+    mkdocs_config = {}
 
-    if mkdocs_yml.exists():
-      mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
-    else:
-      mkdocs_config = {}
+    for extension in ['yml', 'yaml']:
+      mkdocs_yml = build.directory / f'mkdocs.{extension}'
+
+      if mkdocs_yml.exists():
+        mkdocs_config = yaml.safe_load(mkdocs_yml.read_text())
+        break
+
     original_config = copy.deepcopy(mkdocs_config)
 
     if self.apply_defaults and self.profile:
