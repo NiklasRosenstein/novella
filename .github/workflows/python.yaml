@@ -23,7 +23,7 @@ jobs:
       with: { name: docs, path: docs/_site }
 
   publish-docs:
-    needs: [ "build" ]
+    needs: [ "test" ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
