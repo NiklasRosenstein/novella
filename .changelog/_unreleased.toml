@@ -9,3 +9,10 @@ id = "d895daec-f21b-43d0-ab41-3867c34282d8"
 type = "fix"
 description = "Fix that Novella now also checks for `mkdocs.yaml`, not only `mkdocs.yml`"
 author = "@mgor"
+
+[[entries]]
+id = "ff314fa4-b753-4671-b77b-70465b45667c"
+type = "feature"
+description = "Fix `name` parameter for `@anchor` tag."
+author = "@mgor"
+pr = "https://github.com/NiklasRosenstein/novella/pull/5"
