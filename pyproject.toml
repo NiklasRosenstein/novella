@@ -17,6 +17,7 @@ packages = [{ include="novella", from="src" }]
   markdown = "^3.0.0"
   "nr.util" = ">=0.8.7,<1.0.0"
   PyYAML = ">=4.0"
+  setuptools = "*"
   tomli = "^2.0.0"
   typing-extensions = "*"
   watchdog = "^2.0.0"
